@@ -50,6 +50,13 @@
       "when": 1795800887454,
       "tag": "0006_projects",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795801326014,
+      "tag": "0007_governance",
+      "breakpoints": true
     }
   ]
 }

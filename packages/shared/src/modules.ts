@@ -111,7 +111,10 @@ const defs: Def[] = [
     id: 'asso', shortName: 'Asso', tagline: 'Adhérents et gouvernance', color: '#008780', core: false, category: 'association',
     description: 'Adhérents, cotisations, bénévoles et gouvernance',
     requires: [], integrations: ['finance', 'com', 'espace', 'agenda'],
-    features: [{ id: 'asso.membershipPayments', label: 'Écritures comptables des cotisations', requires: ['finance'] }],
+    features: [
+      { id: 'asso.membershipPayments', label: 'Écritures comptables des cotisations', requires: ['finance'] },
+      { id: 'asso.governanceAgenda', label: 'Réunions des instances inscrites à l’agenda', requires: ['agenda'] },
+    ],
     implementation: { status: 'partial', phase: 2, note: 'Fichier des adhérents opérationnel ; cotisations et gouvernance en phase 2.' },
   },
   {

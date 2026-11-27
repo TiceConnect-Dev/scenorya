@@ -24,6 +24,7 @@ import { DuesController, PlansController } from './asso/dues.controller';
 import { CardsController, FieldsController, GroupsController } from './asso/groups-fields-cards.controller';
 import { AgendaController } from './agenda/agenda.controller';
 import { ProjectsController } from './projects/projects.controller';
+import { GovernanceController } from './asso/governance.controller';
 import { RealtimeGateway } from './realtime/realtime.gateway';
 
 @Injectable()
@@ -45,7 +46,7 @@ class PoolLifecycle implements OnApplicationShutdown {
     AdminModulesController, AdminUsersController, AdminRolesController, AdminAuditController, AdminAssociationController,
     InstanceModulesController, SystemController,
     MembersController, PlansController, DuesController, GroupsController, FieldsController, CardsController,
-    AgendaController, ProjectsController,
+    AgendaController, ProjectsController, GovernanceController,
   ],
   providers: [
     { provide: PG_POOL, useFactory: () => createPool(loadConfig().DATABASE_URL) },

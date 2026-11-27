@@ -27,7 +27,9 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 - ⏳ Agenda : vue année, planning par ressource, réservations de salles (avec Booking)
 - ✅ Projects : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles (dont « Organisation d’un spectacle »)
 - ⏳ Projects : vues calendrier et chronologique, pièces jointes (avec Drive), notifications (avec Com)
-- ⏳ Gouvernance, Cast, Drive, Espace
+- ✅ Gouvernance : AG/CA/bureau, convocations (PDF, e-mail), présences et procurations, quorum, délibérations, PV figé, mandats
+- ⏳ Gouvernance : vote électronique (selon statuts), envoi du PV aux membres
+- ⏳ Cast, Drive, Espace
 
 ## Phase 3 — Gestion technique
 

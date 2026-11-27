@@ -2,6 +2,21 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.6.0] — 2026-11-27
+
+Scenorya Asso : gouvernance.
+
+### Ajouté
+
+- Instances : assemblées générales ordinaires et extraordinaires, conseils d’administration, bureaux ; ordre du jour (points soumis au vote), lieu, quorum et limite de procurations selon les statuts.
+- Convocation des adhérents actifs, de groupes ou de personnes ; envoi par e-mail (SMTP) avec la convocation PDF et un pouvoir à compléter, suivi de l’envoi par destinataire ; refus explicite si la messagerie n’est pas configurée.
+- Présences : présent, représenté (mandataire présent obligatoire, limite de procurations), excusé, absent ; calcul du quorum.
+- Délibérations numérotées avec décompte des voix (contrôle : pas plus de voix que de votants) et résultat.
+- Compte rendu des débats ; clôture qui fige le procès-verbal (déclencheurs PostgreSQL sur la réunion, les présences et les délibérations).
+- PDF : convocation avec pouvoir détachable, feuille d’émargement, procès-verbal signé par la présidence et le secrétariat en exercice.
+- Mandats des élus (bureau, CA) avec historique.
+- Réunions inscrites automatiquement à l’agenda lorsque Scenorya Agenda est actif (fonctionnalité conditionnelle).
+
 ## [0.5.0] — 2026-11-27
 
 Scenorya Projects.

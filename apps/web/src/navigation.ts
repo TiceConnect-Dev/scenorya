@@ -23,6 +23,8 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Cotisations', to: '/asso/cotisations', permission: 'asso.dues.read', group: 'Cotisations' },
     { label: 'Renouvellements', to: '/asso/renouvellements', permission: 'asso.dues.read', group: 'Cotisations' },
     { label: 'Formules', to: '/asso/formules', permission: 'asso.plans.read', group: 'Cotisations' },
+    { label: 'Instances et AG', to: '/asso/instances', permission: 'asso.meetings.read', group: 'Gouvernance' },
+    { label: 'Mandats', to: '/asso/mandats', permission: 'asso.mandates.read', group: 'Gouvernance' },
   ],
   agenda: [{ label: 'Planning', to: '/agenda' }],
   projects: [

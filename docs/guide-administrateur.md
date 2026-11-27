@@ -63,6 +63,12 @@ Scenorya Projects → **Modèles** : installez le modèle fourni « Organisation
 
 Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le sélecteur « Déplacer » de chaque carte). Une personne responsable d’une tâche peut changer son état, cocher la checklist et commenter, même sans droit de modification. **Mes tâches** regroupe les tâches de chacun.
 
+## Gouvernance
+
+Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.
+
+En séance : pointez les présences et procurations (le quorum se calcule), saisissez les délibérations et leurs voix, rédigez le compte rendu. *Clôturer* fige définitivement le procès-verbal ; il reste téléchargeable.
+
 ## Adhérents
 
 Scenorya Asso → **Adhérents** : recherche, filtres, tri, pagination, export CSV (formules neutralisées, compatible Excel). **Importer (CSV)** : simulation obligatoire avant import, rapport ligne par ligne.

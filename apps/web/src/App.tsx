@@ -16,6 +16,7 @@ import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from '
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { MandatesPage, MeetingDetailPage, MeetingsPage } from './pages/asso/Governance';
 import { CardsPage, FieldsPage, GroupDetail, GroupsPage, VerifyCardPage } from './pages/asso/Groups';
 import { PwaPrompt } from './components/PwaPrompt';
 
@@ -61,6 +62,9 @@ export function App() {
           <Route path="/asso/groupes/:id" element={<ModuleGate id="asso"><GroupDetail /></ModuleGate>} />
           <Route path="/asso/champs" element={<ModuleGate id="asso"><FieldsPage /></ModuleGate>} />
           <Route path="/asso/cartes" element={<ModuleGate id="asso"><CardsPage /></ModuleGate>} />
+          <Route path="/asso/instances" element={<ModuleGate id="asso"><MeetingsPage /></ModuleGate>} />
+          <Route path="/asso/instances/:id" element={<ModuleGate id="asso"><MeetingDetailPage /></ModuleGate>} />
+          <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
           <Route path="/projects" element={<ModuleGate id="projects"><ProjectsPage /></ModuleGate>} />

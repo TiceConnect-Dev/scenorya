@@ -58,6 +58,9 @@ export const PERMISSION_RESOURCES: PermissionResource[] = [
   { module: 'projects', resource: 'projects', label: 'Projets', actions: ['read', 'create', 'update', 'archive'] },
   // Une personne à qui une tâche est attribuée peut toujours en changer l'état et la commenter.
   { module: 'projects', resource: 'tasks', label: 'Tâches', actions: ['read', 'create', 'update', 'delete'] },
+  // validate : clôturer une réunion (procès-verbal figé) ; download : PDF (convocation, émargement, PV)
+  { module: 'asso', resource: 'meetings', label: 'Instances et assemblées', actions: ['read', 'create', 'update', 'validate', 'download'] },
+  { module: 'asso', resource: 'mandates', label: 'Mandats des élus', actions: ['read', 'create', 'update'] },
   { module: 'asso', resource: 'plans', label: 'Formules de cotisation', actions: ['read', 'create', 'update', 'archive'] },
   {
     module: 'asso', resource: 'dues', label: 'Cotisations et règlements',
@@ -133,7 +136,7 @@ export const ROLE_TEMPLATES: { key: string; name: string; description: string; p
   },
   {
     key: 'vice_president', name: 'Vice-président', description: 'Suppléance de la présidence.',
-    permissions: ['hub.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'admin.read', 'admin.association.read', 'show.read', 'agenda.read', 'agenda.events.read', 'drive.read'],
+    permissions: ['hub.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'asso.meetings.read', 'asso.mandates.read', 'admin.read', 'admin.association.read', 'show.read', 'agenda.read', 'agenda.events.read', 'drive.read'],
   },
   {
     key: 'tresorier', name: 'Trésorier', description: 'Finances, factures et cotisations.',

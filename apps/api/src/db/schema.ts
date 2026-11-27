@@ -403,3 +403,70 @@ export const taskComments = pgTable('task_comments', {
   body: text('body').notNull(),
   createdAt: createdAt(),
 });
+
+/* ------------------------------------------- Module Asso : gouvernance */
+
+export const meetings = pgTable('meetings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  /** ag_ordinaire | ag_extraordinaire | ca | bureau | autre */
+  type: text('type').notNull(),
+  title: text('title').notNull(),
+  startAt: ts('start_at').notNull(),
+  location: text('location'),
+  /** Points de l'ordre du jour. */
+  agendaItems: jsonb('agenda_items').$type<{ title: string; description?: string | null; vote: boolean }[]>().notNull().default([]),
+  /** Quorum requis en pourcentage des convoqués (null = aucun). */
+  quorumPercent: integer('quorum_percent'),
+  /** Nombre maximal de procurations par mandataire (null = illimité). */
+  maxProxies: integer('max_proxies'),
+  /** draft | convened | held | closed */
+  status: text('status').notNull().default('draft'),
+  convenedAt: ts('convened_at'),
+  minutes: text('minutes'),
+  /** Événement d'agenda lié (si Scenorya Agenda est actif). */
+  eventId: uuid('event_id').references(() => events.id, { onDelete: 'set null' }),
+  closedAt: ts('closed_at'),
+  closedBy: uuid('closed_by').references(() => users.id),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('meetings_assoc_idx').on(t.associationId, t.startAt)]);
+
+export const meetingAttendees = pgTable('meeting_attendees', {
+  meetingId: uuid('meeting_id').notNull().references(() => meetings.id, { onDelete: 'cascade' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'restrict' }),
+  /** convened | present | represented | excused | absent */
+  status: text('status').notNull().default('convened'),
+  /** Mandataire (adhérent présent) en cas de procuration. */
+  proxyMemberId: uuid('proxy_member_id').references(() => members.id, { onDelete: 'restrict' }),
+  emailStatus: text('email_status'),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.meetingId, t.memberId] })]);
+
+export const resolutions = pgTable('resolutions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  meetingId: uuid('meeting_id').notNull().references(() => meetings.id, { onDelete: 'cascade' }),
+  number: integer('number').notNull(),
+  title: text('title').notNull(),
+  text: text('text'),
+  votesFor: integer('votes_for').notNull().default(0),
+  votesAgainst: integer('votes_against').notNull().default(0),
+  abstentions: integer('abstentions').notNull().default(0),
+  /** adopted | rejected | pending */
+  result: text('result').notNull().default('pending'),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('resolutions_number_unique').on(t.meetingId, t.number)]);
+
+export const mandates = pgTable('mandates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'restrict' }),
+  /** bureau | ca | autre */
+  body: text('body').notNull(),
+  role: text('role').notNull(),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  meetingId: uuid('meeting_id').references(() => meetings.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+}, (t) => [index('mandates_assoc_idx').on(t.associationId)]);
