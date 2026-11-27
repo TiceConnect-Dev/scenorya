@@ -4,7 +4,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { grantsCover, MODULES } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
 import { DB, Db } from '../db/db';
-import { associationUsers, auditLogs, members } from '../db/schema';
+import { associationUsers, auditLogs, members, membershipDues } from '../db/schema';
 
 /**
  * Tableau de bord : chaque widget n'est calculé que si le module source est
@@ -38,6 +38,17 @@ export class HubController {
         .from(members)
         .where(eq(members.associationId, c.association.id));
       widgets.members = r;
+    }
+
+    if (c.modules.asso.usable && can('asso.dues.read')) {
+      const [r] = await this.db
+        .select({
+          open: sql<number>`count(*)::int`,
+          outstandingCents: sql<number>`coalesce(sum(${membershipDues.amountCents} - coalesce((select sum(p.amount_cents) from membership_payments p where p.due_id = ${membershipDues.id} and p.cancelled_at is null),0)),0)::int`,
+        })
+        .from(membershipDues)
+        .where(and(eq(membershipDues.associationId, c.association.id), sql`${membershipDues.status} in ('due','partial')`));
+      widgets.dues = r;
     }
 
     if (can('admin.users.read')) {

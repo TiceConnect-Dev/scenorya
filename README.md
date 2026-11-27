@@ -10,14 +10,14 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 
 > Application indépendante, sans lien avec les services de l’État. L’interface s’inspire des sites institutionnels français sans en reprendre les logos ni prétendre à une quelconque affiliation.
 
-## État d’avancement (v0.1.0)
+## État d’avancement (v0.2.0)
 
 | Domaine | État |
 |---|---|
 | **Socle** : authentification, sessions, CSRF, assistant d’installation, multi-associations, rôles et permissions granulaires, journal d’audit chaîné, paramètres, santé technique, SMTP, sauvegardes de la base | ✅ Opérationnel, testé |
 | **Système modulaire** : registre des 22 modules, graphe de dépendances, états (actif, lecture seule, inactif, dépendance manquante, indisponible), disponibilité par instance, activation/désactivation avec analyse d’impact, temps réel | ✅ Opérationnel, testé |
 | **Scenorya Hub** : tableau de bord selon droits et modules | 🟡 Partiel (widgets non personnalisables) |
-| **Scenorya Asso** : fichier des adhérents (fiches, numérotation, archivage, données sensibles, import/export CSV, historique) | 🟡 Partiel (cotisations, gouvernance, cartes à venir) |
+| **Scenorya Asso** : adhérents (fiches, numérotation, archivage, données sensibles, import/export CSV, historique) et cotisations (formules, règlements, reçus PDF, renouvellements) | 🟡 Partiel (groupes, gouvernance, cartes à venir) |
 | **Scenorya Admin** : utilisateurs, rôles, matrice des droits, modules, association, audit | ✅ Opérationnel |
 | **Scenorya System** : associations, modules de l’instance, santé, SMTP, sauvegardes, journal de l’instance | 🟡 Partiel (sauvegardes planifiées et S3 à venir) |
 | Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Agenda, Drive, Web, Com, Projects, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
@@ -55,7 +55,7 @@ Voir [ARCHITECTURE.md](ARCHITECTURE.md) et [SECURITY.md](SECURITY.md).
 npm test            # registre partagé (vitest) + tests de bout en bout de l'API (jest, PostgreSQL réel)
 ```
 
-48 tests : graphe de dépendances, refus par défaut, CSRF, verrouillage des connexions, cycle de vie des modules (activation, désactivation, réactivation sans perte, lecture seule, instance), permissions et anti-escalade, isolation entre associations, concurrence, inaltérabilité du journal d’audit, temps réel, import CSV.
+70 tests : graphe de dépendances, montants et périodes de cotisation, refus par défaut, CSRF, verrouillage des connexions, cycle de vie des modules (activation, désactivation, réactivation sans perte, lecture seule, instance), permissions et anti-escalade, isolation entre associations, concurrence, inaltérabilité du journal d’audit et des règlements, trop-perçus simultanés, reçus PDF, temps réel, import CSV.
 
 ## Licence et identité
 

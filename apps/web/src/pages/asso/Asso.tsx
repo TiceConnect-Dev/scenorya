@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, errorMessage } from '../../api/client';
 import type { AuditEntry, Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
+import { MemberDues } from './Dues';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, ModuleLogo, PageHead, Pagination } from '../../components/ui';
 
 export const CATEGORIES: Record<string, string> = {
@@ -26,8 +27,13 @@ export function AssoHome() {
       </div>
       <PageHead
         title="Vie associative"
-        description="Fichier des adhérents. Cotisations, groupes, gouvernance et cartes d’adhérent arrivent dans la suite de la phase 2."
-        actions={can('asso.members.create') && <Link className="btn" to="/asso/adherents/nouveau">Nouvel adhérent</Link>}
+        description="Adhérents et cotisations. Groupes, gouvernance et cartes d’adhérent arrivent dans la suite de la phase 2."
+        actions={
+          <>
+            {can('asso.dues.read') && <Link className="btn secondary" to="/asso/cotisations">Cotisations</Link>}
+            {can('asso.members.create') && <Link className="btn" to="/asso/adherents/nouveau">Nouvel adhérent</Link>}
+          </>
+        }
       />
       {!can('asso.members.read') && <Alert>Vous avez accès au module mais à aucune donnée des adhérents.</Alert>}
       {stats.data && (
@@ -363,6 +369,7 @@ export function MemberDetail() {
           )}
         </section>
       </div>
+      {can('asso.dues.read') && <MemberDues member={m} />}
       {history.data && (
         <section className="card" style={{ marginTop: 16 }}>
           <h2>Historique de la fiche</h2>

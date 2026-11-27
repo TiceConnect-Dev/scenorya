@@ -51,6 +51,12 @@ export const PERMISSION_RESOURCES: PermissionResource[] = [
     module: 'asso', resource: 'members', label: 'Adhérents',
     actions: ['read', 'create', 'update', 'archive', 'restore', 'import', 'export', 'sensitive', 'history'],
   },
+  { module: 'asso', resource: 'plans', label: 'Formules de cotisation', actions: ['read', 'create', 'update', 'archive'] },
+  {
+    module: 'asso', resource: 'dues', label: 'Cotisations et règlements',
+    // validate : enregistrer un règlement ou exonérer ; cancel : annuler une cotisation ou un règlement
+    actions: ['read', 'create', 'validate', 'cancel', 'export', 'download'],
+  },
 ];
 
 export interface PermissionEntry {
@@ -124,7 +130,7 @@ export const ROLE_TEMPLATES: { key: string; name: string; description: string; p
   },
   {
     key: 'tresorier', name: 'Trésorier', description: 'Finances, factures et cotisations.',
-    permissions: ['hub.read', 'finance.read', 'factures.read', 'pos.read', 'tickets.read', 'analytics.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'admin.read', 'admin.association.read', 'admin.association.sensitive'],
+    permissions: ['hub.read', 'finance.read', 'factures.read', 'pos.read', 'tickets.read', 'analytics.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'asso.dues.*', 'asso.plans.*', 'admin.read', 'admin.association.read', 'admin.association.sensitive'],
   },
   {
     key: 'secretaire', name: 'Secrétaire', description: 'Adhérents, gouvernance et documents.',

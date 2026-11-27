@@ -35,6 +35,16 @@ Toutes les opérations importantes sont tracées (connexions, modules, droits, f
 
 RNA, SIRET, coordonnées, couleur principale, début d’exercice, assurance, IBAN (chiffré ; droit « données sensibles » requis).
 
+## Cotisations
+
+Scenorya Asso → **Formules** : créez vos tarifs (montant, période couverte, catégorie attribuée au règlement). Retirer une formule conserve l’historique.
+
+**Cotisations** : *Appeler une cotisation* (ou depuis la fiche adhérent). Ouvrez une cotisation pour enregistrer un ou plusieurs règlements ; le reçu PDF numéroté est émis dès que le montant est intégralement réglé et l’adhésion passe en « active ». Un règlement erroné ne se modifie pas : il s’annule avec un motif (le reçu est alors annulé et un nouveau numéro sera attribué). Exonération et annulation exigent aussi un motif.
+
+**Renouvellements** : liste des adhérents non couverts sur la période choisie ; sélectionnez-les et appelez la cotisation en une fois.
+
+Le reçu de cotisation n’est **pas un reçu fiscal** (Cerfa 11580) : il le précise explicitement.
+
 ## Adhérents
 
 Scenorya Asso → **Adhérents** : recherche, filtres, tri, pagination, export CSV (formules neutralisées, compatible Excel). **Importer (CSV)** : simulation obligatoire avant import, rapport ligne par ligne.

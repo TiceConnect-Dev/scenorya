@@ -21,7 +21,7 @@ export function BrandLogo({ className, height }: { className?: string; height?: 
   return (
     <img
       className={className}
-      src={theme === 'dark' ? '/branding/derived/logos/scenorya-dark.png' : '/branding/derived/logos/scenorya-horizontal.png'}
+      src={theme === 'dark' ? '/branding/derived/logos/scenorya-dark-small.png' : '/branding/derived/logos/scenorya-horizontal-small.png'}
       alt="Scenorya — Gestion associative, culturelle et événementielle"
       style={height ? { height } : undefined}
     />

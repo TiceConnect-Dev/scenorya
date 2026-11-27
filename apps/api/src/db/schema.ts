@@ -208,3 +208,61 @@ export const members = pgTable('members', {
   uniqueIndex('members_number_unique').on(t.associationId, t.number),
   index('members_assoc_name_idx').on(t.associationId, t.lastName),
 ]);
+
+/* ---------------------------------------------- Module Asso : cotisations */
+
+/** Formules de cotisation. Montants en centimes (entiers), jamais en flottants. */
+export const membershipPlans = pgTable('membership_plans', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  amountCents: integer('amount_cents').notNull(),
+  /** calendar_year | fiscal_year | rolling_12m | one_time */
+  periodType: text('period_type').notNull(),
+  /** Catégorie d'adhérent attribuée à la validation (facultatif). */
+  memberCategory: text('member_category'),
+  active: boolean('active').notNull().default(true),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [uniqueIndex('membership_plans_name_unique').on(t.associationId, t.name)]);
+
+export const membershipDues = pgTable('membership_dues', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'restrict' }),
+  planId: uuid('plan_id').references(() => membershipPlans.id, { onDelete: 'restrict' }),
+  label: text('label').notNull(),
+  amountCents: integer('amount_cents').notNull(),
+  periodStart: date('period_start').notNull(),
+  periodEnd: date('period_end'),
+  /** due | partial | paid | waived | cancelled */
+  status: text('status').notNull().default('due'),
+  receiptNumber: text('receipt_number'),
+  receiptIssuedAt: ts('receipt_issued_at'),
+  receiptCancelledAt: ts('receipt_cancelled_at'),
+  cancelReason: text('cancel_reason'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [
+  index('membership_dues_member_idx').on(t.associationId, t.memberId),
+  uniqueIndex('membership_dues_receipt_unique').on(t.associationId, t.receiptNumber),
+]);
+
+/** Règlements : jamais modifiés ni supprimés, seulement annulés (traçabilité). */
+export const membershipPayments = pgTable('membership_payments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  dueId: uuid('due_id').notNull().references(() => membershipDues.id, { onDelete: 'restrict' }),
+  amountCents: integer('amount_cents').notNull(),
+  /** cash | cheque | transfer | card | online | other */
+  method: text('method').notNull(),
+  paidAt: date('paid_at').notNull(),
+  reference: text('reference'),
+  recordedBy: uuid('recorded_by').references(() => users.id),
+  createdAt: createdAt(),
+  cancelledAt: ts('cancelled_at'),
+  cancelledBy: uuid('cancelled_by').references(() => users.id),
+  cancelReason: text('cancel_reason'),
+}, (t) => [index('membership_payments_due_idx').on(t.dueId)]);

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MODULES, MODULES_BY_ID, ModuleId } from '@scenorya/shared';
+import { formatCents, MODULES, MODULES_BY_ID, ModuleId } from '@scenorya/shared';
 import { api } from '../api/client';
 import type { AuditEntry } from '../api/types';
 import { useApp } from '../state';
@@ -12,6 +12,7 @@ interface Summary {
     modules: { active: number; readonly: number; missingDependency: ModuleId[] };
     members?: { active: number; pending: number; volunteers: number; newThisMonth: number };
     users?: { active: number };
+    dues?: { open: number; outstandingCents: number };
     recentActivity?: AuditEntry[];
   };
 }
@@ -138,6 +139,13 @@ export function HubPage() {
                 <span className="small muted">
                   dont {q.data.widgets.members.volunteers} bénévole(s) · {q.data.widgets.members.pending} en attente · {q.data.widgets.members.newThisMonth} ce mois-ci
                 </span>
+              </Link>
+            )}
+            {q.data.widgets.dues && (
+              <Link to="/asso/cotisations" className="card kpi" style={{ textDecoration: 'none' }}>
+                <span className="label">Cotisations en attente</span>
+                <span className="value">{q.data.widgets.dues.open}</span>
+                <span className="small muted">Reste à encaisser : {formatCents(q.data.widgets.dues.outstandingCents)}</span>
               </Link>
             )}
             {q.data.widgets.users && (

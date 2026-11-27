@@ -14,9 +14,12 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
   hub: [{ label: 'Tableau de bord', to: '/hub' }],
   asso: [
     { label: 'Tableau de bord', to: '/asso' },
-    { label: 'Adhérents', to: '/asso/adherents', permission: 'asso.members.read' },
+    { label: 'Adhérents', group: 'Adhérents', to: '/asso/adherents', permission: 'asso.members.read' },
     { label: 'Nouvel adhérent', to: '/asso/adherents/nouveau', permission: 'asso.members.create' },
     { label: 'Importer (CSV)', to: '/asso/import', permission: 'asso.members.import' },
+    { label: 'Cotisations', to: '/asso/cotisations', permission: 'asso.dues.read', group: 'Cotisations' },
+    { label: 'Renouvellements', to: '/asso/renouvellements', permission: 'asso.dues.read', group: 'Cotisations' },
+    { label: 'Formules', to: '/asso/formules', permission: 'asso.plans.read', group: 'Cotisations' },
   ],
   admin: [
     { label: "Vue d'ensemble", to: '/admin' },

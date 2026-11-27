@@ -95,7 +95,7 @@ export class SettingsService {
 
   async sendTest(to: string) {
     const { from, transporter } = await this.transport();
-    const logo = join(brandingDir(), 'derived', 'logos', 'scenorya-horizontal.png');
+    const logo = join(brandingDir(), 'derived', 'logos', 'scenorya-horizontal-small.png');
     const info = await transporter.sendMail({
       from,
       to,

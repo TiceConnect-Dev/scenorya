@@ -19,7 +19,8 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 ## Phase 2 — Gestion associative
 
 - 🟡 Asso : fiches, numérotation, catégories, statuts, mineurs/représentants, droit à l’image, archivage, import/export CSV, historique
-- ⏳ Asso : cotisations et renouvellements, groupes/commissions, champs personnalisés, export Excel/PDF, cartes d’adhérent QR, formulaire d’adhésion en ligne
+- ✅ Asso : formules, cotisations, règlements, reçus PDF, renouvellements
+- ⏳ Asso : groupes/commissions, champs personnalisés, export Excel/PDF, cartes d’adhérent QR, formulaire d’adhésion en ligne
 - ⏳ Gouvernance (AG, CA, convocations, procès-verbaux)
 - ⏳ Cast, Agenda, Projects, Drive, Espace
 

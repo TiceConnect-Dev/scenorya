@@ -37,4 +37,8 @@ for (const m of modules) {
 for (const f of ['scenorya-horizontal.png', 'scenorya-dark.png']) {
   await trim(join(src, 'logos', f), join(out, 'logos', f), { margin: 0.02 });
 }
+// Variantes réduites (documents PDF et e-mails : poids limité).
+for (const f of ['scenorya-horizontal.png', 'scenorya-dark.png']) {
+  await sharp(join(out, 'logos', f)).resize({ width: 640 }).png({ compressionLevel: 9, palette: true }).toFile(join(out, 'logos', f.replace('.png', '-small.png')));
+}
 console.log('Variantes recadrées générées dans branding/derived/');

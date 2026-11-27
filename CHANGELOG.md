@@ -2,6 +2,28 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.2.0] — 2026-11-27
+
+Scenorya Asso : cotisations.
+
+### Ajouté
+
+- Formules de cotisation (montant, période : année civile, exercice de l’association, 12 mois glissants, ponctuelle ; catégorie attribuée au règlement ; retrait sans perte d’historique).
+- Appels de cotisation individuels ou groupés, avec calcul automatique de la période et refus des doublons sur une même période.
+- Règlements multiples (espèces, chèque, virement, carte, en ligne, autre), montants en centimes entiers, refus des trop-perçus même en cas d’encaissements simultanés (verrou de ligne).
+- Règlements inaltérables en base (déclencheur PostgreSQL) : correction uniquement par annulation motivée.
+- Exonération et annulation motivées.
+- Reçu de cotisation PDF numéroté chronologiquement par année (non fiscal, mention explicite) ; annulation automatique du reçu si un règlement est annulé.
+- Activation automatique de l’adhésion au règlement complet.
+- Renouvellements : adhérents non couverts sur 0 à 90 jours, appel groupé.
+- Section « Cotisations » dans la fiche adhérent, indicateur dans Scenorya Hub, export CSV.
+- Conséquence signalée avant désactivation d’Asso : cotisations en attente.
+- Rôle Trésorier : droits complets sur les cotisations et formules.
+
+### Modifié
+
+- Logo réduit (640 px) pour l’en-tête, les e-mails et les PDF : reçu de 840 Ko à 56 Ko.
+
 ## [0.1.0] — 2026-11-27
 
 Première version : fondations de la plateforme et système modulaire.

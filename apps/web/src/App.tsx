@@ -13,6 +13,7 @@ import { ModulesPage } from './pages/admin/Modules';
 import { AdminHome, AssociationPage, AuditPage, RolesPage, UsersPage } from './pages/admin/Admin';
 import { AssociationsPage, BackupsPage, HealthPage, InstanceModulesPage, SmtpPage } from './pages/system/System';
 import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from './pages/asso/Asso';
+import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { PwaPrompt } from './components/PwaPrompt';
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -49,6 +50,9 @@ export function App() {
           <Route path="/asso/adherents/:id" element={<ModuleGate id="asso"><MemberDetail /></ModuleGate>} />
           <Route path="/asso/adherents/:id/modifier" element={<ModuleGate id="asso"><MemberForm /></ModuleGate>} />
           <Route path="/asso/import" element={<ModuleGate id="asso"><MembersImport /></ModuleGate>} />
+          <Route path="/asso/cotisations" element={<ModuleGate id="asso"><DuesPage /></ModuleGate>} />
+          <Route path="/asso/renouvellements" element={<ModuleGate id="asso"><RenewalsPage /></ModuleGate>} />
+          <Route path="/asso/formules" element={<ModuleGate id="asso"><PlansPage /></ModuleGate>} />
 
           <Route path="/admin" element={<ModuleGate id="admin"><AdminHome /></ModuleGate>} />
           <Route path="/admin/modules" element={<ModuleGate id="admin"><ModulesPage /></ModuleGate>} />

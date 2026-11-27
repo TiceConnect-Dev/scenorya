@@ -12,7 +12,8 @@ COPY packages packages
 COPY apps apps
 COPY branding branding
 RUN npm run build \
- && npm prune --omit=dev --no-audit --no-fund
+ && npm prune --omit=dev --no-audit --no-fund \
+ && mkdir -p apps/api/node_modules
 
 FROM node:22-bookworm-slim AS runtime
 # Client PostgreSQL 16 (pg_dump) depuis le dépôt officiel PGDG, pour les sauvegardes.
@@ -36,6 +37,7 @@ COPY --from=build /app/packages/shared/package.json packages/shared/
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/apps/api/package.json apps/api/
 COPY --from=build /app/apps/api/dist apps/api/dist
+COPY --from=build /app/apps/api/node_modules apps/api/node_modules
 COPY --from=build /app/apps/api/drizzle apps/api/drizzle
 COPY --from=build /app/apps/web/dist apps/web/dist
 COPY --from=build /app/branding branding
