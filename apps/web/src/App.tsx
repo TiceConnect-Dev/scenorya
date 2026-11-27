@@ -16,6 +16,7 @@ import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from '
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { CastHome, EspaceCast, ProductionPage, UnavailabilityPage } from './pages/cast/Cast';
 import { EspaceAgenda, EspaceDocuments, EspaceDues, EspaceHome, EspaceMeetings, EspaceProfile, InvitationPage } from './pages/espace/Espace';
 import { DriveAccessLogPage, DriveFavoritesPage, DrivePage, DriveRecentPage, DriveSearchPage, DriveSharesPage, DriveTrashPage, PublicSharePage } from './pages/drive/Drive';
 import { MandatesPage, MeetingDetailPage, MeetingsPage } from './pages/asso/Governance';
@@ -49,7 +50,7 @@ function HubOrEspace() {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast']);
 
 export function App() {
   return (
@@ -84,6 +85,10 @@ export function App() {
           <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/cast" element={<ModuleGate id="cast"><CastHome /></ModuleGate>} />
+          <Route path="/cast/productions/:id" element={<ModuleGate id="cast"><ProductionPage /></ModuleGate>} />
+          <Route path="/cast/disponibilites" element={<ModuleGate id="cast"><UnavailabilityPage /></ModuleGate>} />
+          <Route path="/espace/scene" element={<ModuleGate id="espace"><EspaceCast /></ModuleGate>} />
           <Route path="/espace" element={<ModuleGate id="espace"><EspaceHome /></ModuleGate>} />
           <Route path="/espace/profil" element={<ModuleGate id="espace"><EspaceProfile /></ModuleGate>} />
           <Route path="/espace/cotisations" element={<ModuleGate id="espace"><EspaceDues /></ModuleGate>} />

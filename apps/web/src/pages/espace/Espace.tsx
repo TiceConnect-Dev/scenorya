@@ -20,7 +20,7 @@ interface Me {
   upToDate?: boolean; validUntil?: string | null;
   groups?: { name: string; kind: string }[];
   mandates?: { role: string; body: string; startDate: string; endDate: string | null }[];
-  sections: { dues: boolean; card: boolean; events: boolean; meetings: boolean; documents: boolean };
+  sections: { dues: boolean; card: boolean; events: boolean; meetings: boolean; documents: boolean; cast?: boolean };
 }
 interface Due { id: string; label: string; amountCents: number; paidCents: number; status: string; periodStart: string; periodEnd: string | null; receipt: string | null }
 interface EspaceEvent { id: string; occurrence: string; title: string; category: EventCategory; location: string | null; allDay: boolean; start: string; end: string; description: string | null; status: 'invited' | 'yes' | 'no' | 'maybe'; comment: string | null }
@@ -103,6 +103,7 @@ export function EspaceHome() {
       <div className="grid-3" style={{ marginTop: 16 }}>
         {d.sections.events && <Link className="card tile-link" to="/espace/agenda"><h2>Mon agenda</h2><p className="muted">Répétitions et événements auxquels vous êtes invité(e) ; indiquez votre présence.</p></Link>}
         {d.sections.meetings && <Link className="card tile-link" to="/espace/reunions"><h2>Assemblées et réunions</h2><p className="muted">Convocations et procès-verbaux des instances auxquelles vous êtes convoqué(e).</p></Link>}
+        {d.sections.cast && <Link className="card tile-link" to="/espace/scene"><h2>Mes rôles et répétitions</h2><p className="muted">Vos rôles, vos convocations aux répétitions et vos indisponibilités.</p></Link>}
         {d.sections.documents && <Link className="card tile-link" to="/espace/documents"><h2>Documents</h2><p className="muted">Documents mis à disposition des membres par l’association.</p></Link>}
       </div>
     </>

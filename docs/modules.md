@@ -40,6 +40,9 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Fiche, cotisations, convocations dans l’Espace | Espace | Asso |
 | Agenda et réponses de présence dans l’Espace | Espace | Agenda |
 | Documents publiés dans l’Espace | Espace | Drive |
+| Convocations de répétition dans l’agenda | Cast | Agenda |
+| Rôles, répétitions et indisponibilités dans l’espace du comédien | Cast | Espace |
+| Distributions rattachées aux spectacles | Cast | Show |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

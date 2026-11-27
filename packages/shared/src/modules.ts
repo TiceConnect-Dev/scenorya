@@ -120,9 +120,13 @@ const defs: Def[] = [
   {
     id: 'cast', shortName: 'Cast', tagline: 'Comédiens et équipes', color: '#D64B3F', core: false, category: 'artistique',
     description: 'Comédiens, distributions et équipes artistiques',
-    requires: [], integrations: ['asso', 'show', 'agenda'],
-    features: [{ id: 'cast.distributions', label: 'Distributions par spectacle', requires: ['show'] }],
-    implementation: { status: 'planned', phase: 2, note: 'Prévu en phase 2.' },
+    requires: [], integrations: ['asso', 'show', 'agenda', 'espace'],
+    features: [
+      { id: 'cast.agendaCalls', label: 'Convocations de répétition dans l’agenda', requires: ['agenda'] },
+      { id: 'cast.espace', label: 'Rôles, répétitions et indisponibilités dans l’espace des comédiens', requires: ['espace'] },
+      { id: 'cast.distributions', label: 'Distributions rattachées aux spectacles de Show', requires: ['show'] },
+    ],
+    implementation: { status: 'partial', phase: 2, note: 'Productions, rôles, distribution (titulaires et doublures), scènes et présence des personnages, indisponibilités, répétitions avec convocations calculées et conflits, feuille de service PDF. Rattachement aux spectacles avec Show.' },
   },
   {
     id: 'show', shortName: 'Show', tagline: 'Spectacles et productions', color: '#7539B2', core: false, category: 'artistique',

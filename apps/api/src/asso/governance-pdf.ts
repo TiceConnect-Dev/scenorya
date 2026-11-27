@@ -18,10 +18,10 @@ export interface GovAttendee { number: number; firstName: string; lastName: stri
 export interface GovResolution { number: number; title: string; text: string | null; votesFor: number; votesAgainst: number; abstentions: number; result: string }
 export interface Signatories { president: string | null; secretary: string | null }
 
-const dt = (d: Date) => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Paris' }).format(d).replace(/(\d{2}):(\d{2})$/, '$1 h $2');
+export const dt = (d: Date) => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Paris' }).format(d).replace(/(\d{2}):(\d{2})$/, '$1 h $2');
 const STATUS: Record<string, string> = { convened: 'Convoqué', present: 'Présent', represented: 'Représenté', excused: 'Excusé', absent: 'Absent' };
 
-function doc(title: string) {
+export function doc(title: string) {
   const d = new PDFDocument({ size: 'A4', margin: 56, bufferPages: true, info: { Title: title, Creator: `${BRAND.name} ${BRAND.edition}` } });
   const chunks: Buffer[] = [];
   d.on('data', (c: Buffer) => chunks.push(c));
@@ -32,7 +32,7 @@ function doc(title: string) {
   return { d, done };
 }
 
-function header(d: PDFKit.PDFDocument, a: GovAssociation) {
+export function header(d: PDFKit.PDFDocument, a: GovAssociation) {
   const accent = /^#[0-9a-f]{6}$/i.test(a.primaryColor) ? a.primaryColor : BRAND.colors.blue;
   d.rect(56, 48, 4, 48).fill(accent);
   d.fillColor(BRAND.colors.navy).font('Helvetica-Bold').fontSize(15).text(a.legalName || a.name, 70, 50);
@@ -40,7 +40,7 @@ function header(d: PDFKit.PDFDocument, a: GovAssociation) {
   d.moveDown(2.5);
 }
 
-function footer(d: PDFKit.PDFDocument) {
+export function footer(d: PDFKit.PDFDocument) {
   const range = d.bufferedPageRange();
   const logo = join(brandingDir(), 'derived', 'logos', 'scenorya-horizontal-small.png');
   for (let i = range.start; i < range.start + range.count; i++) {
@@ -51,7 +51,7 @@ function footer(d: PDFKit.PDFDocument) {
   }
 }
 
-function title(d: PDFKit.PDFDocument, text: string, sub?: string) {
+export function title(d: PDFKit.PDFDocument, text: string, sub?: string) {
   d.fillColor(BRAND.colors.navy).font('Helvetica-Bold').fontSize(17).text(text, 56, d.y, { align: 'center', width: d.page.width - 112 });
   if (sub) d.font('Helvetica').fontSize(11).fillColor('#4f6077').text(sub, { align: 'center', width: d.page.width - 112 });
   d.moveDown(1.2);
@@ -122,7 +122,7 @@ export async function attendancePdf(a: GovAssociation, m: GovMeeting, people: Go
       y = 56;
     }
     const received = proxiesFor(p);
-    const note = p.status === 'represented' && p.proxyName ? `→ ${p.proxyName}` : received.length ? `Pouvoir de : ${received.join(', ')}` : p.status === 'excused' ? 'Excusé(e)' : '';
+    const note = p.status === 'represented' && p.proxyName ? `Représenté(e) par ${p.proxyName}` : received.length ? `Pouvoir de : ${received.join(', ')}` : p.status === 'excused' ? 'Excusé(e)' : '';
     row(y, [String(p.number), `${p.lastName.toUpperCase()} ${p.firstName}`, note, '']);
     y += 34;
     d.moveTo(56, y).lineTo(56 + W, y).strokeColor('#d5dce8').lineWidth(0.5).stroke();

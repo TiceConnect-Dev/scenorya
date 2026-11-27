@@ -6,6 +6,8 @@ export interface NavItem {
   /** Permission requise pour afficher l'entrée (vérifiée aussi côté serveur). */
   permission?: string;
   superAdmin?: boolean;
+  /** Fonctionnalité conditionnelle requise (ex. cast.espace). */
+  feature?: string;
   group?: string;
 }
 
@@ -34,6 +36,11 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Mon agenda', to: '/espace/agenda', permission: 'espace.read' },
     { label: 'Assemblées et réunions', to: '/espace/reunions', permission: 'espace.read' },
     { label: 'Documents', to: '/espace/documents', permission: 'espace.read' },
+    { label: 'Mes rôles et répétitions', to: '/espace/scene', permission: 'espace.read', feature: 'cast.espace' },
+  ],
+  cast: [
+    { label: 'Productions', to: '/cast', permission: 'cast.productions.read' },
+    { label: 'Indisponibilités', to: '/cast/disponibilites', permission: 'cast.availability.read' },
   ],
   drive: [
     { label: 'Documents', to: '/drive', permission: 'drive.files.read' },

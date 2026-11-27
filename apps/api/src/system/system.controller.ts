@@ -135,6 +135,9 @@ export class SystemController {
       await q(sql`delete from drive_folders where association_id = ${id}`);
       await q(sql`delete from drive_settings where association_id = ${id}`);
       await q(sql`delete from member_invitations where association_id = ${id}`);
+      await q(sql`delete from events where id in (select event_id from cast_rehearsals h join cast_productions p on p.id = h.production_id where p.association_id = ${id})`);
+      await q(sql`delete from cast_productions where association_id = ${id}`);
+      await q(sql`delete from cast_unavailabilities where association_id = ${id}`);
       await q(sql`delete from mandates where association_id = ${id}`);
       await q(sql`delete from meetings where association_id = ${id}`);
       await q(sql`delete from projects where association_id = ${id}`);

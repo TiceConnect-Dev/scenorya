@@ -2,6 +2,26 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.10.0] — 2026-11-27
+
+### Ajouté — Scenorya Cast
+
+- Productions (titre, auteur, saison, état, première) ; rôles par catégorie ; distribution avec titulaires et doublures, pressentis ou confirmés.
+- Scènes (acte, numéro, titre) et grille de présence des personnages.
+- Répétitions : convoqués calculés à partir des scènes travaillées (filage = toute la pièce), doublures en option, aperçu en direct avec conflits (indisponibilités, autres répétitions, agenda).
+- Avec Scenorya Agenda : événement de répétition et convocations synchronisés, réponses des comédiens visibles dans la répétition ; mise à jour automatique quand la distribution ou les scènes changent.
+- Indisponibilités des comédiens, saisies par la mise en scène ou déclarées dans l’espace personnel.
+- PDF : distribution (rôles, titulaires, doublures, présence par scène) et feuille de service d’une répétition.
+- Espace du comédien : *Mes rôles et répétitions* (rôles, prochaines répétitions avec scènes, indisponibilités).
+- Permissions `cast.productions`, `cast.rehearsals`, `cast.availability` ; modèle « Metteur en scène » complété.
+- Suppression de tout (rôle, distribution, scène, répétition et son événement, indisponibilité, production).
+
+### Corrigé
+
+- Champs d’heure non stylés (police et hauteur différentes des autres champs).
+- PDF : la flèche « → » (absente des polices standard) s’affichait « !' » sur la feuille d’émargement des réunions.
+- Navigation : une entrée peut dépendre d’une fonctionnalité conditionnelle.
+
 ## [0.9.0] — 2026-11-27
 
 ### Ajouté — Suppression de tout ce qui se crée

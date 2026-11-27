@@ -34,7 +34,8 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 - ⏳ Drive : stockage S3, prévisualisation des documents bureautiques, édition en ligne, logo de l’association
 - ✅ Espace des adhérents : invitation, compte, coordonnées, cotisations et reçus, carte, agenda avec réponse, convocations et PV, documents publiés depuis Drive
 - ⏳ Espace : billets et commandes (avec Tickets), distributions et convocations de répétition (avec Cast), notifications (avec Com)
-- ⏳ Cast
+- ✅ Cast : productions, rôles, distribution, scènes, indisponibilités, répétitions (convocations calculées, conflits, agenda), PDF, espace du comédien
+- ⏳ Cast : rattachement aux spectacles et représentations (avec Show), annuaire artistique (compétences, emplois)
 
 ## Phase 3 — Gestion technique
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { MODULES, MODULES_BY_ID, ModuleId, isModuleId, BRAND } from '@scenorya/shared';
+import { MODULES, MODULES_BY_ID, ModuleId, isModuleId, BRAND, isFeatureEnabled } from '@scenorya/shared';
 import { useApp } from '../state';
 import { api } from '../api/client';
 import { BrandLogo, ModuleIcon } from '../components/ui';
@@ -115,7 +115,7 @@ function Sidebar({ module }: { module: ModuleId }) {
   const { ctx, can, me } = useApp();
   const def = MODULES_BY_ID[module];
   const items = (MODULE_NAV[module] ?? [{ label: 'Accueil du module', to: def.route }]).filter(
-    (i) => (!i.permission || can(i.permission)) && (!i.superAdmin || me?.user.isSuperAdmin),
+    (i) => (!i.permission || can(i.permission)) && (!i.superAdmin || me?.user.isSuperAdmin) && (!i.feature || Boolean(ctx && isFeatureEnabled(ctx.modules, i.feature))),
   );
   let lastGroup: string | undefined;
   const apps = MODULES.filter((m) => ctx?.visibleModules.includes(m.id) && m.id !== module);

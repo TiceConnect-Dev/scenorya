@@ -5,7 +5,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { and, asc, desc, eq, gt, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { grantsCover } from '@scenorya/shared';
+import { grantsCover, isFeatureEnabled } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx, Authenticated, Ctx, Public, RequestContext } from '../common/access';
 import { parse, zEmail, zOptText, zPassword, zUuid } from '../common/validation';
 import { BadRequest, Conflict, Forbidden, NotFound } from '../common/errors';
@@ -76,7 +76,7 @@ export class EspaceController {
   @Get('espace/me')
   async me(@AssocContext() c: AssocCtx) {
     const m = await this.self(c);
-    const sections = { dues: false, card: false, events: false, meetings: false, documents: false };
+    const sections = { dues: false, card: false, events: false, meetings: false, documents: false, cast: false };
     if (!m) return { member: null, association: c.association.name, sections };
     const asso = this.usable(c, 'asso');
     const cov = (await coverage(this.db, [m.id])).get(m.id)!;
@@ -93,7 +93,7 @@ export class EspaceController {
         isMinor: m.isMinor, guardianName: m.guardianName, imageRights: m.imageRights,
       },
       upToDate: cov.valid, validUntil: cov.until, groups, mandates: mandatesNow,
-      sections: { dues: asso, card: asso && m.status !== 'archived', events: this.usable(c, 'agenda'), meetings: asso, documents: docs },
+      sections: { dues: asso, card: asso && m.status !== 'archived', events: this.usable(c, 'agenda'), meetings: asso, documents: docs, cast: !!c.modules.cast?.usable && isFeatureEnabled(c.modules, 'cast.espace') },
     };
   }
 

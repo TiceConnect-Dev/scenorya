@@ -602,3 +602,94 @@ export const memberInvitations = pgTable('member_invitations', {
   createdBy: uuid('created_by').references(() => users.id),
   createdAt: createdAt(),
 }, (t) => [index('member_invitations_member_idx').on(t.memberId)]);
+
+/* --------------------------------------------------------- Scenorya Cast */
+
+/** Production (pièce, spectacle) en cours de distribution et de répétition. */
+export const castProductions = pgTable('cast_productions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  title: text('title').notNull(),
+  author: text('author'),
+  description: text('description'),
+  season: text('season'),
+  /** preparation | rehearsal | running | closed */
+  status: text('status').notNull().default('preparation'),
+  premiereDate: date('premiere_date'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('cast_productions_assoc_idx').on(t.associationId)]);
+
+/** Personnage ou emploi d'une production. */
+export const castRoles = pgTable('cast_roles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  productionId: uuid('production_id').notNull().references(() => castProductions.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  /** main | secondary | ensemble */
+  category: text('category').notNull().default('main'),
+  position: integer('position').notNull().default(0),
+  createdAt: createdAt(),
+}, (t) => [index('cast_roles_prod_idx').on(t.productionId)]);
+
+/** Distribution : un adhérent tient un rôle (titulaire) ou le double (doublure). */
+export const castAssignments = pgTable('cast_assignments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  roleId: uuid('role_id').notNull().references(() => castRoles.id, { onDelete: 'cascade' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  /** lead | understudy */
+  kind: text('kind').notNull().default('lead'),
+  /** considered | confirmed */
+  status: text('status').notNull().default('confirmed'),
+  note: text('note'),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('cast_assignments_unique').on(t.roleId, t.memberId), index('cast_assignments_member_idx').on(t.memberId)]);
+
+export const castScenes = pgTable('cast_scenes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  productionId: uuid('production_id').notNull().references(() => castProductions.id, { onDelete: 'cascade' }),
+  act: integer('act'),
+  number: integer('number'),
+  title: text('title').notNull(),
+  durationMin: integer('duration_min'),
+  position: integer('position').notNull().default(0),
+  createdAt: createdAt(),
+}, (t) => [index('cast_scenes_prod_idx').on(t.productionId)]);
+
+/** Présence des personnages dans les scènes. */
+export const castSceneRoles = pgTable('cast_scene_roles', {
+  sceneId: uuid('scene_id').notNull().references(() => castScenes.id, { onDelete: 'cascade' }),
+  roleId: uuid('role_id').notNull().references(() => castRoles.id, { onDelete: 'cascade' }),
+}, (t) => [primaryKey({ columns: [t.sceneId, t.roleId] })]);
+
+/** Indisponibilités déclarées par (ou pour) un adhérent. */
+export const castUnavailabilities = pgTable('cast_unavailabilities', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  startsOn: date('starts_on').notNull(),
+  endsOn: date('ends_on').notNull(),
+  reason: text('reason'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+}, (t) => [index('cast_unav_member_idx').on(t.memberId, t.startsOn)]);
+
+/** Répétition : scènes travaillées ; les convoqués se déduisent de la distribution. */
+export const castRehearsals = pgTable('cast_rehearsals', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  productionId: uuid('production_id').notNull().references(() => castProductions.id, { onDelete: 'cascade' }),
+  title: text('title'),
+  startAt: ts('start_at').notNull(),
+  endAt: ts('end_at').notNull(),
+  location: text('location'),
+  /** Scènes travaillées ; vide = filage (toute la pièce). */
+  sceneIds: uuid('scene_ids').array().notNull().default(sql`'{}'::uuid[]`),
+  includeUnderstudies: boolean('include_understudies').notNull().default(false),
+  notes: text('notes'),
+  /** Événement d'agenda synchronisé (fonctionnalité cast.agendaCalls). */
+  eventId: uuid('event_id').references(() => events.id, { onDelete: 'set null' }),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('cast_rehearsals_prod_idx').on(t.productionId, t.startAt)]);

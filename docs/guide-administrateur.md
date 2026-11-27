@@ -92,6 +92,15 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - Ce que voit l’adhérent : son adhésion et sa validité, ses coordonnées (e-mail de contact, téléphone, adresse, droit à l’image — modifiables, chaque changement est journalisé), ses cotisations et reçus, sa carte d’adhérent, les événements où il est invité (avec réponse de présence), les réunions où il est convoqué (convocation, puis procès-verbal après clôture) et les documents des dossiers Drive publiés dans l’Espace (*Drive → Accès → Publier dans l’Espace des membres*).
 - *Retirer l’accès* détache la fiche du compte (le compte n’est pas supprimé).
 
+## Distributions et répétitions (Scenorya Cast)
+
+- **Production** : *Nouvelle production* (titre, auteur, saison, état, date de la première).
+- **Distribution** : ajoutez les rôles, puis pour chacun *+ Titulaire* ou *+ Doublure*. Une personne « pressentie » n’est pas encore convoquée ; *confirmer* la rend effective. *Distribution (PDF)* imprime la distribution et la présence par scène.
+- **Scènes** : découpez la pièce (acte, numéro, titre) et cochez les personnages présents. C’est ce tableau qui détermine les convocations.
+- **Répétitions** : *Planifier une répétition*, choisissez les scènes (ou le filage) : la liste des convoqués s’affiche aussitôt, avec en rouge les indisponibilités, les autres répétitions et les événements d’agenda au même moment. Avec Scenorya Agenda, la répétition apparaît dans l’agenda des convoqués, qui répondent depuis leur espace ; changer la distribution ou les scènes met les convocations à jour. *Feuille de service (PDF)* : convoqués, rôles, téléphones, remarques.
+- **Indisponibilités** : saisissez-les dans *Indisponibilités*, ou laissez chaque comédien les déclarer dans son espace (*Mes rôles et répétitions*).
+- Tout se supprime : rôles, distribution, scènes, répétitions (avec leur événement d’agenda), indisponibilités, production entière.
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.
