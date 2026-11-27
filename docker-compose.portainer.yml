@@ -1,0 +1,63 @@
+# Scenorya Community — pile Portainer utilisant l'image publiée par la CI
+# (ghcr.io/ticeconnect-dev/scenorya). Aucune construction sur le serveur.
+#
+# Portainer → Stacks → Add stack → Web editor : collez ce fichier, puis
+# renseignez les variables (APP_SECRET, POSTGRES_PASSWORD, PUBLIC_URL…).
+# Dépôt privé : déclarez d'abord le registre ghcr.io dans Portainer
+# (Registries → Add registry → Custom, URL ghcr.io, identifiant GitHub +
+# jeton personnel avec le droit read:packages).
+name: scenorya
+
+services:
+  scenorya:
+    image: ghcr.io/ticeconnect-dev/scenorya:${SCENORYA_VERSION:-latest}
+    container_name: scenorya
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-scenorya}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD est obligatoire}@db:5432/${POSTGRES_DB:-scenorya}
+      APP_SECRET: ${APP_SECRET:?APP_SECRET est obligatoire (32 caractères minimum)}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
+      SETUP_TOKEN: ${SETUP_TOKEN:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-auto}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
+      BACKUP_RETENTION: ${BACKUP_RETENTION:-14}
+      RUN_MIGRATIONS: "true"
+      TRUST_PROXY: "true"
+    volumes:
+      - scenorya-data:/data
+    ports:
+      # Par défaut, accessible seulement depuis le serveur (via le proxy).
+      # Pour un test direct sur le réseau : SCENORYA_BIND=0.0.0.0
+      - "${SCENORYA_BIND:-127.0.0.1}:${SCENORYA_PORT:-3000}:3000"
+    networks: [internal, proxy]
+
+  db:
+    image: postgres:16-alpine
+    container_name: scenorya-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-scenorya}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD est obligatoire}
+      POSTGRES_DB: ${POSTGRES_DB:-scenorya}
+    volumes:
+      - scenorya-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+volumes:
+  scenorya-data:
+  scenorya-db:
+
+networks:
+  internal:
+  # Réseau de Nginx Proxy Manager (doit exister : docker network ls).
+  proxy:
+    name: ${PROXY_NETWORK:-npm_proxy}
+    external: true

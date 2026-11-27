@@ -36,7 +36,18 @@ docker compose up -d --build
 docker logs scenorya | grep "Jeton"
 ```
 
-## 3b. Portainer
+## 3b. Portainer avec l’image publiée (recommandé)
+
+La CI publie à chaque version l’image `ghcr.io/ticeconnect-dev/scenorya` (amd64 et arm64), étiquetée `latest`, par version et par commit.
+
+1. Le dépôt étant privé, l’image l’est aussi : **Registries → Add registry → Custom registry**, URL `ghcr.io`, identifiant GitHub et un jeton personnel (*classic*) avec le seul droit `read:packages`.
+2. **Stacks → Add stack → Web editor** : collez `docker-compose.portainer.yml`.
+3. Variables : `APP_SECRET`, `POSTGRES_PASSWORD`, `PUBLIC_URL`, et `PROXY_NETWORK` = nom du réseau Docker de Nginx Proxy Manager (`docker network ls`).
+4. **Deploy the stack**, puis journaux du conteneur `scenorya` → jeton d’installation.
+
+Mise à jour : *Pull and redeploy* sur la pile (avec `SCENORYA_VERSION=latest`) ou changez `SCENORYA_VERSION`.
+
+## 3c. Portainer en construisant depuis le dépôt
 
 1. **Stacks → Add stack → Repository** : URL du dépôt Git, référence `refs/heads/main`, *Compose path* `docker-compose.yml` (la pile est construite par Portainer à partir du `Dockerfile`).
 2. Section **Environment variables** : saisissez `APP_SECRET`, `POSTGRES_PASSWORD`, `PUBLIC_URL` (et les variables facultatives).
