@@ -6,9 +6,19 @@
 |---|---|---|
 | Base PostgreSQL (toutes les associations, audit, configuration) | volume `scenorya-db` | Scenorya System → Sauvegardes (`pg_dump`, format personnalisé, SHA-256) |
 | Sauvegardes produites | volume `scenorya-data`, dossier `backups/` | à copier hors du serveur |
+| Documents de Scenorya Drive | volume `scenorya-data`, dossier `files/` | **à sauvegarder avec le volume** (voir ci-dessous) : les sauvegardes de l’interface ne contiennent que la base |
 | `APP_SECRET` | fichier `.env` / Portainer | **à conserver séparément** : indispensable pour relire les secrets chiffrés |
 
-Aucun fichier utilisateur n’est encore stocké (Drive arrive en phase 2) ; ils seront ajoutés à la sauvegarde avec ce module.
+Les documents de Drive ne sont pas dans la base : chaque contenu est un fichier nommé par son empreinte SHA-256 (`files/ab/cd/abcd…`). Un même contenu n’est stocké qu’une fois. Sauvegardez la base **et** le dossier `files/` au même moment ; un document dont le contenu manque est signalé à l’ouverture (« contenu introuvable ») sans bloquer le reste.
+
+```bash
+# Copie du dossier des documents (sur l'hôte, application démarrée ou non)
+docker run --rm -v scenorya-data:/data -v "$PWD":/out alpine tar czf /out/scenorya-files-$(date +%F).tar.gz -C /data files
+# Restauration (application arrêtée)
+docker run --rm -v scenorya-data:/data -v "$PWD":/in alpine sh -c 'cd /data && tar xzf /in/scenorya-files-XXXX.tar.gz'
+```
+
+Les fichiers étant nommés par leur empreinte, une copie incrémentale (`rsync`) est sûre : un fichier existant ne change jamais.
 
 ## Sauvegarde depuis l’interface
 

@@ -55,6 +55,13 @@ export class Client {
   delete(url: string) {
     return this.wrap(request(this.app.getHttpServer()).delete(url));
   }
+  /** Envoi multipart (Drive). */
+  upload(url: string, files: { field?: string; name: string; content: Buffer | string }[], fields: Record<string, string> = {}) {
+    let t = this.wrap(request(this.app.getHttpServer()).post(url));
+    for (const [k, v] of Object.entries(fields)) t = t.field(k, v);
+    for (const f of files) t = t.attach(f.field ?? 'files', Buffer.isBuffer(f.content) ? f.content : Buffer.from(f.content), f.name);
+    return t;
+  }
   async login(email: string, password: string) {
     const res = await this.post('/api/auth/login', { email, password });
     if (res.status !== 200) throw new Error(`login ${email} : ${res.status} ${JSON.stringify(res.body)}`);

@@ -210,8 +210,8 @@ const defs: Def[] = [
   {
     id: 'drive', shortName: 'Drive', tagline: 'Documents', color: '#008A9A', core: false, category: 'collaboration',
     description: 'Stockage documentaire et partage de fichiers',
-    requires: [], integrations: [], features: [],
-    implementation: { status: 'planned', phase: 2, note: 'Prévu en phase 2.' },
+    requires: [], integrations: ['projects'], features: [],
+    implementation: { status: 'available', phase: 2, note: 'Dossiers, versions, corbeille, dossiers restreints par rôle, favoris, étiquettes, recherche, liens de partage protégés, quota, journal des accès, pièces jointes des tâches.' },
   },
   {
     id: 'web', shortName: 'Web', tagline: 'Sites internet', color: '#3B51A9', core: false, category: 'publication',
@@ -235,8 +235,9 @@ const defs: Def[] = [
   {
     id: 'projects', shortName: 'Projects', tagline: 'Projets et tâches', color: '#8140B5', core: false, category: 'collaboration',
     description: 'Gestion des projets et des tâches',
-    requires: [], integrations: ['show', 'agenda', 'drive'], features: [],
-    implementation: { status: 'partial', phase: 2, note: 'Projets, Kanban, sous-tâches, checklists, commentaires, modèles ; pièces jointes avec Drive, vues calendrier et chronologique à venir.' },
+    requires: [], integrations: ['show', 'agenda', 'drive'],
+    features: [{ id: 'projects.attachments', label: 'Pièces jointes des tâches (stockées dans Drive)', requires: ['drive'] }],
+    implementation: { status: 'partial', phase: 2, note: 'Projets, Kanban, sous-tâches, checklists, commentaires, modèles, pièces jointes avec Drive ; vues calendrier et chronologique à venir.' },
   },
   {
     id: 'espace', shortName: 'Espace', tagline: 'Espace personnel', color: '#00899B', core: false, category: 'association',

@@ -172,7 +172,7 @@ p { margin: 0 0 0.75em; }
 .field label, .field .label { font-weight: 600; }
 .field .hint { font-size: 0.85rem; color: var(--text-muted); }
 .field .error { font-size: 0.85rem; color: var(--danger); font-weight: 600; }
-input[type='text'], input[type='email'], input[type='password'], input[type='search'], input[type='date'], input[type='datetime-local'], input[type='tel'], input[type='number'], input[type='url'], select, textarea {
+input:not([type]), input[type='text'], input[type='email'], input[type='password'], input[type='search'], input[type='date'], input[type='datetime-local'], input[type='tel'], input[type='number'], input[type='url'], select, textarea {
   font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-bottom: 2px solid var(--text-muted); border-radius: var(--radius) var(--radius) 0 0; padding: 8px 10px; min-height: 40px; width: 100%; line-height: 1.4;
 }
 input:not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']), select { height: 42px; }
@@ -324,3 +324,32 @@ dl.props dd { margin: 0; }
 .kanban-title:hover { color: var(--blue); text-decoration: underline; }
 .kanban-move { margin-top: 8px; min-height: 30px !important; font-size: 0.8rem; padding: 2px 6px !important; }
 @media (max-width: 900px) { .kanban { grid-template-columns: repeat(4, 80vw); } }
+
+/* ------------------------------------------------------------ Drive */
+.file-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 36px; border: 2px solid currentColor; border-radius: 4px 10px 4px 4px; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.02em; background: var(--surface); flex: none; }
+.file-icon.folder { border: 0; border-radius: 3px; width: 34px; height: 26px; background: #f4b740; position: relative; font-size: 0.7rem; color: #5c3d00; }
+.file-icon.folder::before { content: ''; position: absolute; top: -5px; left: 0; width: 14px; height: 6px; background: #f4b740; border-radius: 3px 3px 0 0; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); cursor: pointer; text-align: left; }
+.link-btn:hover { text-decoration: underline; }
+.strong { font-weight: 600; }
+.tag { font-size: 0.78rem; color: var(--text-muted); text-decoration: none; background: var(--surface-2); border-radius: 999px; padding: 1px 8px; }
+.tag:hover { color: var(--blue); }
+.star { font-size: 1.1rem; color: var(--text-muted); }
+.star.on { color: #d29b00; }
+.drive-usage { display: grid; gap: 4px; min-width: 200px; }
+.drive-usage .progress, .upload-panel .progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.drive-usage .progress span, .upload-panel .progress span { display: block; height: 100%; background: var(--blue); transition: width 0.2s; }
+.drop-zone { position: relative; }
+.drop-zone.dragging { outline: 3px dashed var(--blue); outline-offset: 2px; }
+.drop-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--blue-soft) 88%, transparent); font-weight: 700; color: var(--blue); z-index: 2; pointer-events: none; }
+.upload-panel { display: grid; gap: 4px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; }
+.drive-preview { max-width: 100%; max-height: 360px; border: 1px solid var(--border); border-radius: 6px; display: block; margin: 0 auto; }
+.label-spacer { display: block; }
+.attachments { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.attachments li { display: flex; align-items: center; gap: 10px; }
+.attachments .file-icon { width: 24px; height: 28px; font-size: 0.5rem; }
+.public-page { min-height: 100vh; background: var(--bg); padding: 16px; }
+.drive-search { display: flex; gap: 8px; flex: 1 1 320px; align-items: center; }
+.drive-search input { flex: 1; min-width: 0; }
+.table th.actions { text-align: right; }
+.chip-count { opacity: 0.7; font-size: 0.8em; }

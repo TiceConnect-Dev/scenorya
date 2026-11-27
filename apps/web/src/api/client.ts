@@ -63,14 +63,18 @@ export const api = {
   patch: <T>(url: string, body: unknown) => request<T>('PATCH', url, body),
   delete: <T>(url: string) => request<T>('DELETE', url),
   /** Téléchargement authentifié d'un fichier (CSV, sauvegarde…). */
-  async download(url: string, fallbackName: string) {
-    const res = await fetch(`/api${url}`, { credentials: 'same-origin', headers: associationId ? { 'X-Scenorya-Association': associationId } : {} });
+  async download(url: string, fallbackName: string, init?: { method: 'POST'; body: unknown }) {
+    const headers: Record<string, string> = associationId ? { 'X-Scenorya-Association': associationId } : {};
+    if (init) Object.assign(headers, { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken });
+    const res = await fetch(`/api${url}`, { credentials: 'same-origin', headers, method: init?.method ?? 'GET', body: init ? JSON.stringify(init.body) : undefined });
     if (!res.ok) {
       const d = safeJson(await res.text());
       throw new ApiError(res.status, d.code ?? 'DOWNLOAD', d.message ?? 'Téléchargement impossible.');
     }
     const blob = await res.blob();
-    const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ?? fallbackName;
+    const cd = res.headers.get('Content-Disposition') ?? '';
+    const star = /filename\*=UTF-8''([^;]+)/i.exec(cd)?.[1];
+    const name = (star ? decodeURIComponent(star) : /filename="([^"]+)"/.exec(cd)?.[1]) ?? fallbackName;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = name;
@@ -78,6 +82,31 @@ export const api = {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  },
+  /** Adresse directement ouvrable par le navigateur (aperçu, image) : l'association passe en paramètre. */
+  fileUrl(url: string) {
+    return `/api${url}${url.includes('?') ? '&' : '?'}assoc=${encodeURIComponent(associationId)}`;
+  },
+  /** Envoi multipart avec suivi de progression (0 → 1). */
+  upload<T>(url: string, form: FormData, onProgress?: (ratio: number) => void): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `/api${url}`);
+      xhr.withCredentials = true;
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+      if (associationId) xhr.setRequestHeader('X-Scenorya-Association', associationId);
+      xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
+      xhr.onerror = () => reject(new ApiError(0, 'NETWORK', 'Le serveur est injoignable. Vérifiez votre connexion.'));
+      xhr.onload = () => {
+        const data = xhr.responseText ? safeJson(xhr.responseText) : null;
+        if (xhr.status >= 200 && xhr.status < 300) return resolve(data as T);
+        const d = (data ?? {}) as { code?: string; message?: string };
+        if (xhr.status === 413 && !d.code) return reject(new ApiError(413, 'FILE_TOO_LARGE', 'Fichier trop volumineux pour ce serveur.'));
+        reject(new ApiError(xhr.status, d.code ?? `HTTP_${xhr.status}`, d.message ?? 'Une erreur est survenue.'));
+      };
+      xhr.send(form);
+    });
   },
 };
 

@@ -16,6 +16,10 @@ const schema = z.object({
   /** Jeton d'installation imposé ; sinon généré et affiché dans les journaux au premier démarrage. */
   SETUP_TOKEN: z.string().min(16).optional(),
   BACKUP_RETENTION: z.coerce.number().int().positive().default(14),
+  /** Taille maximale d'un fichier envoyé dans Drive (Mo). */
+  DRIVE_MAX_UPLOAD_MB: z.coerce.number().int().positive().default(200),
+  /** Quota Drive par défaut d'une association (Mo) ; modifiable par association dans System. */
+  DRIVE_DEFAULT_QUOTA_MB: z.coerce.number().int().positive().default(5120),
   TRUST_PROXY: z.enum(['true', 'false']).default('true'),
 });
 

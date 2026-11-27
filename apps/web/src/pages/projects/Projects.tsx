@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, errorMessage } from '../../api/client';
 import { useApp } from '../../state';
+import { Attachments } from '../drive/Drive';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, ModuleLogo, PageHead } from '../../components/ui';
 
 type Status = 'todo' | 'doing' | 'waiting' | 'done';
@@ -131,7 +132,7 @@ export function ProjectsPage({ templates = false }: { templates?: boolean }) {
 /* ------------------------------------------------------ Détail tâche */
 
 function TaskModal({ id, assignees, onClose, onChanged }: { id: string | null; assignees: Assignee[]; onClose: () => void; onChanged: () => void }) {
-  const { can, toast } = useApp();
+  const { can, toast, ctx } = useApp();
   const q = useQuery({ queryKey: ['task', id], queryFn: () => api.get<TaskDetail>(`/tasks/${id}`), enabled: Boolean(id) });
   const full = can('projects.tasks.update');
   const [edit, setEdit] = useState<Partial<Task> | null>(null);
@@ -229,6 +230,13 @@ function TaskModal({ id, assignees, onClose, onChanged }: { id: string | null; a
                   <button className="btn secondary sm" type="submit">Ajouter</button>
                 </form>
               )}
+            </section>
+          )}
+
+          {ctx?.modules.projects?.features['projects.attachments'] && can('drive.files.read') && (
+            <section>
+              <h3>Pièces jointes</h3>
+              <Attachments module="projects" entityType="task" entityId={d.id} />
             </section>
           )}
 

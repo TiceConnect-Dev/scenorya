@@ -23,7 +23,7 @@ export function BrandLogo({ className, height }: { className?: string; height?: 
       className={className}
       src={theme === 'dark' ? '/branding/derived/logos/scenorya-dark-small.png' : '/branding/derived/logos/scenorya-horizontal-small.png'}
       alt="Scenorya — Gestion associative, culturelle et événementielle"
-      style={height ? { height } : undefined}
+      style={height ? { height, width: 'auto', alignSelf: 'center' } : undefined}
     />
   );
 }

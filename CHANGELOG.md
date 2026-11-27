@@ -2,6 +2,37 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.7.0] — 2026-11-27
+
+### Ajouté — Scenorya Drive
+
+- Explorateur de documents : dossiers et sous-dossiers, envoi multiple par bouton ou glisser-déposer (avec progression), renommage, déplacement, description, étiquettes.
+- Stockage adressé par contenu : un contenu identique n’est stocké qu’une fois (versions, copies), nettoyage automatique des contenus orphelins.
+- Versions : nouvelle version par envoi (ou automatiquement pour un document du même nom, au choix), téléchargement et restauration d’une version antérieure.
+- Corbeille : un dossier part et revient avec tout son contenu ; restauration sans conflit de nom ; effacement définitif ; vidage automatique après 30 jours.
+- Dossiers restreints par rôle (sous-dossiers compris) ; bouton « Créer les espaces recommandés » (Administratif et Comptabilité restreints au bureau).
+- Recherche (nom, description, étiquette), nuage d’étiquettes, favoris personnels, documents récents.
+- Aperçus sûrs (images, PDF, son, vidéo, texte) ; SVG et HTML toujours téléchargés.
+- Liens de partage publics : expiration (1 à 90 jours), mot de passe facultatif, nombre maximal de téléchargements, page publique `/partage/…`, révocation, verrouillage après 10 mauvais mots de passe.
+- Quota par association (System → Stockage), taille maximale par fichier (`DRIVE_MAX_UPLOAD_MB`), refus des exécutables même renommés.
+- Journal des accès (téléchargements, aperçus, liens publics, mots de passe refusés) ; toutes les modifications sont dans le journal d’audit.
+- Nouvelles permissions `drive.files.read/create/update/delete/publish/admin` ; modèles de rôles mis à jour pour les nouvelles associations.
+- Analyse d’impact : désactiver Drive signale les liens de partage qui seront suspendus.
+
+### Ajouté — Scenorya Projects
+
+- Pièces jointes des tâches, stockées dans le dossier Drive « Pièces jointes » (fonctionnalité conditionnelle `projects.attachments`).
+
+### Corrigé
+
+- Les champs de saisie sans type explicite (ex. « Nom ») n’étaient pas stylés : hauteur et police différentes de leurs voisins.
+- Les en-têtes de colonne « Actions » sont alignés à droite comme leur contenu.
+- Documentation Nginx Proxy Manager : `client_max_body_size` relevé à 210 Mo pour les envois de documents.
+
+### Sauvegarde
+
+- Les documents de Drive sont dans le volume de données (`files/`) : à sauvegarder avec la base (procédure dans docs/sauvegarde-restauration.md).
+
 ## [0.6.1] — 2026-11-27
 
 ### Corrigé

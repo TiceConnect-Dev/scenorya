@@ -346,3 +346,71 @@ export function BackupsPage() {
   );
 }
 
+
+/* ----------------------------------------------------------- Stockage Drive */
+
+interface DriveUsage { storedBytes: number; blobs: number; defaultQuota: number; maxUpload: number; associations: { id: string; name: string; used: number; quota: number | null }[] }
+
+export function StoragePage() {
+  const { toast } = useApp();
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ['system', 'drive'], queryFn: () => api.get<DriveUsage>('/system/drive') });
+  const [edit, setEdit] = useState<Record<string, string>>({});
+  if (q.isLoading) return <Loading />;
+  if (q.error) return <ErrorBox error={q.error} />;
+  const d = q.data!;
+  const save = async (id: string, value: string | null) => {
+    try {
+      await api.put(`/system/associations/${id}/drive-quota`, { quotaMb: value === null || value === '' ? null : Number(value) });
+      toast('Quota enregistré.');
+      setEdit((e) => { const n = { ...e }; delete n[id]; return n; });
+      qc.invalidateQueries({ queryKey: ['system', 'drive'] });
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    }
+  };
+  return (
+    <>
+      <PageHead title="Stockage des documents" description="Espace occupé par Scenorya Drive et quota de chaque association. Le contenu identique n’est stocké qu’une fois sur le disque." />
+      <div className="grid-3" style={{ marginBottom: 16 }}>
+        <div className="card"><div className="small muted">Occupé sur le disque</div><div className="value">{formatBytes(d.storedBytes)}</div><div className="small muted">{d.blobs} contenu(s) distinct(s)</div></div>
+        <div className="card"><div className="small muted">Quota par défaut</div><div className="value">{formatBytes(d.defaultQuota)}</div><div className="small muted">Variable DRIVE_DEFAULT_QUOTA_MB</div></div>
+        <div className="card"><div className="small muted">Taille maximale d’un fichier</div><div className="value">{formatBytes(d.maxUpload)}</div><div className="small muted">Variable DRIVE_MAX_UPLOAD_MB</div></div>
+      </div>
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr><th>Association</th><th>Utilisé</th><th>Quota</th><th className="actions">Modifier le quota</th></tr></thead>
+          <tbody>
+            {d.associations.map((a) => {
+              const quota = a.quota ?? d.defaultQuota;
+              return (
+                <tr key={a.id}>
+                  <td className="strong">{a.name}</td>
+                  <td className="small">{formatBytes(a.used)} ({Math.round((a.used / quota) * 100)} %)</td>
+                  <td className="small">{formatBytes(quota)}{a.quota === null && <span className="muted"> (défaut)</span>}</td>
+                  <td className="actions">
+                    {a.id in edit ? (
+                      <form className="row" style={{ justifyContent: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); void save(a.id, edit[a.id]); }}>
+                        <label className="sr-only" htmlFor={`q-${a.id}`}>Quota en Mo</label>
+                        <input id={`q-${a.id}`} type="number" min={1} style={{ width: 120 }} value={edit[a.id]} onChange={(e) => setEdit({ ...edit, [a.id]: e.target.value })} placeholder="Mo" required />
+                        <span className="small muted">Mo</span>
+                        <button className="btn sm" type="submit">Enregistrer</button>
+                        <button className="btn ghost sm" type="button" onClick={() => setEdit((x) => { const n = { ...x }; delete n[a.id]; return n; })}>Annuler</button>
+                      </form>
+                    ) : (
+                      <>
+                        <button className="btn ghost sm" type="button" onClick={() => setEdit({ ...edit, [a.id]: String(Math.round(quota / 1048576)) })}>Modifier</button>
+                        {a.quota !== null && <button className="btn ghost sm" type="button" onClick={() => save(a.id, null)}>Revenir au défaut</button>}
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Alert tone="warning">Les documents sont stockés dans le volume de données (dossier <code>files</code>), pas dans la base : sauvegardez ce volume en plus des sauvegardes de la base.</Alert>
+    </>
+  );
+}

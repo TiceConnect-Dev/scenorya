@@ -25,7 +25,7 @@ Copiez `.env.example`. Obligatoires :
 | `POSTGRES_PASSWORD` | Mot de passe de la base. |
 | `PUBLIC_URL` | URL publique, ex. `https://scenorya.mon-asso.fr`. En `https://`, les cookies sont automatiquement `Secure`. |
 
-Facultatives : `SETUP_TOKEN`, `SCENORYA_BIND`/`SCENORYA_PORT`, `PROXY_NETWORK`, `SESSION_TTL_HOURS`, `BACKUP_RETENTION`.
+Facultatives : `SETUP_TOKEN`, `SCENORYA_BIND`/`SCENORYA_PORT`, `PROXY_NETWORK`, `SESSION_TTL_HOURS`, `BACKUP_RETENTION`, `DRIVE_MAX_UPLOAD_MB` (taille maximale d’un fichier, 200 par défaut), `DRIVE_DEFAULT_QUOTA_MB` (quota par association, 5120 par défaut, modifiable par association dans System → Stockage).
 
 ## 3a. Ligne de commande
 
@@ -65,10 +65,11 @@ Images multi-architecture : le `Dockerfile` n’utilise que des bases officielle
 - Block Common Exploits : activé ;
 - onglet SSL : certificat Let’s Encrypt, *Force SSL*, *HTTP/2*, *HSTS*.
 
-Onglet *Advanced* recommandé (taille des imports CSV) :
+Onglet *Advanced* recommandé (taille des envois de documents et des imports CSV) :
 
 ```nginx
-client_max_body_size 5m;
+client_max_body_size 210m;   # ≥ DRIVE_MAX_UPLOAD_MB (envois Scenorya Drive)
+proxy_request_buffering off;  # transmet les gros envois sans les mettre en mémoire tampon
 ```
 
 L’application fait confiance au premier proxy (`TRUST_PROXY=true`) pour l’adresse IP réelle, utilisée par la protection anti-force brute et le journal d’audit.

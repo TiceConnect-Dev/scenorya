@@ -58,7 +58,11 @@ export class AccessGuard implements CanActivate {
     }
 
     // Route d'association
-    const associationId = req.headers[ASSOCIATION_HEADER];
+    // Les liens ouverts directement par le navigateur (aperçu d'un document, image) ne peuvent pas
+    // porter d'en-tête : pour les seules lectures, l'association peut être indiquée par `?assoc=`.
+    // L'appartenance et les permissions restent vérifiées ci-dessous.
+    const fromQuery = req.method === 'GET' && typeof req.query?.assoc === 'string' ? req.query.assoc : undefined;
+    const associationId = req.headers[ASSOCIATION_HEADER] ?? fromQuery;
     if (typeof associationId !== 'string' || !UUID_RE.test(associationId)) {
       throw Forbidden('ASSOCIATION_REQUIRED', 'Association non précisée.');
     }

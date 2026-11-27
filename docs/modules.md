@@ -36,6 +36,7 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Écritures comptables (ventes, cotisations, factures) | Tickets, Asso, Factures | Finance |
 | Distributions par spectacle | Cast | Show |
 | Rattachement aux représentations | Régie | Show |
+| Pièces jointes des tâches | Projects | Drive |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

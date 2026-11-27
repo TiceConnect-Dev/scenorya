@@ -22,13 +22,16 @@
 | Injections | Requêtes paramétrées (Drizzle), validation zod de toutes les entrées, neutralisation des formules dans les exports CSV | test e2e |
 | Temps réel | Authentification avant connexion ; abonnement soumis à l’appartenance | test e2e |
 | Infrastructure | PostgreSQL non exposé ; application liée à 127.0.0.1 par défaut ; conteneur non root ; aucun terminal ni commande arbitraire dans l’interface ; restauration hors interface | — |
+| Fichiers (Drive) | Exécutables refusés par extension **et** par signature (MZ, ELF, Mach-O, `#!`) ; type MIME déduit du nom, jamais du navigateur ; SVG/HTML toujours téléchargés ; aperçus servis avec `nosniff`, `CSP: sandbox` (sauf PDF), `no-store` ; noms nettoyés ; contenu stocké sous son empreinte (aucun chemin fourni par l’utilisateur) ; fichiers temporaires supprimés même en cas d’erreur | tests e2e |
+| Dossiers restreints | Visibilité calculée côté serveur sur toute la chaîne de dossiers parents (liste, recherche, favoris, téléchargement, corbeille) ; sortir un document d’un dossier restreint ou le partager publiquement est réservé aux administrateurs de Drive | tests e2e |
+| Liens de partage | Jeton 192 bits stocké haché ; expiration obligatoire (90 jours max) ; mot de passe Argon2id facultatif ; verrouillage 15 min après 10 échecs ; limite de téléchargements atomique ; révocation immédiate, et automatique à la suppression du document ; suspendus si Drive est désactivé ; accès journalisés | tests e2e |
 | PWA | Le service worker ne met jamais en cache `/api` | configuration |
 
 ## Limites connues
 
 - Pas encore d’authentification à deux facteurs (TOTP), de vérification d’adresse e-mail ni de réinitialisation de mot de passe par e-mail (phase 8 / phase 7).
 - Pas de politique de conservation automatisée ni d’outil d’export/effacement RGPD (phase 8).
-- Pas d’analyse antivirus des fichiers importés (aucun dépôt de fichier hors CSV pour l’instant).
+- Pas d’analyse antivirus des documents déposés dans Drive (les exécutables sont refusés ; une analyse ClamAV est envisagée en phase 8).
 - Protection anti-force brute stockée en base : suffisante pour une instance, à compléter par un limiteur au niveau du proxy.
 - `npm audit` : une alerte modérée subsiste dans `drizzle-kit` (esbuild, serveur de développement), outil non embarqué dans l’image de production.
 - Audit de sécurité externe non réalisé.

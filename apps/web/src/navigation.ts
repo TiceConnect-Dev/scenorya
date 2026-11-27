@@ -27,6 +27,15 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Mandats', to: '/asso/mandats', permission: 'asso.mandates.read', group: 'Gouvernance' },
   ],
   agenda: [{ label: 'Planning', to: '/agenda' }],
+  drive: [
+    { label: 'Documents', to: '/drive', permission: 'drive.files.read' },
+    { label: 'Récents', to: '/drive/recents', permission: 'drive.files.read' },
+    { label: 'Favoris', to: '/drive/favoris', permission: 'drive.files.read' },
+    { label: 'Recherche', to: '/drive/recherche', permission: 'drive.files.read' },
+    { label: 'Liens de partage', to: '/drive/partages', permission: 'drive.files.publish' },
+    { label: 'Corbeille', to: '/drive/corbeille', permission: 'drive.files.read' },
+    { label: 'Journal des accès', to: '/drive/journal', permission: 'drive.files.admin' },
+  ],
   projects: [
     { label: 'Projets', to: '/projects', permission: 'projects.projects.read' },
     { label: 'Mes tâches', to: '/projects/mes-taches', permission: 'projects.tasks.read' },
@@ -45,6 +54,7 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Associations', to: '/system/associations', superAdmin: true },
     { label: "Modules de l'instance", to: '/system/modules', superAdmin: true },
     { label: 'Messagerie (SMTP)', to: '/system/messagerie', superAdmin: true },
+    { label: 'Stockage', to: '/system/stockage', superAdmin: true },
     { label: 'Sauvegardes', to: '/system/sauvegardes', superAdmin: true },
     { label: "Journal de l'instance", to: '/system/journal', superAdmin: true },
   ],

@@ -63,6 +63,18 @@ Scenorya Projects → **Modèles** : installez le modèle fourni « Organisation
 
 Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le sélecteur « Déplacer » de chaque carte). Une personne responsable d’une tâche peut changer son état, cocher la checklist et commenter, même sans droit de modification. **Mes tâches** regroupe les tâches de chacun.
 
+## Documents (Scenorya Drive)
+
+- **Premiers pas** : Drive vide → *Créer les espaces recommandés*. Administratif et Comptabilité sont restreints aux rôles du bureau ; les autres dossiers sont ouverts à tous les utilisateurs ayant accès à Drive.
+- **Envoyer** : bouton *Envoyer des fichiers* ou glisser-déposer sur la liste. Un document du même nom est soit conservé en copie numérotée, soit ajouté comme nouvelle version (choix sous la barre d’outils). Programmes et scripts sont refusés.
+- **Versions** : *Détails* d’un document → historique, téléchargement d’une ancienne version, *Restaurer* (crée une nouvelle version identique : rien n’est perdu).
+- **Accès restreint** : *Accès* sur un dossier (droit `drive.files.admin`) → cocher les rôles autorisés. La restriction couvre les sous-dossiers. Sortir un document d’un dossier restreint ou le partager publiquement est réservé aux administrateurs de Drive.
+- **Partager hors de l’association** : *Détails* → *Créer un lien de partage* (validité, mot de passe, nombre de téléchargements). Le lien n’est affiché qu’une fois. *Liens de partage* liste les liens actifs ; la révocation est immédiate. Supprimer le document révoque ses liens.
+- **Corbeille** : conservation 30 jours ; un dossier revient avec tout son contenu. Le quota compte aussi les versions et la corbeille : videz-la pour libérer de la place.
+- **Quota** : fixé par le superadministrateur dans *Scenorya System → Stockage* (5 Go par défaut).
+- **Traçabilité** : *Journal des accès* (qui a ouvert ou téléchargé quoi, y compris par lien public) ; les modifications sont dans le journal d’audit.
+- **Associations existantes** : les nouvelles permissions Drive ne sont pas ajoutées automatiquement aux rôles déjà créés ; ajoutez-les dans *Admin → Rôles* (les administrateurs les ont déjà).
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.

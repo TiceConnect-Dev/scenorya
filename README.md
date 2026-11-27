@@ -21,8 +21,9 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Admin** : utilisateurs, rôles, matrice des droits, modules, association, audit | ✅ Opérationnel |
 | **Scenorya System** : associations, modules de l’instance, santé, SMTP, sauvegardes, journal de l’instance | 🟡 Partiel (sauvegardes planifiées et S3 à venir) |
 | **Scenorya Agenda** : événements, récurrences, invitations d’adhérents et de groupes, conflits, vues mois/semaine/liste, export et abonnement iCal | 🟡 Partiel (salles avec Booking, vue année) |
-| **Scenorya Projects** : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles | 🟡 Partiel (vues calendrier, pièces jointes) |
-| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Drive, Web, Com, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Projects** : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles, pièces jointes | 🟡 Partiel (vues calendrier et chronologique) |
+| **Scenorya Drive** : dossiers, envoi par glisser-déposer, contenu dédupliqué, versions, corbeille (30 jours), dossiers restreints par rôle, étiquettes, recherche, favoris, aperçus sûrs, liens de partage (expiration, mot de passe, nombre de téléchargements), quota par association, journal des accès | ✅ Opérationnel, testé |
+| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 

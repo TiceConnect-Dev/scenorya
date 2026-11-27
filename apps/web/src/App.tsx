@@ -11,11 +11,12 @@ import { HubPage, ModuleGate, PlannedModulePage } from './pages/Hub';
 import { AccountPage } from './pages/Account';
 import { ModulesPage } from './pages/admin/Modules';
 import { AdminHome, AssociationPage, AuditPage, RolesPage, UsersPage } from './pages/admin/Admin';
-import { AssociationsPage, BackupsPage, HealthPage, InstanceModulesPage, SmtpPage } from './pages/system/System';
+import { AssociationsPage, BackupsPage, HealthPage, InstanceModulesPage, SmtpPage, StoragePage } from './pages/system/System';
 import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from './pages/asso/Asso';
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { DriveAccessLogPage, DriveFavoritesPage, DrivePage, DriveRecentPage, DriveSearchPage, DriveSharesPage, DriveTrashPage, PublicSharePage } from './pages/drive/Drive';
 import { MandatesPage, MeetingDetailPage, MeetingsPage } from './pages/asso/Governance';
 import { CardsPage, FieldsPage, GroupDetail, GroupsPage, VerifyCardPage } from './pages/asso/Groups';
 import { PwaPrompt } from './components/PwaPrompt';
@@ -34,7 +35,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive']);
 
 export function App() {
   return (
@@ -44,6 +45,7 @@ export function App() {
         <Route path="/connexion" element={<LoginPage />} />
         <Route path="/mot-de-passe" element={<ChangePasswordPage />} />
         <Route path="/verifier/carte/:token" element={<VerifyCardPage />} />
+        <Route path="/partage/:token" element={<PublicSharePage />} />
         <Route element={<RequireAuth><Shell /></RequireAuth>}>
           <Route index element={<Navigate to="/hub" replace />} />
           <Route path="/hub" element={<HubPage />} />
@@ -67,6 +69,14 @@ export function App() {
           <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/drive" element={<ModuleGate id="drive"><DrivePage /></ModuleGate>} />
+          <Route path="/drive/dossier/:id" element={<ModuleGate id="drive"><DrivePage /></ModuleGate>} />
+          <Route path="/drive/favoris" element={<ModuleGate id="drive"><DriveFavoritesPage /></ModuleGate>} />
+          <Route path="/drive/recents" element={<ModuleGate id="drive"><DriveRecentPage /></ModuleGate>} />
+          <Route path="/drive/recherche" element={<ModuleGate id="drive"><DriveSearchPage /></ModuleGate>} />
+          <Route path="/drive/corbeille" element={<ModuleGate id="drive"><DriveTrashPage /></ModuleGate>} />
+          <Route path="/drive/partages" element={<ModuleGate id="drive"><DriveSharesPage /></ModuleGate>} />
+          <Route path="/drive/journal" element={<ModuleGate id="drive"><DriveAccessLogPage /></ModuleGate>} />
           <Route path="/projects" element={<ModuleGate id="projects"><ProjectsPage /></ModuleGate>} />
           <Route path="/projects/modeles" element={<ModuleGate id="projects"><ProjectsPage templates /></ModuleGate>} />
           <Route path="/projects/mes-taches" element={<ModuleGate id="projects"><MyTasksPage /></ModuleGate>} />
@@ -82,6 +92,7 @@ export function App() {
           <Route path="/system/associations" element={<ModuleGate id="system"><AssociationsPage /></ModuleGate>} />
           <Route path="/system/modules" element={<ModuleGate id="system"><InstanceModulesPage /></ModuleGate>} />
           <Route path="/system/messagerie" element={<ModuleGate id="system"><SmtpPage /></ModuleGate>} />
+          <Route path="/system/stockage" element={<ModuleGate id="system"><StoragePage /></ModuleGate>} />
           <Route path="/system/sauvegardes" element={<ModuleGate id="system"><BackupsPage /></ModuleGate>} />
           <Route path="/system/journal" element={<ModuleGate id="system"><AuditPage instance /></ModuleGate>} />
 

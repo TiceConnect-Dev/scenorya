@@ -58,7 +58,7 @@ Contrôleur → requêtes filtrées par association_id (jamais d'identifiant seu
 
 ## Données
 
-Tables du socle : `users`, `sessions`, `login_attempts`, `associations`, `association_users`, `roles`, `role_assignments` (portée facultative `scope_type/scope_id` et expiration), `instance_modules`, `association_modules`, `module_config_history`, `audit_logs`, `instance_settings`, `backups`, `counters`. Module Asso : `members`.
+Tables du socle : `users`, `sessions`, `login_attempts`, `associations`, `association_users`, `roles`, `role_assignments` (portée facultative `scope_type/scope_id` et expiration), `instance_modules`, `association_modules`, `module_config_history`, `audit_logs`, `instance_settings`, `backups`, `counters`. Module Asso : `members`, cotisations, groupes, champs, gouvernance. Agenda : `events`, `event_participants`, `calendar_feeds`. Projects : `projects`, `tasks`, `task_comments`. Drive : `drive_blobs` (contenus), `drive_folders`, `drive_files`, `drive_file_versions`, `drive_favorites`, `drive_shares`, `drive_access_log`, `drive_links` (rattachement générique fichier ↔ élément d'un autre module), `drive_settings` (quota).
 
 Toutes les tables métier portent `association_id` ; l’isolation est testée.
 
@@ -74,6 +74,8 @@ Toutes les tables métier portent `association_id` ; l’isolation est testée.
 | Lecture seule comme mode de clôture | Permet de cesser l’activité d’un module sans perdre l’accès aux archives et obligations. |
 | Service d’événements partagé | Tickets et Régie ne dépendent pas de Show (voir docs/modules.md). |
 | Variantes recadrées des emblèmes | Les PNG fournis contiennent ~79 % de marge transparente ; recadrage automatique sans retouche du dessin. |
+| Drive adressé par contenu (`DATA_DIR/files/aa/bb/<sha256>`) | Déduplication gratuite (versions et copies identiques), aucun chemin issu de l’utilisateur sur le disque, copie incrémentale sûre ; un verrou consultatif par empreinte sérialise envoi et nettoyage. Le stockage S3 pourra reprendre la même clé. |
+| Rattachements par `drive_links` | Un module (Projects, plus tard Show, Booking…) attache des documents sans dépendre de Drive : la fonctionnalité est conditionnelle (`projects.attachments`). |
 | Redis différé | Inutile tant qu’il n’y a qu’un processus et aucune file ; sera introduit avec les envois d’e-mails en masse et la billetterie. |
 
 ## Temps réel

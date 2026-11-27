@@ -470,3 +470,115 @@ export const mandates = pgTable('mandates', {
   meetingId: uuid('meeting_id').references(() => meetings.id, { onDelete: 'set null' }),
   createdAt: createdAt(),
 }, (t) => [index('mandates_assoc_idx').on(t.associationId)]);
+
+/* --------------------------------------------------------- Scenorya Drive */
+
+/** Contenu stocké une seule fois (adressé par empreinte SHA-256) sous DATA_DIR/files. */
+export const driveBlobs = pgTable('drive_blobs', {
+  sha256: text('sha256').primaryKey(),
+  size: bigint('size', { mode: 'number' }).notNull(),
+  createdAt: createdAt(),
+});
+
+export const driveFolders = pgTable('drive_folders', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  parentId: uuid('parent_id'),
+  name: text('name').notNull(),
+  /** Dossier restreint : visible uniquement des rôles listés (et des administrateurs de Drive). */
+  restricted: boolean('restricted').notNull().default(false),
+  allowedRoleIds: uuid('allowed_role_ids').array().notNull().default(sql`'{}'::uuid[]`),
+  deletedAt: ts('deleted_at'),
+  /** Lot de suppression : un dossier et son contenu partent et reviennent ensemble. */
+  trashBatch: uuid('trash_batch'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('drive_folders_parent_idx').on(t.associationId, t.parentId)]);
+
+export const driveFiles = pgTable('drive_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  folderId: uuid('folder_id').references(() => driveFolders.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  mime: text('mime').notNull(),
+  size: bigint('size', { mode: 'number' }).notNull(),
+  sha256: text('sha256').notNull().references(() => driveBlobs.sha256),
+  version: integer('version').notNull().default(1),
+  tags: text('tags').array().notNull().default(sql`'{}'::text[]`),
+  deletedAt: ts('deleted_at'),
+  trashBatch: uuid('trash_batch'),
+  deletedBy: uuid('deleted_by').references(() => users.id),
+  createdBy: uuid('created_by').references(() => users.id),
+  updatedBy: uuid('updated_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('drive_files_folder_idx').on(t.associationId, t.folderId), index('drive_files_sha_idx').on(t.sha256)]);
+
+export const driveFileVersions = pgTable('drive_file_versions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  fileId: uuid('file_id').notNull().references(() => driveFiles.id, { onDelete: 'cascade' }),
+  version: integer('version').notNull(),
+  sha256: text('sha256').notNull().references(() => driveBlobs.sha256),
+  size: bigint('size', { mode: 'number' }).notNull(),
+  mime: text('mime').notNull(),
+  originalName: text('original_name').notNull(),
+  comment: text('comment'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('drive_versions_unique').on(t.fileId, t.version), index('drive_versions_sha_idx').on(t.sha256)]);
+
+export const driveFavorites = pgTable('drive_favorites', {
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  fileId: uuid('file_id').notNull().references(() => driveFiles.id, { onDelete: 'cascade' }),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.userId, t.fileId] })]);
+
+export const driveShares = pgTable('drive_shares', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  fileId: uuid('file_id').notNull().references(() => driveFiles.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull().unique(),
+  passwordHash: text('password_hash'),
+  expiresAt: ts('expires_at').notNull(),
+  maxDownloads: integer('max_downloads'),
+  downloadCount: integer('download_count').notNull().default(0),
+  failedAttempts: integer('failed_attempts').notNull().default(0),
+  lockedUntil: ts('locked_until'),
+  revokedAt: ts('revoked_at'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+}, (t) => [index('drive_shares_file_idx').on(t.fileId)]);
+
+/** Journal des accès aux fichiers (téléchargements, aperçus, liens publics). */
+export const driveAccessLog = pgTable('drive_access_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  fileId: uuid('file_id').references(() => driveFiles.id, { onDelete: 'set null' }),
+  fileName: text('file_name').notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  shareId: uuid('share_id').references(() => driveShares.id, { onDelete: 'set null' }),
+  /** download | preview | share_download | share_denied */
+  action: text('action').notNull(),
+  version: integer('version'),
+  ip: text('ip'),
+  createdAt: createdAt(),
+}, (t) => [index('drive_access_assoc_idx').on(t.associationId, t.createdAt)]);
+
+/** Fichier rattaché à un élément d'un autre module (ex. pièce jointe d'une tâche). */
+export const driveLinks = pgTable('drive_links', {
+  fileId: uuid('file_id').notNull().references(() => driveFiles.id, { onDelete: 'cascade' }),
+  module: text('module').notNull(),
+  entityType: text('entity_type').notNull(),
+  entityId: uuid('entity_id').notNull(),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.fileId, t.module, t.entityType, t.entityId] }), index('drive_links_entity_idx').on(t.module, t.entityType, t.entityId)]);
+
+/** Paramètres Drive par association (quota fixé par le superadministrateur). */
+export const driveSettings = pgTable('drive_settings', {
+  associationId: uuid('association_id').primaryKey().references(() => associations.id, { onDelete: 'cascade' }),
+  quotaBytes: bigint('quota_bytes', { mode: 'number' }),
+  updatedAt: updatedAt(),
+});
