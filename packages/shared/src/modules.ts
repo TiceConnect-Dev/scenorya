@@ -143,9 +143,12 @@ const defs: Def[] = [
     description: 'Conduite de spectacle, son, lumière et vidéo',
     // Les conduites sont rattachées au service d'événements partagé du socle :
     // une représentation (Show) ou un événement autonome. Pas de dépendance stricte à Show.
-    requires: [], integrations: ['show', 'cast', 'stock'],
-    features: [{ id: 'regie.showLink', label: 'Rattachement aux représentations de Show', requires: ['show'] }],
-    implementation: { status: 'planned', phase: 4, note: 'Prévu en phase 4.' },
+    requires: [], integrations: ['show', 'cast', 'stock', 'drive'],
+    features: [
+      { id: 'regie.showLink', label: 'Rattachement aux spectacles et représentations de Show', requires: ['show'] },
+      { id: 'regie.cart', label: 'Cartoucheur (sons stockés dans Drive)', requires: ['drive'] },
+    ],
+    implementation: { status: 'partial', phase: 4, note: 'Conduites (tops par service), modes édition / répétition / spectacle, conduite en direct synchronisée, cartoucheur, journal horodaté et rapport, fonctionnement hors connexion, PDF. Matériel avec Stock.' },
   },
   {
     id: 'tickets', shortName: 'Tickets', tagline: 'Billetterie', color: '#C77A08', core: false, category: 'billetterie',

@@ -41,6 +41,9 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Mes rôles et répétitions', to: '/espace/scene', permission: 'espace.read', feature: 'cast.espace' },
     { label: 'Mes représentations', to: '/espace/representations', permission: 'espace.read', module: 'show' },
   ],
+  regie: [
+    { label: 'Conduites', to: '/regie', permission: 'regie.cuesheets.read' },
+  ],
   show: [
     { label: 'Spectacles', to: '/show', permission: 'show.shows.read' },
     { label: 'Représentations', to: '/show/representations', permission: 'show.performances.read' },

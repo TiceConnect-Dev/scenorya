@@ -376,3 +376,45 @@ dl.props dd { margin: 0; }
 .call-list li { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; }
 .call-list li.conflict { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 6%, transparent); }
 .cast-reh { padding: 8px 0; border-bottom: 1px solid var(--border); }
+
+/* ------------------------------------------------------------ Régie (direct) */
+.regie-table td { vertical-align: top; }
+.regie-live { background: #0b1626; color: #e8eef7; margin: -20px -28px -48px; padding: 16px 28px 48px; min-height: calc(100vh - 64px); }
+.regie-live .muted, .regie-live .small { color: #9fb0c7; }
+.regie-live select, .regie-live input[type='text'] { background: #13233a; color: #e8eef7; border-color: #2c4263; }
+.regie-top { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.regie-back { color: #9cc3ff; font-weight: 600; text-decoration: none; margin-right: auto; }
+.regie-net { font-size: 0.85rem; font-weight: 700; }
+.regie-net.on { color: #4ade80; }
+.regie-net.off { color: #fbbf24; }
+.regie-board { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: stretch; transition: background 0.3s; border-radius: 10px; }
+.regie-board.flash { background: rgba(74, 222, 128, 0.12); }
+.regie-now, .regie-next { background: #13233a; border: 1px solid #2c4263; border-radius: 10px; padding: 16px; }
+.regie-caption { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb0c7; margin-bottom: 8px; }
+.regie-cue-big { font-size: clamp(1.5rem, 3vw, 2.4rem); font-weight: 800; border-left: 6px solid #4f6077; padding-left: 12px; line-height: 1.2; }
+.regie-cue-mid { font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: 700; border-left: 6px solid #4f6077; padding-left: 12px; color: #fde68a; }
+.regie-trigger { margin-top: 8px; color: #cbd5e1; }
+.regie-num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #9cc3ff; margin-right: 6px; }
+.regie-controls { grid-column: 1 / -1; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.regie-go { background: #16a34a; color: #fff; border: 0; border-radius: 12px; font-size: 2rem; font-weight: 900; padding: 14px 48px; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; line-height: 1; }
+.regie-go span { font-size: 0.7rem; font-weight: 600; opacity: 0.8; margin-top: 4px; }
+.regie-go:hover { background: #15803d; }
+.regie-go:disabled { background: #334155; cursor: not-allowed; }
+.regie-go:focus-visible { outline: 4px solid #fde68a; outline-offset: 3px; }
+.regie-cart { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+.regie-pad { position: relative; background: #13233a; color: #e8eef7; border: 2px solid #2c4263; border-radius: 10px; padding: 18px 10px 12px; font: inherit; font-weight: 700; cursor: pointer; text-align: left; min-height: 72px; }
+.regie-pad.playing { background: #1e3a5f; border-color: #4ade80; box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.4); }
+.regie-pad.stop { border-color: #b91c1c; }
+.regie-pad:disabled { opacity: 0.4; }
+.regie-key { position: absolute; top: 4px; right: 8px; font-size: 0.75rem; color: #9fb0c7; font-family: ui-monospace, monospace; }
+.regie-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 4px; }
+.regie-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #101d31; border-left: 4px solid #4f6077; border-radius: 6px; }
+.regie-row.done { opacity: 0.45; }
+.regie-row.current { background: #1e3a5f; outline: 2px solid #4ade80; }
+.regie-row.standby { background: #3a2f0b; outline: 2px solid #fde68a; }
+.regie-label { flex: 1; }
+.regie-live .btn.ghost { color: #9cc3ff; }
+@media (max-width: 800px) { .regie-board { grid-template-columns: 1fr; } .regie-live { margin: -16px; padding: 12px; } }
+.regie-top select { width: auto; }
+.regie-controls form { flex: 1 1 320px; flex-wrap: nowrap; }
+.regie-controls form input { flex: 1; min-width: 0; }

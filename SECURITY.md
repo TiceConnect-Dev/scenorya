@@ -28,6 +28,7 @@
 | Liens de partage | Jeton 192 bits stocké haché ; expiration obligatoire (90 jours max) ; mot de passe Argon2id facultatif ; verrouillage 15 min après 10 échecs ; limite de téléchargements atomique ; révocation immédiate, et automatique à la suppression du document ; suspendus si Drive est désactivé ; accès journalisés | tests e2e |
 | Espace personnel | Chaque route `espace/*` ne lit que la fiche reliée au compte connecté (aucun identifiant d’adhérent accepté) ; coordonnées modifiables limitées à une liste blanche et journalisées ; procès-verbal communiqué seulement après clôture ; documents limités aux dossiers publiés | tests e2e |
 | Invitations | Jeton 192 bits haché, usage unique (verrou de ligne), 14 jours, révoqué par une nouvelle invitation ; un compte existant doit être connecté avec l’adresse invitée ; redirection après connexion limitée aux chemins internes | tests e2e |
+| Temps réel (Régie) | Abonnement à une conduite vérifié côté serveur (appartenance, permission, module, conduite de l’association) ; aucune action par la socket : tout GO passe par l’API avec CSRF et permission `regie.runs.operate` ; heures des actions rejouées bornées | tests e2e |
 | PWA | Le service worker ne met jamais en cache `/api` | configuration |
 
 ## Limites connues

@@ -2,6 +2,19 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.12.0] — 2026-11-28
+
+### Ajouté — Scenorya Régie
+
+- Conduites rattachées ou non à un spectacle : tops par service (lumière, son, vidéo, plateau, cintres, autre), déclenchement, page, durée, notes ; insertion, réordonnancement, renumérotation automatique ; conduite figée ; copie de travail ; PDF par service.
+- Conduite en direct : GO, retour, saut, « attention » sur le top suivant, notes au journal ; synchronisation instantanée de tous les postes (Socket.IO) ; filtre par service ; raccourcis clavier.
+- Modes : répétition, ou représentation (conduite verrouillée pendant la séance) ; une seule séance ouverte par conduite.
+- Cartoucheur (avec Drive) : sons rangés dans Drive, touches de lancement, volume, boucle, fondus, lancement automatique avec un top, « tout couper ».
+- Hors connexion : la conduite reste affichée (copie locale), les actions sont appliquées localement puis rejouées avec leur heure d’origine.
+- Journal horodaté, rapport de séance, rapport PDF ; historique des séances.
+- Suppression de tout (top, son, séance et journal, conduite).
+- Permissions `regie.cuesheets` et `regie.runs` (nouvelle action `operate`) ; modèles « Régisseur général » et techniciens mis à jour.
+
 ## [0.11.0] — 2026-11-27
 
 ### Ajouté — Scenorya Show

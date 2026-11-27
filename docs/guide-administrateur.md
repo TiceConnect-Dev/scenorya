@@ -112,6 +112,15 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Fiche spectacle (PDF)** : présentation, distribution, équipe et dates.
 - Chacun retrouve ses dates dans *Mon espace → Mes représentations*.
 
+## Conduite de spectacle (Scenorya Régie)
+
+- **Conduite** : *Nouvelle conduite* (rattachée ou non à un spectacle). *Ajouter un top* : service (lumière, son, vidéo, plateau, cintres), effet, déclenchement, page, durée. *Insérer après*, flèches pour réordonner, *Renuméroter* (L1, L2… S1…). *PDF* par service pour chaque poste. *Figer* empêche toute modification ; *Dupliquer* crée une version de travail.
+- **Cartoucheur** (avec Drive) : *Ajouter des sons* (MP3, WAV, OGG, M4A), touches 1 à 9 attribuées automatiquement, volume, boucle. Un son peut être lancé automatiquement avec un top.
+- **Direct** : *Conduire* → *Démarrer une séance* (répétition, ou représentation : la conduite est alors verrouillée). Espace = GO, Retour arrière = top précédent, 1-9 = sons, Échap = couper les sons. Tous les postes ouverts sur la conduite (régie lumière, son, plateau…) voient instantanément le top en cours et le suivant ; chacun peut n’afficher que son service.
+- **Coupure réseau** : continuez, le poste garde la conduite et met les actions en attente ; elles sont transmises avec leur heure d’origine au retour du réseau.
+- **Fin** : *Terminer* avec un rapport ; *Séances* → *Rapport (PDF)* avec le journal horodaté (GO, notes, incidents).
+- Permissions : `regie.runs.operate` pour mener la conduite ; `regie.runs.read` suffit pour la suivre (techniciens).
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.

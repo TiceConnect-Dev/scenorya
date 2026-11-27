@@ -16,6 +16,7 @@ import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from '
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { CuesheetPage, LivePage, RegieHome } from './pages/regie/Regie';
 import { EspaceShows, PerformancesPage, ShowHome, ShowPage, VenuesPage } from './pages/show/Show';
 import { CastHome, EspaceCast, ProductionPage, UnavailabilityPage } from './pages/cast/Cast';
 import { EspaceAgenda, EspaceDocuments, EspaceDues, EspaceHome, EspaceMeetings, EspaceProfile, InvitationPage } from './pages/espace/Espace';
@@ -51,7 +52,7 @@ function HubOrEspace() {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie']);
 
 export function App() {
   return (
@@ -86,6 +87,9 @@ export function App() {
           <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/regie" element={<ModuleGate id="regie"><RegieHome /></ModuleGate>} />
+          <Route path="/regie/conduites/:id" element={<ModuleGate id="regie"><CuesheetPage /></ModuleGate>} />
+          <Route path="/regie/conduites/:id/direct" element={<ModuleGate id="regie"><LivePage /></ModuleGate>} />
           <Route path="/show" element={<ModuleGate id="show"><ShowHome /></ModuleGate>} />
           <Route path="/show/spectacles/:id" element={<ModuleGate id="show"><ShowPage /></ModuleGate>} />
           <Route path="/show/representations" element={<ModuleGate id="show"><PerformancesPage /></ModuleGate>} />

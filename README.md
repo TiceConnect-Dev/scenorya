@@ -26,7 +26,8 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Espace** : invitation des adhérents (e-mail ou lien), création ou rattachement du compte, coordonnées modifiables, cotisations et reçus, carte d’adhérent, agenda avec réponse de présence, convocations et procès-verbaux, documents publiés depuis Drive | 🟡 Partiel (espace spectateurs avec Tickets) |
 | **Scenorya Cast** : productions, rôles, distribution (titulaires, doublures, pressentis), scènes et présence des personnages, indisponibilités, répétitions avec convoqués calculés, conflits et événement d’agenda, feuille de service et distribution en PDF, espace du comédien | 🟡 Partiel (rattachement aux spectacles avec Show) |
 | **Scenorya Show** : spectacles, représentations (séries, jauge, accueil du public, états), lieux, équipe, distributions de Cast rattachées, convocations dans l’agenda, documents dans Drive, fiche spectacle PDF, représentations dans l’espace personnel | 🟡 Partiel (billetterie avec Tickets, conduite avec Régie) |
-| Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Régie** : conduites (tops lumière, son, vidéo, plateau, cintres), renumérotation, conduite figée, conduite en direct synchronisée entre postes (GO, retour, saut, notes), mode représentation verrouillé, cartoucheur (sons dans Drive, touches, fondus, boucle), fonctionnement hors connexion avec rejeu, journal et rapport PDF | 🟡 Partiel (matériel avec Stock, pilotage DMX/OSC non prévu) |
+| Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 

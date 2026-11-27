@@ -757,3 +757,89 @@ export const showCrew = pgTable('show_crew', {
   job: text('job').notNull(),
   createdAt: createdAt(),
 }, (t) => [uniqueIndex('show_crew_unique').on(t.showId, t.memberId, t.job), index('show_crew_member_idx').on(t.memberId)]);
+
+/* --------------------------------------------------------- Scenorya Régie */
+
+/** Conduite technique d'un spectacle (ou d'un événement autonome). */
+export const regieCuesheets = pgTable('regie_cuesheets', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  title: text('title').notNull(),
+  /** Spectacle de Show (fonctionnalité regie.showLink). */
+  showId: uuid('show_id').references(() => shows.id, { onDelete: 'set null' }),
+  notes: text('notes'),
+  /** Verrou d'édition : une conduite « figée » ne se modifie plus (spectacle en exploitation). */
+  locked: boolean('locked').notNull().default(false),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('regie_cuesheets_assoc_idx').on(t.associationId)]);
+
+/** Top de conduite (lumière, son, vidéo, plateau…). */
+export const regieCues = pgTable('regie_cues', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  cuesheetId: uuid('cuesheet_id').notNull().references(() => regieCuesheets.id, { onDelete: 'cascade' }),
+  position: integer('position').notNull(),
+  /** Numéro affiché (L12, S3, V1…) */
+  number: text('number'),
+  /** light | sound | video | stage | fly | other */
+  department: text('department').notNull().default('light'),
+  label: text('label').notNull(),
+  /** Déclenchement : réplique, action, top du régisseur… */
+  trigger: text('trigger'),
+  page: text('page'),
+  durationSec: integer('duration_sec'),
+  notes: text('notes'),
+  /** Son du cartoucheur lancé avec ce top (facultatif). */
+  soundId: uuid('sound_id'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('regie_cues_sheet_idx').on(t.cuesheetId, t.position)]);
+
+/** Cartoucheur : sons prêts à être lancés, stockés dans Drive. */
+export const regieSounds = pgTable('regie_sounds', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  cuesheetId: uuid('cuesheet_id').notNull().references(() => regieCuesheets.id, { onDelete: 'cascade' }),
+  driveFileId: uuid('drive_file_id').references(() => driveFiles.id, { onDelete: 'set null' }),
+  label: text('label').notNull(),
+  /** Touche de lancement (1-9, A-Z) */
+  hotkey: text('hotkey'),
+  volume: integer('volume').notNull().default(100),
+  loop: boolean('loop').notNull().default(false),
+  fadeInMs: integer('fade_in_ms').notNull().default(0),
+  fadeOutMs: integer('fade_out_ms').notNull().default(0),
+  color: text('color'),
+  position: integer('position').notNull().default(0),
+  createdAt: createdAt(),
+}, (t) => [index('regie_sounds_sheet_idx').on(t.cuesheetId)]);
+
+/** Séance de conduite en direct (répétition ou représentation). */
+export const regieRuns = pgTable('regie_runs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  cuesheetId: uuid('cuesheet_id').notNull().references(() => regieCuesheets.id, { onDelete: 'cascade' }),
+  /** rehearsal | show */
+  mode: text('mode').notNull().default('rehearsal'),
+  performanceId: uuid('performance_id').references(() => showPerformances.id, { onDelete: 'set null' }),
+  currentCueId: uuid('current_cue_id'),
+  /** Top suivant annoncé (« attention ») */
+  standbyCueId: uuid('standby_cue_id'),
+  startedAt: createdAt(),
+  endedAt: ts('ended_at'),
+  report: text('report'),
+  startedBy: uuid('started_by').references(() => users.id),
+}, (t) => [index('regie_runs_sheet_idx').on(t.cuesheetId, t.startedAt)]);
+
+/** Journal horodaté d'une séance : chaque GO, retour, incident. */
+export const regieRunLog = pgTable('regie_run_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  runId: uuid('run_id').notNull().references(() => regieRuns.id, { onDelete: 'cascade' }),
+  /** go | back | jump | standby | note | start | end */
+  kind: text('kind').notNull(),
+  cueId: uuid('cue_id'),
+  cueLabel: text('cue_label'),
+  note: text('note'),
+  /** Heure de l'action sur le poste (rejeu hors connexion possible) */
+  at: ts('at').notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  receivedAt: createdAt(),
+}, (t) => [index('regie_run_log_run_idx').on(t.runId, t.at)]);

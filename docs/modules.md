@@ -45,6 +45,8 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Distributions rattachées aux spectacles | Cast | Show |
 | Représentations dans l’agenda (équipe et distribution) | Show | Agenda |
 | Documents du spectacle | Show | Drive |
+| Conduite rattachée au spectacle et aux représentations | Régie | Show |
+| Cartoucheur | Régie | Drive |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

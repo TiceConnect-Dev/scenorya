@@ -45,7 +45,8 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 
 - ✅ Show : spectacles, représentations, lieux, équipe, distributions de Cast, agenda, documents, fiche spectacle PDF, espace personnel
 - ⏳ Show : dossier de diffusion complet, contrats de cession, budget de production (avec Finance)
-- ⏳ Régie (conduite, tops, modes, synchronisation, cartoucheur, hors connexion)
+- ✅ Régie : conduites, modes répétition / représentation, conduite en direct synchronisée, cartoucheur, hors connexion avec rejeu, journal et rapport PDF
+- ⏳ Régie : plan de feu et matériel (avec Stock), import de conduite (CSV), déclenchement OSC/MIDI (à étudier)
 
 ## Phase 5 — Billetterie et caisse
 
