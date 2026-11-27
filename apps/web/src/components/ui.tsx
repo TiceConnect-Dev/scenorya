@@ -144,12 +144,12 @@ export function Field({ label, hint, error, children, className = '' }: { label:
   return (
     <div className={`field ${className}`}>
       <label htmlFor={id}>{label}</label>
+      {children(id, [hintId, errId].filter(Boolean).join(' ') || undefined)}
       {hint && (
         <span id={hintId} className="hint">
           {hint}
         </span>
       )}
-      {children(id, [hintId, errId].filter(Boolean).join(' ') || undefined)}
       {error && (
         <span id={errId} className="error">
           {error}

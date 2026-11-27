@@ -61,7 +61,7 @@ function MeetingForm({ open, initial, onClose, onSubmit }: { open: boolean; init
           <legend>Ordre du jour</legend>
           {f.items.map((it, i) => (
             <div key={i} className="row" style={{ marginBottom: 6, flexWrap: 'nowrap' }}>
-              <span className="small muted">{i + 1}.</span>
+              <span className="small muted item-num">{i + 1}.</span>
               <label className="sr-only" htmlFor={`item-${i}`}>Point {i + 1}</label>
               <input id={`item-${i}`} type="text" value={it.title} onChange={(e) => setF({ ...f, items: f.items.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)) })} />
               <label className="check nowrap small"><input type="checkbox" checked={it.vote} onChange={(e) => setF({ ...f, items: f.items.map((x, j) => (j === i ? { ...x, vote: e.target.checked } : x)) })} />vote</label>

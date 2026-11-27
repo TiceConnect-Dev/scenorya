@@ -2,6 +2,12 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.6.1] — 2026-11-27
+
+### Corrigé
+
+- Formulaires : les champs placés côte à côte sont désormais alignés. L’aide s’affiche sous le champ (et non plus entre l’intitulé et le champ), tous les champs d’une ligne ont la même hauteur (texte, listes, dates, couleur) et les points numérotés de l’ordre du jour sont alignés.
+
 ## [0.6.0] — 2026-11-27
 
 Scenorya Asso : gouvernance.

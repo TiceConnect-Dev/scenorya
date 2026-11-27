@@ -173,9 +173,11 @@ p { margin: 0 0 0.75em; }
 .field .hint { font-size: 0.85rem; color: var(--text-muted); }
 .field .error { font-size: 0.85rem; color: var(--danger); font-weight: 600; }
 input[type='text'], input[type='email'], input[type='password'], input[type='search'], input[type='date'], input[type='datetime-local'], input[type='tel'], input[type='number'], input[type='url'], select, textarea {
-  font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-bottom: 2px solid var(--text-muted); border-radius: var(--radius) var(--radius) 0 0; padding: 8px 10px; min-height: 40px; width: 100%;
+  font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-bottom: 2px solid var(--text-muted); border-radius: var(--radius) var(--radius) 0 0; padding: 8px 10px; min-height: 40px; width: 100%; line-height: 1.4;
 }
-input[type='color'] { width: 56px; height: 40px; padding: 2px; border: 1px solid var(--border-strong); background: var(--surface); }
+input:not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']), select { height: 42px; }
+input[type='date'], input[type='datetime-local'] { padding-top: 0; padding-bottom: 0; }
+input[type='color'] { width: 56px; height: 42px; padding: 2px; border: 1px solid var(--border-strong); background: var(--surface); }
 textarea { min-height: 96px; resize: vertical; }
 input:focus, select:focus, textarea:focus { border-bottom-color: var(--blue); }
 input[aria-invalid='true'] { border-bottom-color: var(--danger); }
@@ -183,7 +185,8 @@ input[aria-invalid='true'] { border-bottom-color: var(--danger); }
 .check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--blue); }
 fieldset { border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin: 0; }
 legend { font-weight: 700; padding: 0 6px; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.item-num { flex: 0 0 2.2em; text-align: right; }
 .form-grid .full { grid-column: 1 / -1; }
 @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
 .form-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; margin-top: 8px; }
