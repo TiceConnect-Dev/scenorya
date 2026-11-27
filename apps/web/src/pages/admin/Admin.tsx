@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { grantsCover, MODULES, MODULES_BY_ID, PermissionEntry } from '@scenorya/shared';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import type { AuditEntry, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, ModuleLogo, PageHead, Pagination } from '../../components/ui';
@@ -237,6 +237,12 @@ export function UsersPage() {
                     {u.status !== 'active' && can('admin.users.restore') && (
                       <button className="btn ghost sm" type="button" onClick={() => act.mutate({ id: u.id, action: 'enable' })}>
                         Réactiver
+                      </button>
+                    )}
+                    {u.userId !== me?.user.id && can('admin.users.delete') && (
+                      <button className="btn ghost sm" type="button" onClick={() => deleteWithConfirm<{ accountDeleted: boolean }>(`/admin/users/${u.id}`, `Retirer ${u.displayName} de l’association ? S’il n’appartient à aucune autre association, son compte sera supprimé.`)
+                        .then((r) => { if (r) { toast(r.accountDeleted ? 'Compte supprimé.' : 'Retiré de l’association (compte conservé pour ses autres associations).'); qc.invalidateQueries({ queryKey: ['admin-users'] }); qc.invalidateQueries({ queryKey: ['users'] }); } }, (e) => toast(errorMessage(e), 'error'))}>
+                        Supprimer
                       </button>
                     )}
                   </td>

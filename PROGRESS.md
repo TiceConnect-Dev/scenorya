@@ -1,6 +1,6 @@
 # État d’avancement — reprise du développement
 
-_Dernière mise à jour : 27 novembre 2026 — version 0.8.0_
+_Dernière mise à jour : 27 novembre 2026 — version 0.9.0_
 
 Ce fichier permet de reprendre le travail dans une nouvelle session sans perte de contexte.
 
@@ -13,7 +13,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 | Vérification | Résultat |
 |---|---|
 | `packages/shared` : vitest | 32/32 |
-| `apps/api` : jest e2e sur PostgreSQL 16 | 107/107 (plateforme 28, cotisations 16, Drive 13, groupes/champs/cartes 12, agenda 11, Espace 10, projets 9, gouvernance 8) |
+| `apps/api` : jest e2e sur PostgreSQL 16 | 117/117 (plateforme 28, cotisations 16, Drive 13, groupes/champs/cartes 12, agenda 11, Espace 10, suppressions 10, projets 9, gouvernance 8) |
 | CI GitHub Actions (tests) | OK |
 | Typage strict API et web | OK |
 | Build Vite + PWA | OK |
@@ -37,6 +37,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 - Cartes : QR = URL de vérification avec jeton aléatoire ; validité calculée en direct.
 - Cotisations : centimes entiers partout ; règlements inaltérables (annulation motivée) ; reçu non fiscal numéroté `AAAA-NNNN` par association ; pdfkit épinglé en 0.16 (dépendances CommonJS, compatibles Jest).
 - Drive : contenu stocké une fois sous `DATA_DIR/files/aa/bb/<sha256>` (verrou consultatif par empreinte pour l’envoi et le nettoyage) ; le type MIME est déduit de l’extension ; exécutables refusés par extension et par signature (MZ, ELF, Mach-O, `#!`) ; SVG et HTML toujours téléchargés, jamais affichés ; `?assoc=` accepté sur les seules requêtes GET pour les aperçus ouverts par le navigateur.
+- **Règle de développement : tout ce qui se crée doit pouvoir se supprimer** (demande de Thomas). Chaque nouvelle entité livre sa route `DELETE`, son bouton et son test. Quand la suppression a des conséquences, le serveur répond `CONFIRM_REQUIRED` avec le détail et l’interface passe par `deleteWithConfirm` (seconde confirmation, puis `?force=1`). Les lignes protégées par déclencheur se suppriment via `allowPurge(tx)` (common/purge.ts).
 - Espace : la fiche d’adhérent est reliée au compte par `members.user_id` (unique par association) ; invitation à jeton haché, usage unique, 14 jours ; un compte existant doit se connecter avec la même adresse pour accepter ; le rôle « Adhérent » est ajouté seulement si le compte n’a pas déjà `espace.read`. Toutes les routes `espace/*` ne lisent que la fiche du compte connecté.
 - Page d’accueil : un compte sans accès au Hub mais avec l’Espace arrive directement sur `/espace` ; la connexion respecte `?next=` (chemins internes uniquement).
 - Champs de formulaire : un `<input>` sans `type` est désormais stylé comme les autres (cause d’une partie des décalages signalés).

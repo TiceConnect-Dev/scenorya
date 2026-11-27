@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MODULE_PROFILES, MODULES_BY_ID, ModuleId } from '@scenorya/shared';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatBytes, formatDate, Loading, Modal, ModuleLogo, PageHead } from '../../components/ui';
 
@@ -120,7 +120,7 @@ export function AssociationsPage() {
       {q.data && (
         <div className="table-wrap">
           <table className="table">
-            <thead><tr><th scope="col">Nom</th><th scope="col">Identifiant</th><th scope="col">Utilisateurs</th><th scope="col">État</th><th scope="col">Création</th></tr></thead>
+            <thead><tr><th scope="col">Nom</th><th scope="col">Identifiant</th><th scope="col">Utilisateurs</th><th scope="col">État</th><th scope="col">Création</th><th scope="col" className="actions">Actions</th></tr></thead>
             <tbody>
               {q.data.map((a) => (
                 <tr key={a.id}>
@@ -129,6 +129,20 @@ export function AssociationsPage() {
                   <td>{a.members}</td>
                   <td>{a.status === 'active' ? <Badge tone="success">✓ Active</Badge> : <Badge>Archivée</Badge>}</td>
                   <td>{formatDate(a.createdAt)}</td>
+                  <td className="actions">
+                    <button className="btn ghost sm" type="button" onClick={async () => {
+                      const typed = window.prompt(`Suppression définitive de « ${a.name} » et de TOUTES ses données (adhérents, cotisations, agenda, projets, documents, accès). Seul le journal d’audit en garde la trace.\n\nPensez à faire une sauvegarde avant.\n\nSaisissez le nom exact de l’association pour confirmer :`);
+                      if (typed === null) return;
+                      try {
+                        const r = await api.delete<{ members: number; users: number; files: number }>(`/system/associations/${a.id}`, { confirmName: typed });
+                        toast(`Association supprimée (${r.members} adhérent(s), ${r.users} accès, ${r.files} document(s)).`);
+                        qc.invalidateQueries({ queryKey: ['system-associations'] });
+                        qc.invalidateQueries({ queryKey: ['me'] });
+                      } catch (e) {
+                        toast(errorMessage(e), 'error');
+                      }
+                    }}>Supprimer</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -275,7 +289,10 @@ export function SmtpPage() {
               <span>Connexion TLS directe (port 465) ; sinon STARTTLS si proposé par le serveur.</span>
             </label>
           </div>
-          <div className="form-actions"><button className="btn" type="submit">Enregistrer</button></div>
+          <div className="form-actions">
+            {q.data?.host && <button className="btn danger" type="button" onClick={() => deleteWithConfirm('/system/smtp', 'Supprimer la configuration de la messagerie ? Plus aucun e-mail ne pourra être envoyé.').then((r) => { if (r) { toast('Configuration supprimée.'); setForm({ host: '', port: 587, secure: false, user: '', password: '', from: '' }); q.refetch(); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer la configuration</button>}
+            <button className="btn" type="submit">Enregistrer</button>
+          </div>
         </form>
         <section className="card stack">
           <h2>Tester l’envoi</h2>
@@ -334,6 +351,9 @@ export function BackupsPage() {
                   <td className="actions">
                     {b.status === 'success' && (
                       <button className="btn ghost sm" type="button" onClick={() => api.download(`/system/backups/${b.id}/download`, b.filename).catch((e) => toast(errorMessage(e), 'error'))}>Télécharger</button>
+                    )}
+                    {b.status !== 'running' && (
+                      <button className="btn ghost sm" type="button" onClick={() => deleteWithConfirm(`/system/backups/${b.id}`, `Supprimer la sauvegarde ${b.filename} (fichier compris) ?`).then((r) => { if (r) { toast('Sauvegarde supprimée.'); qc.invalidateQueries({ queryKey: ['backups'] }); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>
                     )}
                   </td>
                 </tr>

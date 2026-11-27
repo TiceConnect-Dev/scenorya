@@ -71,6 +71,13 @@
       "when": 1795815267430,
       "tag": "0009_espace",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795815268430,
+      "tag": "0010_controlled_purge",
+      "breakpoints": true
     }
   ]
 }

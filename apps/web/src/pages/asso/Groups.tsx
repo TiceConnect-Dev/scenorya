@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import type { Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, PageHead } from '../../components/ui';
@@ -117,6 +117,7 @@ export function GroupsPage() {
 interface GroupMember { id: string; number: number; firstName: string; lastName: string; email: string | null; status: string; role: string | null; since: string }
 
 export function GroupDetail() {
+  const navigateTo = useNavigate();
   const { id } = useParams();
   const { can, toast } = useApp();
   const qc = useQueryClient();
@@ -160,6 +161,10 @@ export function GroupDetail() {
               <button className="btn secondary" type="button" onClick={() => act(() => api.post(`/asso/groups/${g.id}/archive`, { restore: Boolean(g.archivedAt) }), g.archivedAt ? 'Groupe restauré.' : 'Groupe archivé.')}>
                 {g.archivedAt ? 'Restaurer' : 'Archiver'}
               </button>
+            )}
+            {can('asso.groups.delete') && (
+              <button className="btn danger" type="button" onClick={() => deleteWithConfirm(`/asso/groups/${g.id}`, `Supprimer le groupe « ${g.name} » ? Les adhérents ne sont pas supprimés, seule leur appartenance au groupe disparaît.`)
+                .then((r) => { if (r) { toast('Groupe supprimé.'); qc.invalidateQueries({ queryKey: ['groups'] }); navigateTo('/asso/groupes'); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>
             )}
             {editable && <button className="btn" type="button" onClick={() => { setPicked([]); setRole(''); setAdding(true); }}>Ajouter des membres</button>}
           </>
@@ -286,6 +291,8 @@ export function FieldsPage() {
                   <td className="actions">
                     {!f.archivedAt && <button className="btn ghost sm" type="button" onClick={() => openForm(f)}>Modifier</button>}
                     <button className="btn ghost sm" type="button" onClick={() => archive(f, !f.archivedAt)}>{f.archivedAt ? 'Restaurer' : 'Archiver'}</button>
+                    <button className="btn ghost sm" type="button" onClick={() => deleteWithConfirm<{ cleared: number }>(`/asso/fields/${f.id}`, `Supprimer le champ « ${f.label} » ? Sa valeur sera effacée de toutes les fiches (l’archivage, lui, la conserve).`)
+                      .then((r) => { if (r) { toast(`Champ supprimé (${r.cleared} fiche(s) concernée(s)).`); qc.invalidateQueries({ queryKey: ['fields'] }); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>
                   </td>
                 </tr>
               ))}

@@ -729,18 +729,8 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
     return count;
   }
 
-  private async collect(shas: string[]) {
-    for (const sha of [...new Set(shas)].sort()) {
-      await this.db.transaction(async (tx) => {
-        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`drive-blob:${sha}`}))`);
-        const gone = await tx.delete(driveBlobs).where(and(
-          eq(driveBlobs.sha256, sha),
-          sql`not exists (select 1 from ${driveFileVersions} where ${driveFileVersions.sha256} = ${sha})`,
-          sql`not exists (select 1 from ${driveFiles} where ${driveFiles.sha256} = ${sha})`,
-        )).returning();
-        if (gone.length) await removeBlob(sha);
-      });
-    }
+  private collect(shas: string[]) {
+    return collectBlobs(this.db, shas);
   }
 
   /** Vidage automatique des éléments en corbeille depuis plus de 30 jours. */
@@ -886,7 +876,7 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
   @SuperAdminOnly()
   @Get('system/drive')
   async instanceUsage() {
-    const list = await this.db.select({ id: associations.id, name: associations.name }).from(associations).orderBy(asc(associations.name));
+    const list = await this.db.select({ id: associations.id, name: associations.name }).from(associations).where(sql`${associations.status} <> 'deleted'`).orderBy(asc(associations.name));
     const used = await this.db.select({ a: driveFiles.associationId, n: sql<string>`coalesce(sum(${driveFileVersions.size}), 0)` }).from(driveFileVersions)
       .innerJoin(driveFiles, eq(driveFiles.id, driveFileVersions.fileId)).groupBy(driveFiles.associationId);
     const quotas = await this.db.select().from(driveSettings);
@@ -910,6 +900,21 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
       .onConflictDoUpdate({ target: driveSettings.associationId, set: { quotaBytes: quotaMb === null ? null : quotaMb * MB, updatedAt: new Date() } });
     await this.audit.log({ associationId: null, actorId: ctx.user!.id, actorLabel: ctx.user!.displayName, ip: null, action: 'system.drive.quota', resourceType: 'association', resourceId: id, summary: `Quota Drive de « ${a.name} » : ${quotaMb === null ? 'valeur par défaut' : `${quotaMb} Mo`}` });
     return { ok: true };
+  }
+}
+
+/** Libère les contenus qui ne sont plus référencés par aucun document ni aucune version. */
+export async function collectBlobs(db: Db, shas: string[]) {
+  for (const sha of [...new Set(shas)].sort()) {
+    await db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`drive-blob:${sha}`}))`);
+      const gone = await tx.delete(driveBlobs).where(and(
+        eq(driveBlobs.sha256, sha),
+        sql`not exists (select 1 from ${driveFileVersions} where ${driveFileVersions.sha256} = ${sha})`,
+        sql`not exists (select 1 from ${driveFiles} where ${driveFiles.sha256} = ${sha})`,
+      )).returning();
+      if (gone.length) await removeBlob(sha);
+    });
   }
 }
 

@@ -263,6 +263,7 @@ function EventModal({ sel, onClose, onEdit, onChanged }: { sel: { id: string; oc
               <button className="btn secondary" type="button" onClick={() => onEdit(d)}>Modifier {d.rule ? 'la série' : ''}</button>
               {d.rule && <button className="btn ghost" type="button" onClick={() => window.confirm('Annuler uniquement cette date ?') && act(() => api.post(`/agenda/events/${d.id}/cancel-occurrence`, { occurrence: sel.occurrence }), 'Date annulée.', true)}>Annuler cette date</button>}
               {can('agenda.events.delete') && <button className="btn ghost" type="button" onClick={() => window.confirm(d.rule ? 'Annuler toute la série ?' : 'Annuler cet événement ?') && act(() => api.delete(`/agenda/events/${d.id}`), 'Événement annulé.', true)}>Annuler {d.rule ? 'la série' : 'l’événement'}</button>}
+              {can('agenda.events.delete') && <button className="btn danger" type="button" onClick={() => window.confirm(`Supprimer définitivement « ${d.title} »${d.rule ? ' et toutes ses dates' : ''}, avec les réponses des participants ?`) && act(() => api.delete(`/agenda/events/${d.id}?purge=1`), 'Événement supprimé.', true)}>Supprimer</button>}
             </div>
           )}
         </div>

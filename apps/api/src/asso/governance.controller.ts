@@ -8,6 +8,7 @@ import { Access, AssocContext, AssocCtx } from '../common/access';
 import { parse, patchOf, zOptText, zUuid } from '../common/validation';
 import { BadRequest, Conflict, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
+import { allowPurge, requireConfirmation } from '../common/purge';
 import { associations, events, mandates, meetingAttendees, meetings, memberGroupLinks, members, resolutions } from '../db/schema';
 import { AuditService } from '../audit/audit.service';
 import { SettingsService, emailLayout, brandingDir } from '../system/settings.service';
@@ -398,6 +399,33 @@ export class GovernanceController {
     if (endDate < r.startDate) throw BadRequest('INVALID_DATES', 'La fin du mandat précède son début.');
     await this.audit.log({ ...log(c), action: 'mandate.end', resourceType: 'member', resourceId: r.memberId, summary: `Fin de mandat (${r.role}) au ${endDate}` });
     return r;
+  }
+
+  @Access('asso', 'asso.mandates.delete')
+  @Delete('mandates/:id')
+  async removeMandate(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    parse(zUuid, id);
+    const [r] = await this.db.delete(mandates).where(and(eq(mandates.id, id), eq(mandates.associationId, c.association.id))).returning();
+    if (!r) throw NotFound('Mandat introuvable.');
+    await this.audit.log({ ...log(c), action: 'mandate.delete', resourceType: 'member', resourceId: r.memberId, summary: `Suppression du mandat « ${r.role} » (${r.body}, depuis le ${r.startDate})` });
+    return { ok: true };
+  }
+
+  /** Une réunion clôturée (procès-verbal figé) n'est supprimée qu'après confirmation explicite. */
+  @Access('asso', 'asso.meetings.delete')
+  @Delete('meetings/:id')
+  async removeMeeting(@AssocContext() c: AssocCtx, @Param('id') id: string, @Query('force') force?: string) {
+    const m = await this.meeting(c.association.id, id);
+    if (m.closedAt) {
+      requireConfirmation(force, `« ${m.title} » est clôturée : son procès-verbal figé, ses présences et ses délibérations seront supprimés définitivement. Pensez à télécharger le PV avant. Confirmez pour continuer.`, { closed: true });
+    }
+    await this.db.transaction(async (tx) => {
+      if (m.closedAt) await allowPurge(tx);
+      await tx.delete(meetings).where(eq(meetings.id, id));
+      if (m.eventId) await tx.delete(events).where(and(eq(events.id, m.eventId), eq(events.associationId, c.association.id)));
+      await this.audit.log({ ...log(c), action: 'meeting.delete', resourceType: 'meeting', resourceId: id, summary: `Suppression de la réunion « ${m.title} » du ${m.startAt.toISOString().slice(0, 10)}${m.closedAt ? ' (clôturée, procès-verbal compris)' : ''}${m.eventId ? ' et de son événement d’agenda' : ''}` }, tx);
+    });
+    return { ok: true };
   }
 }
 

@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { centsToInput, formatCents, parseEuros, PAYMENT_METHODS, PaymentMethod, PERIOD_TYPES, PeriodType } from '@scenorya/shared';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import type { Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, PageHead, Pagination } from '../../components/ui';
@@ -194,8 +194,12 @@ export function DueModal({ id, onClose }: { id: string | null; onClose: () => vo
                 if (reason) run(() => api.post(`/asso/dues/${d.id}/cancel`, { reason }), 'Cotisation annulée.');
               }}>Annuler la cotisation</button>
             )}
+            {can('asso.dues.delete') && (
+              <button className="btn danger" type="button" onClick={() => deleteWithConfirm(`/asso/dues/${d.id}`, `Supprimer définitivement la cotisation « ${d.label} » ?`)
+                .then((r) => { if (r) { toast('Cotisation supprimée.'); invalidate(); onClose(); } }, (e) => setError(errorMessage(e)))}>Supprimer</button>
+            )}
           </div>
-          <p className="small muted">Les règlements ne sont jamais modifiés ni supprimés : une erreur se corrige par annulation motivée, conservée dans l’historique.</p>
+          <p className="small muted">Un règlement enregistré ne se modifie pas : une erreur se corrige par annulation motivée, conservée dans l’historique. La suppression définitive d’une cotisation (et de ses règlements) reste possible, après confirmation ; elle est tracée dans le journal d’audit.</p>
         </div>
       )}
     </Modal>
@@ -463,7 +467,11 @@ export function PlansPage() {
                   <td>{p.memberCategory ? CATEGORIES[p.memberCategory] : '—'}</td>
                   <td>{p.dues}</td>
                   <td>{p.active ? <Badge tone="success">✓ Proposée</Badge> : <Badge>○ Retirée</Badge>}</td>
-                  <td className="actions">{can('asso.plans.update') && <button className="btn ghost sm" type="button" onClick={() => openForm(p)}>Modifier</button>}</td>
+                  <td className="actions">
+                    {can('asso.plans.update') && <button className="btn ghost sm" type="button" onClick={() => openForm(p)}>Modifier</button>}
+                    {can('asso.plans.delete') && <button className="btn ghost sm" type="button" onClick={() => deleteWithConfirm<{ detachedDues: number }>(`/asso/plans/${p.id}`, `Supprimer la formule « ${p.name} » ? Les cotisations déjà appelées gardent leur libellé et leur montant.`)
+                      .then((r) => { if (r) { toast('Formule supprimée.'); invalidate(); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import { useApp } from '../../state';
 import { Attachments } from '../drive/Drive';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, ModuleLogo, PageHead } from '../../components/ui';
@@ -14,7 +14,7 @@ interface Task {
   assigneeId: string | null; assigneeName: string | null; dueDate: string | null; dueOffsetDays: number | null; labels: string[];
   checklist: { text: string; done: boolean }[]; position: number; completedAt: string | null; subtasks: number; subtasksDone: number; comments: number; projectName?: string;
 }
-type TaskDetail = Omit<Task, 'subtasks' | 'comments'> & { subtasks: Task[]; comments: { id: string; body: string; author: string | null; createdAt: string }[]; project: { name: string; isTemplate: boolean; archivedAt: string | null }; mine: boolean };
+type TaskDetail = Omit<Task, 'subtasks' | 'comments'> & { subtasks: Task[]; comments: { id: string; body: string; author: string | null; authorId: string | null; createdAt: string }[]; project: { name: string; isTemplate: boolean; archivedAt: string | null }; mine: boolean };
 interface Assignee { id: string; displayName: string }
 
 export const STATUS: Record<Status, string> = { todo: 'À faire', doing: 'En cours', waiting: 'En attente', done: 'Terminé' };
@@ -132,7 +132,7 @@ export function ProjectsPage({ templates = false }: { templates?: boolean }) {
 /* ------------------------------------------------------ Détail tâche */
 
 function TaskModal({ id, assignees, onClose, onChanged }: { id: string | null; assignees: Assignee[]; onClose: () => void; onChanged: () => void }) {
-  const { can, toast, ctx } = useApp();
+  const { can, toast, ctx, me } = useApp();
   const q = useQuery({ queryKey: ['task', id], queryFn: () => api.get<TaskDetail>(`/tasks/${id}`), enabled: Boolean(id) });
   const full = can('projects.tasks.update');
   const [edit, setEdit] = useState<Partial<Task> | null>(null);
@@ -246,7 +246,12 @@ function TaskModal({ id, assignees, onClose, onChanged }: { id: string | null; a
             {d.comments.map((k) => (
               <div key={k.id} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{k.body}</div>
-                <div className="small muted">{k.author} · {formatDate(k.createdAt, true)}</div>
+                <div className="small muted">
+                  {k.author} · {formatDate(k.createdAt, true)}
+                  {(k.authorId === me?.user.id || can('projects.tasks.update')) && (
+                    <> · <button type="button" className="link-btn small" onClick={() => deleteWithConfirm(`/tasks/${d.id}/comments/${k.id}`, 'Supprimer ce commentaire ?').then((r) => { if (r) { q.refetch(); onChanged(); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button></>
+                  )}
+                </div>
               </div>
             ))}
             {canStatus && (
@@ -276,6 +281,7 @@ export function ProjectBoard() {
   const { id } = useParams();
   const { can, toast } = useApp();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const project = useQuery({ queryKey: ['project', id], queryFn: () => api.get<Project>(`/projects/${id}`) });
   const list = useQuery({ queryKey: ['tasks', id], queryFn: () => api.get<Task[]>(`/projects/${id}/tasks`) });
   const assignees = useQuery({ queryKey: ['assignees'], queryFn: () => api.get<Assignee[]>('/projects/assignees') });
@@ -356,6 +362,8 @@ export function ProjectBoard() {
         actions={
           <>
             {can('projects.projects.archive') && <button className="btn secondary" type="button" onClick={async () => { await api.post(`/projects/${p.id}/archive`, { restore: Boolean(p.archivedAt) }); toast(p.archivedAt ? 'Projet restauré.' : 'Projet archivé.'); qc.invalidateQueries({ queryKey: ['project', id] }); refresh(); }}>{p.archivedAt ? 'Restaurer' : 'Archiver'}</button>}
+            {can('projects.projects.delete') && <button className="btn danger" type="button" onClick={() => deleteWithConfirm<{ tasks: number }>(`/projects/${p.id}`, `Supprimer définitivement ${p.isTemplate ? 'le modèle' : 'le projet'} « ${p.name} », ses tâches et ses commentaires ? (Les pièces jointes restent dans Drive.)`)
+              .then((r) => { if (r) { toast(`${p.isTemplate ? 'Modèle' : 'Projet'} supprimé (${r.tasks} tâche(s)).`); qc.invalidateQueries({ queryKey: ['projects'] }); navigate(p.isTemplate ? '/projects/modeles' : '/projects'); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>}
           </>
         }
       />

@@ -289,11 +289,17 @@ export class AgendaController implements OnModuleInit {
     return { ok: true };
   }
 
-  /** Annulation de l'événement (conservé dans l'historique, retiré des plannings). */
+  /** Annulation de l'événement (conservé, retiré des plannings) ; `?purge=1` le supprime définitivement. */
   @Access('agenda', 'agenda.events.delete')
   @Delete('agenda/events/:id')
-  async cancel(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+  async cancel(@AssocContext() c: AssocCtx, @Param('id') id: string, @Query('purge') purge?: string) {
     const e = await this.find(c.association.id, id);
+    if (purge === '1') {
+      // Une réunion liée garde sa date : elle est seulement détachée de l'agenda (clé « set null »).
+      await this.db.delete(events).where(eq(events.id, id));
+      await this.audit.log({ ...log(c), action: 'event.delete', resourceType: 'event', resourceId: id, summary: `Suppression définitive de l’événement « ${e.title} »` });
+      return { ok: true, deleted: true };
+    }
     await this.db.update(events).set({ cancelledAt: new Date(), updatedAt: new Date() }).where(eq(events.id, id));
     await this.audit.log({ ...log(c), action: 'event.cancel', resourceType: 'event', resourceId: id, summary: `Annulation de l’événement « ${e.title} »` });
     return { ok: true };

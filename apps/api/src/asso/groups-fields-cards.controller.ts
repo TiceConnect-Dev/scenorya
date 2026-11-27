@@ -91,6 +91,19 @@ export class GroupsController {
     return { ok: true };
   }
 
+  /** Les adhérents ne sont pas touchés : seule leur appartenance au groupe disparaît. */
+  @Access('asso', 'asso.groups.delete')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    const g = await this.find(c.association.id, id);
+    const [n] = await this.db.select({ n: sql<number>`count(*)::int` }).from(memberGroupLinks).where(eq(memberGroupLinks.groupId, id));
+    await this.db.transaction(async (tx) => {
+      await tx.delete(memberGroups).where(eq(memberGroups.id, id));
+      await this.audit.log({ ...log(c), action: 'group.delete', resourceType: 'group', resourceId: id, summary: `Suppression du groupe « ${g.name} » (${n.n} membre(s) retiré(s) du groupe)` }, tx);
+    });
+    return { ok: true };
+  }
+
   @Access('asso', 'asso.groups.read')
   @Get(':id/members')
   async members(@AssocContext() c: AssocCtx, @Param('id') id: string) {
@@ -202,6 +215,22 @@ export class FieldsController {
       .returning();
     await this.audit.log({ ...log(c), action: 'field.update', resourceType: 'field', resourceId: id, summary: `Modification du champ « ${f.label} »${archived ? ' (archivé, valeurs conservées)' : ''}` });
     return f;
+  }
+
+  /** Supprime le champ et efface sa valeur de toutes les fiches (l'archivage, lui, conserve les valeurs). */
+  @Access('asso', 'asso.fields.admin')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    parse(zUuid, id);
+    const [f] = await this.db.select().from(memberFieldDefs).where(and(eq(memberFieldDefs.id, id), eq(memberFieldDefs.associationId, c.association.id)));
+    if (!f) throw NotFound('Champ introuvable.');
+    const n = await this.db.transaction(async (tx) => {
+      const r = await tx.update(members).set({ custom: sql`${members.custom} - ${f.key}` }).where(and(eq(members.associationId, c.association.id), sql`${members.custom} ? ${f.key}`)).returning({ id: members.id });
+      await tx.delete(memberFieldDefs).where(eq(memberFieldDefs.id, id));
+      await this.audit.log({ ...log(c), action: 'field.delete', resourceType: 'field', resourceId: id, summary: `Suppression du champ « ${f.label} » (valeur effacée de ${r.length} fiche(s))` }, tx);
+      return r.length;
+    });
+    return { ok: true, cleared: n };
   }
 }
 

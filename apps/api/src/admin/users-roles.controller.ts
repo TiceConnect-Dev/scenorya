@@ -7,7 +7,8 @@ import { Access, AssocContext, AssocCtx } from '../common/access';
 import { parse, patchOf, zEmail, zPassword, zUuid } from '../common/validation';
 import { BadRequest, Conflict, Forbidden, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
-import { associationUsers, roleAssignments, roles, users } from '../db/schema';
+import { associationUsers, members, roleAssignments, roles, sessions, users } from '../db/schema';
+import { randomToken } from '../common/crypto';
 import { SessionService } from '../auth/session.service';
 import { AuditService } from '../audit/audit.service';
 
@@ -193,6 +194,41 @@ export class AdminUsersController {
       await this.audit.log({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, action: 'user.disable', resourceType: 'user', resourceId: target.u.id, summary: `Accès désactivé pour ${target.u.displayName}`, ip: c.ip }, tx);
     });
     return { ok: true };
+  }
+
+  /**
+   * Retire la personne de l'association. Si elle n'appartient plus à aucune association (et n'est pas
+   * superadministrateur), son compte est supprimé : identité effacée, connexion impossible. Le compte reste
+   * comme simple identifiant dans le journal d'audit, qui ne peut pas être modifié.
+   */
+  @Access('admin', 'admin.users.delete')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    parse(zUuid, id);
+    if (id === c.membershipId) throw BadRequest('SELF_DELETE', 'Vous ne pouvez pas vous retirer vous-même de l’association.');
+    const target = await this.membership(c.association.id, id);
+    const theirs = (await this.db.select({ p: roles.permissions }).from(roleAssignments).innerJoin(roles, eq(roles.id, roleAssignments.roleId)).where(eq(roleAssignments.associationUserId, id))).flatMap((r) => r.p);
+    assertCanGrant(c.grants, theirs);
+    const accountDeleted = await this.db.transaction(async (tx) => {
+      await tx.update(members).set({ userId: null, updatedAt: new Date() }).where(and(eq(members.associationId, c.association.id), eq(members.userId, target.u.id)));
+      await tx.delete(associationUsers).where(eq(associationUsers.id, id));
+      await assertAdminRemains(tx, c.association.id);
+      const [others] = await tx.select({ n: sql<number>`count(*)::int` }).from(associationUsers).where(eq(associationUsers.userId, target.u.id));
+      const erase = others.n === 0 && !target.u.isSuperAdmin;
+      if (erase) {
+        await tx.update(users).set({
+          email: `supprime-${target.u.id}@scenorya.invalid`, displayName: 'Compte supprimé', status: 'disabled',
+          passwordHash: await this.sessions.hashPassword(randomToken(32)), mustChangePassword: false, updatedAt: new Date(),
+        }).where(eq(users.id, target.u.id));
+        await tx.delete(sessions).where(eq(sessions.userId, target.u.id));
+      }
+      await this.audit.log({
+        associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, ip: c.ip, action: erase ? 'user.delete' : 'user.remove', resourceType: 'user', resourceId: target.u.id,
+        summary: erase ? `Suppression du compte de ${target.u.displayName} (${target.u.email}) : il n’appartenait à aucune autre association` : `${target.u.displayName} retiré(e) de l’association (son compte est conservé pour ses autres associations)`,
+      }, tx);
+      return erase;
+    });
+    return { ok: true, accountDeleted };
   }
 
   @Access('admin', 'admin.users.restore')

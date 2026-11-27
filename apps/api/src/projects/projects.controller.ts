@@ -7,7 +7,7 @@ import { Access, AssocContext, AssocCtx } from '../common/access';
 import { parse, patchOf, zOptText, zUuid } from '../common/validation';
 import { BadRequest, Forbidden, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
-import { associationUsers, projects, taskComments, tasks, users } from '../db/schema';
+import { associationUsers, driveLinks, projects, taskComments, tasks, users } from '../db/schema';
 import { AuditService } from '../audit/audit.service';
 import { ModulesService } from '../modules/modules.service';
 import { SPECTACLE_TEMPLATE } from './templates';
@@ -276,7 +276,7 @@ export class ProjectsController implements OnModuleInit {
     const [row] = await this.db.select(this.taskSelect()).from(tasks).leftJoin(associationUsers, eq(associationUsers.id, tasks.assigneeId)).leftJoin(users, eq(users.id, associationUsers.userId)).where(eq(tasks.id, id));
     const subtasks = await this.db.select().from(tasks).where(eq(tasks.parentId, id)).orderBy(asc(tasks.position));
     const comments = await this.db
-      .select({ id: taskComments.id, body: taskComments.body, createdAt: taskComments.createdAt, author: users.displayName })
+      .select({ id: taskComments.id, body: taskComments.body, createdAt: taskComments.createdAt, author: users.displayName, authorId: taskComments.authorId })
       .from(taskComments)
       .leftJoin(users, eq(users.id, taskComments.authorId))
       .where(eq(taskComments.taskId, id))
@@ -353,8 +353,41 @@ export class ProjectsController implements OnModuleInit {
   async deleteTask(@AssocContext() c: AssocCtx, @Param('id') id: string) {
     const t = await this.task(c.association.id, id);
     await this.project(c.association.id, t.projectId, true);
-    await this.db.delete(tasks).where(eq(tasks.id, id));
-    await this.audit.log({ ...log(c), action: 'task.delete', resourceType: 'task', resourceId: id, summary: `Suppression de la tâche « ${t.title} » (et de ses sous-tâches)` });
+    await this.db.transaction(async (tx) => {
+      const ids = (await tx.execute<{ id: string }>(sql`with recursive t(id) as (select ${id}::uuid union all select x.id from tasks x join t on x.parent_id = t.id) select id from t`)).rows.map((r) => r.id);
+      await tx.delete(driveLinks).where(and(eq(driveLinks.module, 'projects'), eq(driveLinks.entityType, 'task'), inArray(driveLinks.entityId, ids)));
+      await tx.delete(tasks).where(eq(tasks.id, id));
+      await this.audit.log({ ...log(c), action: 'task.delete', resourceType: 'task', resourceId: id, summary: `Suppression de la tâche « ${t.title} » (et de ses sous-tâches)` }, tx);
+    });
+    return { ok: true };
+  }
+
+  /** Suppression définitive : tâches, sous-tâches et commentaires ; les pièces jointes restent dans Drive. */
+  @Access('projects', 'projects.projects.delete')
+  @Delete('projects/:id')
+  async deleteProject(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    const p = await this.project(c.association.id, id);
+    const n = await this.db.transaction(async (tx) => {
+      const ids = (await tx.select({ id: tasks.id }).from(tasks).where(eq(tasks.projectId, id))).map((r) => r.id);
+      if (ids.length) await tx.delete(driveLinks).where(and(eq(driveLinks.module, 'projects'), eq(driveLinks.entityType, 'task'), inArray(driveLinks.entityId, ids)));
+      await tx.delete(projects).where(eq(projects.id, id));
+      await this.audit.log({ ...log(c), action: 'project.delete', resourceType: 'project', resourceId: id, summary: `Suppression ${p.isTemplate ? 'du modèle' : 'du projet'} « ${p.name} » (${ids.length} tâche(s))` }, tx);
+      return ids.length;
+    });
+    return { ok: true, tasks: n };
+  }
+
+  /** L'auteur peut supprimer son commentaire ; un gestionnaire des tâches, n'importe lequel. */
+  @Access('projects', 'projects.tasks.read', { write: true })
+  @Delete('tasks/:id/comments/:commentId')
+  async deleteComment(@AssocContext() c: AssocCtx, @Param('id') id: string, @Param('commentId') commentId: string) {
+    parse(zUuid, commentId);
+    const t = await this.task(c.association.id, id);
+    const [k] = await this.db.select().from(taskComments).where(and(eq(taskComments.id, commentId), eq(taskComments.taskId, id)));
+    if (!k) throw NotFound('Commentaire introuvable.');
+    if (k.authorId !== c.user.id && !this.canFullyEdit(c)) throw Forbidden('PERMISSION_DENIED', 'Vous ne pouvez supprimer que vos propres commentaires.');
+    await this.db.delete(taskComments).where(eq(taskComments.id, commentId));
+    await this.audit.log({ ...log(c), action: 'task.comment.delete', resourceType: 'task', resourceId: id, summary: `Suppression d’un commentaire sur « ${t.title} »` });
     return { ok: true };
   }
 

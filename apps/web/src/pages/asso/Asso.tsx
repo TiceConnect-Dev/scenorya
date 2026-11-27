@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import type { AuditEntry, Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { MemberDues } from './Dues';
@@ -329,6 +329,7 @@ export function MemberDetail() {
   const { id } = useParams();
   const { can, toast } = useApp();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const q = useQuery({ queryKey: ['member', id], queryFn: () => api.get<Member>(`/asso/members/${id}`) });
   const history = useQuery({ queryKey: ['member-history', id], queryFn: () => api.get<AuditEntry[]>(`/asso/members/${id}/history`), enabled: can('asso.members.history') });
   const fields = useQuery({ queryKey: ['fields'], queryFn: () => api.get<FieldDef[]>('/asso/fields') });
@@ -364,6 +365,25 @@ export function MemberDetail() {
               <button className="btn secondary" type="button" onClick={() => window.confirm('Archiver cette fiche ? Elle restera consultable et restaurable.') && act.mutate('archive')}>Archiver</button>
             )}
             {archived && can('asso.members.restore') && <button className="btn" type="button" onClick={() => act.mutate('restore')}>Restaurer</button>}
+            {can('asso.members.delete') && (
+              <button className="btn danger" type="button" onClick={async () => {
+                try {
+                  const r = await deleteWithConfirm<{ mode: 'deleted' | 'anonymized' }>(`/asso/members/${m.id}`, `Supprimer définitivement la fiche de ${m.firstName} ${m.lastName} ?`);
+                  if (!r) return;
+                  qc.invalidateQueries({ queryKey: ['members'] });
+                  qc.invalidateQueries({ queryKey: ['asso-stats'] });
+                  if (r.mode === 'anonymized') {
+                    toast('Fiche anonymisée : elle figure dans un procès-verbal figé. Tout le reste a été supprimé.');
+                    qc.invalidateQueries({ queryKey: ['member', id] });
+                  } else {
+                    toast('Fiche supprimée.');
+                    navigate('/asso/adherents');
+                  }
+                } catch (e) {
+                  toast(errorMessage(e), 'error');
+                }
+              }}>Supprimer</button>
+            )}
           </>
         }
       />

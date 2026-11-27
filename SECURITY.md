@@ -16,7 +16,8 @@
 | Installation | Jeton d’installation obligatoire, transaction verrouillée, aucun compte par défaut | tests e2e |
 | Isolation | `association_id` sur toutes les requêtes métier ; en-tête d’association vérifié contre l’appartenance | tests e2e |
 | Données sensibles | IBAN et mot de passe SMTP chiffrés (AES-256-GCM, clé dérivée d’`APP_SECRET`) ; champs sensibles des adhérents masqués sans droit dédié | test e2e |
-| Finances | Montants en centimes entiers ; verrou de ligne contre les trop-perçus simultanés ; règlements inaltérables (déclencheur PostgreSQL), annulation motivée et journalisée | tests e2e |
+| Finances | Montants en centimes entiers ; verrou de ligne contre les trop-perçus simultanés ; règlements non modifiables (déclencheur PostgreSQL), annulation motivée et journalisée ; suppression définitive seulement après double confirmation, par autorisation limitée à la transaction, et toujours tracée dans le journal d’audit | tests e2e |
+| Suppressions | Toute donnée créée peut être supprimée ; conséquences annoncées par le serveur (`CONFIRM_REQUIRED`) avant toute suppression lourde ; anonymisation quand une fiche figure dans un procès-verbal figé ; suppression d’association soumise à la saisie de son nom | tests e2e |
 | Audit | Journal en ajout seul (déclencheurs PostgreSQL refusant UPDATE/DELETE/TRUNCATE), chaîné par SHA-256, vérification d’intégrité ; secrets masqués | tests e2e |
 | En-têtes | Helmet, CSP stricte (`script-src 'self'`), `frame-ancestors 'none'` | — |
 | Injections | Requêtes paramétrées (Drizzle), validation zod de toutes les entrées, neutralisation des formules dans les exports CSV | test e2e |

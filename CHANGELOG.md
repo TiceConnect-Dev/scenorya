@@ -2,6 +2,27 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.9.0] — 2026-11-27
+
+### Ajouté — Suppression de tout ce qui se crée
+
+- Bouton **Supprimer** partout : adhérents, cotisations, formules, groupes, champs personnalisés, réunions (y compris clôturées), mandats, événements d’agenda, projets et modèles, commentaires, utilisateurs, associations (System), sauvegardes, configuration de la messagerie. (Drive, rôles, tâches, délibérations, convoqués et liens de partage l’avaient déjà.)
+- Double confirmation quand la suppression a des conséquences importantes : le serveur répond `CONFIRM_REQUIRED` avec le détail (règlements encaissés, numéros de reçus, procès-verbal figé…), l’interface l’affiche et ne force la suppression (`?force=1`) qu’après un second accord.
+- Adhérent cité dans un procès-verbal figé : sa fiche est **anonymisée** (nom, coordonnées, champs, notes effacés) et tout le reste supprimé, car il ne peut pas disparaître d’un document déjà clôturé.
+- Formule supprimée : les cotisations déjà appelées gardent leur libellé et leur montant. Champ personnalisé supprimé : sa valeur est effacée de toutes les fiches.
+- Utilisateur retiré : s’il n’appartient à aucune autre association, son compte est supprimé (identité effacée, sessions fermées).
+- Association supprimée (System, saisie du nom exigée) : toutes ses données et ses documents sont effacés ; seuls le journal d’audit et l’historique des modules, en ajout seul, en gardent la trace.
+- Événement d’agenda : *Annuler* (conservé) ou *Supprimer* (définitif).
+- Nouvelles permissions `delete` (adhérents, cotisations, formules, groupes, réunions, mandats, projets, utilisateurs).
+
+### Corrigé
+
+- Le déclencheur de protection des réunions renvoyait `NEW` lors d’une suppression : toute suppression de réunion était ignorée sans erreur.
+
+### Sécurité
+
+- Les règlements et les réunions clôturées restent **non modifiables**. Leur suppression n’est possible que par une autorisation explicite limitée à la transaction (`scenorya.allow_purge`), après confirmation, et elle est toujours inscrite au journal d’audit, qui reste inaltérable.
+
 ## [0.8.0] — 2026-11-27
 
 ### Ajouté — Scenorya Espace (adhérents)

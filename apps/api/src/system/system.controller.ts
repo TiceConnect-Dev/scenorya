@@ -1,17 +1,20 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { createReadStream, existsSync } from 'node:fs';
+import { unlink } from 'node:fs/promises';
 import { statfs } from 'node:fs/promises';
 import os from 'node:os';
-import { desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { isModuleId, ModuleId } from '@scenorya/shared';
 import { Ctx, Public, RequestContext, ScenoryaRequest, SuperAdminOnly } from '../common/access';
 import { parse, zEmail, zOptText, zUuid } from '../common/validation';
-import { AppError, NotFound } from '../common/errors';
+import { AppError, BadRequest, NotFound } from '../common/errors';
+import { allowPurge } from '../common/purge';
+import { collectBlobs } from '../drive/drive.controller';
 import { DB, Db } from '../db/db';
-import { backups } from '../db/schema';
+import { associations, backups, instanceSettings } from '../db/schema';
 import { loadConfig } from '../config';
 import { AssociationsService } from '../associations/associations.service';
 import { SettingsService } from './settings.service';
@@ -104,6 +107,62 @@ export class SystemController {
     return r;
   }
 
+  /**
+   * Suppression d'une association et de toutes ses données (adhérents, cotisations, agenda, projets,
+   * documents…). Seuls restent le journal d'audit et l'historique des modules, en ajout seul par conception :
+   * l'association y demeure comme simple nom, à l'état « supprimée ». Confirmation par saisie du nom.
+   */
+  @SuperAdminOnly()
+  @Delete('associations/:id')
+  async deleteAssociation(@Ctx() ctx: RequestContext, @Param('id') id: string, @Body() body: unknown, @Req() req: ScenoryaRequest) {
+    parse(zUuid, id);
+    const { confirmName } = parse(z.object({ confirmName: z.string() }), body ?? {});
+    const [a] = await this.db.select().from(associations).where(and(eq(associations.id, id), sql`${associations.status} <> 'deleted'`));
+    if (!a) throw NotFound('Association introuvable.');
+    if (confirmName.trim() !== a.name) throw BadRequest('CONFIRM_NAME', 'Saisissez exactement le nom de l’association pour confirmer.');
+    const shas = (await this.db.execute<{ sha256: string }>(sql`select distinct v.sha256 from drive_file_versions v join drive_files f on f.id = v.file_id where f.association_id = ${id}`)).rows.map((r) => r.sha256);
+    const counts = (await this.db.execute<{ members: number; users: number; files: number }>(sql`select
+      (select count(*)::int from members where association_id = ${id}) as members,
+      (select count(*)::int from association_users where association_id = ${id}) as users,
+      (select count(*)::int from drive_files where association_id = ${id}) as files`)).rows[0];
+    await this.db.transaction(async (tx) => {
+      await allowPurge(tx);
+      const q = (s: ReturnType<typeof sql>) => tx.execute(s);
+      await q(sql`delete from drive_access_log where association_id = ${id}`);
+      await q(sql`delete from drive_links where file_id in (select id from drive_files where association_id = ${id})`);
+      await q(sql`delete from drive_shares where association_id = ${id}`);
+      await q(sql`delete from drive_files where association_id = ${id}`);
+      await q(sql`delete from drive_folders where association_id = ${id}`);
+      await q(sql`delete from drive_settings where association_id = ${id}`);
+      await q(sql`delete from member_invitations where association_id = ${id}`);
+      await q(sql`delete from mandates where association_id = ${id}`);
+      await q(sql`delete from meetings where association_id = ${id}`);
+      await q(sql`delete from projects where association_id = ${id}`);
+      await q(sql`delete from tasks where association_id = ${id}`);
+      await q(sql`delete from events where association_id = ${id}`);
+      await q(sql`delete from membership_payments where association_id = ${id}`);
+      await q(sql`delete from membership_dues where association_id = ${id}`);
+      await q(sql`delete from membership_plans where association_id = ${id}`);
+      await q(sql`delete from member_groups where association_id = ${id}`);
+      await q(sql`delete from member_field_defs where association_id = ${id}`);
+      await q(sql`delete from members where association_id = ${id}`);
+      await q(sql`delete from association_users where association_id = ${id}`);
+      await q(sql`delete from roles where association_id = ${id}`);
+      await q(sql`delete from association_modules where association_id = ${id}`);
+      await q(sql`delete from counters where association_id = ${id}`);
+      await tx.update(associations).set({
+        status: 'deleted', slug: `supprimee-${id}`, shortName: null, legalName: null, rna: null, siret: null, email: null, phone: null, website: null,
+        addressLine: null, postalCode: null, city: null, updatedAt: new Date(),
+      }).where(eq(associations.id, id));
+      await this.audit.log({
+        associationId: null, actorId: ctx.user!.id, actorLabel: ctx.user!.displayName, ip: req.ip, action: 'instance.association.delete', resourceType: 'association', resourceId: id,
+        summary: `Suppression de l’association « ${a.name} » et de toutes ses données (${counts.members} adhérent(s), ${counts.users} accès, ${counts.files} document(s))`,
+      }, tx);
+    });
+    await collectBlobs(this.db, shas);
+    return { ok: true, ...counts };
+  }
+
   /* ---------------------------------------------------------- Messagerie */
 
   @SuperAdminOnly()
@@ -118,6 +177,16 @@ export class SystemController {
     const input = parse(zSmtp, body);
     await this.db.transaction((tx) => this.settings.saveSmtp(tx, input, actorOf(ctx, req.ip)));
     return this.settings.smtpPublic();
+  }
+
+  @SuperAdminOnly()
+  @Delete('smtp')
+  async deleteSmtp(@Ctx() ctx: RequestContext, @Req() req: ScenoryaRequest) {
+    await this.db.transaction(async (tx) => {
+      await tx.delete(instanceSettings).where(eq(instanceSettings.key, 'smtp'));
+      await this.audit.log({ associationId: null, actorId: ctx.user!.id, actorLabel: ctx.user!.displayName, ip: req.ip, action: 'instance.smtp.delete', resourceType: 'settings', summary: 'Suppression de la configuration de la messagerie' }, tx);
+    });
+    return { ok: true };
   }
 
   @SuperAdminOnly()
@@ -146,6 +215,20 @@ export class SystemController {
   @HttpCode(200)
   createBackup(@Ctx() ctx: RequestContext, @Req() req: ScenoryaRequest) {
     return this.backupsService.run(actorOf(ctx, req.ip));
+  }
+
+  @SuperAdminOnly()
+  @Delete('backups/:id')
+  async deleteBackup(@Ctx() ctx: RequestContext, @Param('id') id: string, @Req() req: ScenoryaRequest) {
+    parse(zUuid, id);
+    const [b] = await this.db.select().from(backups).where(eq(backups.id, id));
+    if (!b) throw NotFound('Sauvegarde introuvable.');
+    if (b.status === 'running') throw BadRequest('BACKUP_RUNNING', 'Sauvegarde en cours : attendez qu’elle se termine.');
+    const path = b.filename ? this.backupsService.pathOf(b.filename) : null;
+    if (path) await unlink(path).catch(() => undefined);
+    await this.db.delete(backups).where(eq(backups.id, id));
+    await this.audit.log({ associationId: null, actorId: ctx.user!.id, actorLabel: ctx.user!.displayName, ip: req.ip, action: 'backup.delete', resourceType: 'backup', resourceId: id, summary: `Suppression de la sauvegarde ${b.filename ?? id}` });
+    return { ok: true };
   }
 
   @SuperAdminOnly()

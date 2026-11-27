@@ -1,14 +1,15 @@
-import { Body, Controller, Get, HttpCode, Inject, OnModuleInit, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, OnModuleInit, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { and, asc, desc, eq, ilike, or, sql, SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray, isNotNull, isNull, or, sql, SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { grantsCover } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
 import { parse, patchOf, zOptText, zUuid } from '../common/validation';
 import { BadRequest, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
-import { auditLogs, counters, memberFieldDefs, memberGroupLinks, members } from '../db/schema';
+import { auditLogs, counters, mandates, meetingAttendees, meetings, memberFieldDefs, memberGroupLinks, members, membershipDues, membershipPayments } from '../db/schema';
+import { allowPurge, requireConfirmation } from '../common/purge';
 import { FieldDef, validateCustom, visibleCustom } from './custom-fields';
 import { AuditService } from '../audit/audit.service';
 import { ModulesService } from '../modules/modules.service';
@@ -302,5 +303,63 @@ export class MembersController implements OnModuleInit {
     await this.db.update(members).set({ status: 'active', archivedAt: null, updatedAt: new Date() }).where(eq(members.id, id));
     await this.audit.log({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, action: 'member.restore', resourceType: 'member', resourceId: id, summary: `Restauration de la fiche n° ${m.number} — ${m.firstName} ${m.lastName}`, ip: c.ip });
     return { ok: true };
+  }
+
+  /**
+   * Suppression définitive. Si l'adhérent figure dans un procès-verbal figé (réunion clôturée),
+   * la fiche ne peut pas disparaître du document : elle est alors anonymisée (RGPD) et tout le reste supprimé.
+   */
+  @Access('asso', 'asso.members.delete')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string, @Query('force') force?: string) {
+    const m = await this.find(c.association.id, id);
+    const dues = await this.db.select({ id: membershipDues.id, receipt: membershipDues.receiptNumber }).from(membershipDues).where(eq(membershipDues.memberId, id));
+    const [pay] = dues.length
+      ? await this.db.select({ n: sql<number>`count(*)::int` }).from(membershipPayments).where(and(inArray(membershipPayments.dueId, dues.map((d) => d.id)), isNull(membershipPayments.cancelledAt)))
+      : [{ n: 0 }];
+    const closedRows = await this.db.select({ id: meetings.id }).from(meetingAttendees).innerJoin(meetings, eq(meetings.id, meetingAttendees.meetingId))
+      .where(and(or(eq(meetingAttendees.memberId, id), eq(meetingAttendees.proxyMemberId, id)), isNotNull(meetings.closedAt)));
+    const [mand] = await this.db.select({ n: sql<number>`count(*)::int` }).from(mandates).where(eq(mandates.memberId, id));
+    const receipts = dues.filter((d) => d.receipt).map((d) => d.receipt!);
+    if (pay.n > 0 || closedRows.length > 0 || mand.n > 0) {
+      const parts = [
+        pay.n && `${pay.n} règlement(s)${receipts.length ? ` et ${receipts.length} reçu(s) (n° ${receipts.join(', ')})` : ''} seront supprimés`,
+        mand.n && `${mand.n} mandat(s) seront supprimés`,
+        closedRows.length && `la fiche figure dans ${closedRows.length} procès-verbal(aux) figé(s) : elle sera anonymisée au lieu d’être effacée`,
+      ].filter(Boolean);
+      requireConfirmation(force, `Suppression de ${m.firstName} ${m.lastName} : ${parts.join(' ; ')}. Confirmez pour continuer.`, { payments: pay.n, receipts, mandates: mand.n, closedMeetings: closedRows.length });
+    }
+    const mode = closedRows.length ? 'anonymized' : 'deleted';
+    await this.db.transaction(async (tx) => {
+      await allowPurge(tx);
+      if (dues.length) {
+        await tx.delete(membershipPayments).where(inArray(membershipPayments.dueId, dues.map((d) => d.id)));
+        await tx.delete(membershipDues).where(eq(membershipDues.memberId, id));
+      }
+      await tx.delete(mandates).where(eq(mandates.memberId, id));
+      // Réunions non clôturées : retrait de la liste et des procurations.
+      await tx.execute(sql`update meeting_attendees set proxy_member_id = null, status = case when status = 'represented' then 'excused' else status end
+        where proxy_member_id = ${id} and meeting_id in (select id from meetings where closed_at is null)`);
+      await tx.execute(sql`delete from meeting_attendees where member_id = ${id} and meeting_id in (select id from meetings where closed_at is null)`);
+      if (mode === 'deleted') {
+        await tx.delete(members).where(eq(members.id, id));
+      } else {
+        await tx.update(members).set({
+          firstName: 'Adhérent', lastName: `supprimé (n° ${m.number})`, email: null, phone: null, birthDate: null, addressLine: null, postalCode: null, city: null,
+          guardianName: null, guardianPhone: null, guardianEmail: null, imageRights: false, skills: [], notes: null, custom: {}, cardToken: null, userId: null,
+          status: 'archived', archivedAt: new Date(), updatedAt: new Date(),
+        }).where(eq(members.id, id));
+        await tx.delete(memberGroupLinks).where(eq(memberGroupLinks.memberId, id));
+      }
+      await this.audit.log({
+        associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, ip: c.ip,
+        action: mode === 'deleted' ? 'member.delete' : 'member.anonymize', resourceType: 'member', resourceId: id,
+        summary: mode === 'deleted'
+          ? `Suppression définitive de la fiche n° ${m.number} — ${m.firstName} ${m.lastName} (${dues.length} cotisation(s), ${pay.n} règlement(s))`
+          : `Anonymisation de la fiche n° ${m.number} (citée dans un procès-verbal figé) ; cotisations, règlements et coordonnées supprimés`,
+        data: { receipts },
+      }, tx);
+    });
+    return { ok: true, mode };
   }
 }

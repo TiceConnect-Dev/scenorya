@@ -61,7 +61,7 @@ export const api = {
   post: <T>(url: string, body: unknown = {}) => request<T>('POST', url, body),
   put: <T>(url: string, body: unknown) => request<T>('PUT', url, body),
   patch: <T>(url: string, body: unknown) => request<T>('PATCH', url, body),
-  delete: <T>(url: string) => request<T>('DELETE', url),
+  delete: <T>(url: string, body?: unknown) => request<T>('DELETE', url, body),
   /** Téléchargement authentifié d'un fichier (CSV, sauvegarde…). */
   async download(url: string, fallbackName: string, init?: { method: 'POST'; body: unknown }) {
     const headers: Record<string, string> = associationId ? { 'X-Scenorya-Association': associationId } : {};
@@ -109,6 +109,25 @@ export const api = {
     });
   },
 };
+
+/**
+ * Suppression avec confirmation. Si le serveur signale des conséquences importantes
+ * (CONFIRM_REQUIRED : règlements, procès-verbal figé…), son message est présenté et une
+ * seconde confirmation explicite est demandée avant de forcer la suppression.
+ * Renvoie null si l'utilisateur renonce.
+ */
+export async function deleteWithConfirm<T = unknown>(url: string, question: string): Promise<T | null> {
+  if (!window.confirm(question)) return null;
+  try {
+    return await api.delete<T>(url);
+  } catch (e) {
+    if (e instanceof ApiError && e.code === 'CONFIRM_REQUIRED') {
+      if (!window.confirm(`${e.message}\n\nCette suppression est définitive.`)) return null;
+      return api.delete<T>(`${url}${url.includes('?') ? '&' : '?'}force=1`);
+    }
+    throw e;
+  }
+}
 
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {

@@ -42,7 +42,7 @@ export interface PermissionResource {
 }
 
 export const PERMISSION_RESOURCES: PermissionResource[] = [
-  { module: 'admin', resource: 'users', label: 'Utilisateurs', actions: ['read', 'create', 'update', 'archive', 'restore'] },
+  { module: 'admin', resource: 'users', label: 'Utilisateurs', actions: ['read', 'create', 'update', 'archive', 'restore', 'delete'] },
   { module: 'admin', resource: 'roles', label: 'Rôles et permissions', actions: ['read', 'create', 'update', 'delete'] },
   { module: 'admin', resource: 'modules', label: 'Modules et fonctionnalités', actions: ['read', 'admin'] },
   { module: 'admin', resource: 'audit', label: "Journal d'audit", actions: ['read', 'export'] },
@@ -50,24 +50,26 @@ export const PERMISSION_RESOURCES: PermissionResource[] = [
   {
     module: 'asso', resource: 'members', label: 'Adhérents',
     // download : cartes d'adhérent (PDF)
-    actions: ['read', 'create', 'update', 'archive', 'restore', 'import', 'export', 'download', 'sensitive', 'history'],
+    // delete : suppression définitive (ou anonymisation si la fiche figure dans un procès-verbal figé)
+    actions: ['read', 'create', 'update', 'archive', 'restore', 'delete', 'import', 'export', 'download', 'sensitive', 'history'],
   },
-  { module: 'asso', resource: 'groups', label: 'Groupes et commissions', actions: ['read', 'create', 'update', 'archive'] },
+  { module: 'asso', resource: 'groups', label: 'Groupes et commissions', actions: ['read', 'create', 'update', 'archive', 'delete'] },
   { module: 'asso', resource: 'fields', label: 'Champs personnalisés', actions: ['read', 'admin'] },
   // publish : créer des liens de partage publics ; admin : dossiers restreints, journal des accès, corbeille de tous
   { module: 'drive', resource: 'files', label: 'Documents', actions: ['read', 'create', 'update', 'delete', 'publish', 'admin'] },
   { module: 'agenda', resource: 'events', label: 'Événements', actions: ['read', 'create', 'update', 'delete', 'export'] },
-  { module: 'projects', resource: 'projects', label: 'Projets', actions: ['read', 'create', 'update', 'archive'] },
+  { module: 'projects', resource: 'projects', label: 'Projets', actions: ['read', 'create', 'update', 'archive', 'delete'] },
   // Une personne à qui une tâche est attribuée peut toujours en changer l'état et la commenter.
   { module: 'projects', resource: 'tasks', label: 'Tâches', actions: ['read', 'create', 'update', 'delete'] },
   // validate : clôturer une réunion (procès-verbal figé) ; download : PDF (convocation, émargement, PV)
-  { module: 'asso', resource: 'meetings', label: 'Instances et assemblées', actions: ['read', 'create', 'update', 'validate', 'download'] },
-  { module: 'asso', resource: 'mandates', label: 'Mandats des élus', actions: ['read', 'create', 'update'] },
-  { module: 'asso', resource: 'plans', label: 'Formules de cotisation', actions: ['read', 'create', 'update', 'archive'] },
+  { module: 'asso', resource: 'meetings', label: 'Instances et assemblées', actions: ['read', 'create', 'update', 'validate', 'download', 'delete'] },
+  { module: 'asso', resource: 'mandates', label: 'Mandats des élus', actions: ['read', 'create', 'update', 'delete'] },
+  { module: 'asso', resource: 'plans', label: 'Formules de cotisation', actions: ['read', 'create', 'update', 'archive', 'delete'] },
   {
     module: 'asso', resource: 'dues', label: 'Cotisations et règlements',
     // validate : enregistrer un règlement ou exonérer ; cancel : annuler une cotisation ou un règlement
-    actions: ['read', 'create', 'validate', 'cancel', 'export', 'download'],
+    // delete : suppression définitive d'une cotisation (et de ses règlements, après confirmation)
+    actions: ['read', 'create', 'validate', 'cancel', 'delete', 'export', 'download'],
   },
 ];
 

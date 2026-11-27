@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, OnModuleInit, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, OnModuleInit, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { and, asc, desc, eq, ilike, inArray, isNull, or, sql, SQL } from 'drizzle-orm';
@@ -13,6 +13,7 @@ import { AuditService } from '../audit/audit.service';
 import { ModulesService } from '../modules/modules.service';
 import { toCsv } from '../common/csv';
 import { renderReceipt } from './receipt';
+import { allowPurge, requireConfirmation } from '../common/purge';
 import { MEMBER_CATEGORIES } from './members.controller';
 
 const zIsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date au format AAAA-MM-JJ');
@@ -76,6 +77,22 @@ export class PlansController {
     const [p] = await this.db.update(membershipPlans).set({ ...input, updatedAt: new Date() }).where(eq(membershipPlans.id, id)).returning();
     await this.audit.log({ ...actorLog(c), action: 'plan.update', resourceType: 'plan', resourceId: id, summary: `Modification de la formule « ${p.name} »`, data: { before: { amountCents: before.amountCents, active: before.active }, after: { amountCents: p.amountCents, active: p.active } } });
     return p;
+  }
+
+  /** Les cotisations déjà émises gardent leur libellé et leur montant : elles sont simplement détachées de la formule. */
+  @Access('asso', 'asso.plans.delete')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string) {
+    parse(zUuid, id);
+    const [p] = await this.db.select().from(membershipPlans).where(and(eq(membershipPlans.id, id), eq(membershipPlans.associationId, c.association.id)));
+    if (!p) throw NotFound('Formule introuvable.');
+    const n = await this.db.transaction(async (tx) => {
+      const d = await tx.update(membershipDues).set({ planId: null }).where(eq(membershipDues.planId, id)).returning({ id: membershipDues.id });
+      await tx.delete(membershipPlans).where(eq(membershipPlans.id, id));
+      await this.audit.log({ ...actorLog(c), action: 'plan.delete', resourceType: 'plan', resourceId: id, summary: `Suppression de la formule « ${p.name} » (${d.length} cotisation(s) conservée(s))` }, tx);
+      return d.length;
+    });
+    return { ok: true, detachedDues: n };
   }
 }
 
@@ -451,5 +468,28 @@ export class DuesController implements OnModuleInit {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="recu-cotisation-${due.receiptNumber}.pdf"`);
     res.send(pdf);
+  }
+
+  /** Suppression définitive d'une cotisation ; si des règlements existent, ils sont supprimés après confirmation. */
+  @Access('asso', 'asso.dues.delete')
+  @Delete(':id')
+  async remove(@AssocContext() c: AssocCtx, @Param('id') id: string, @Query('force') force?: string) {
+    const due = await this.findDue(this.db, c.association.id, id);
+    const pays = await this.db.select().from(membershipPayments).where(eq(membershipPayments.dueId, id));
+    const active = pays.filter((x) => !x.cancelledAt);
+    if (pays.length) {
+      requireConfirmation(force, `La cotisation « ${due.label} » comporte ${pays.length} règlement(s)${active.length ? ` dont ${active.length} encaissé(s) (${formatCents(active.reduce((n, x) => n + x.amountCents, 0))})` : ''}${due.receiptNumber ? ` et le reçu n° ${due.receiptNumber}` : ''}. Ils seront supprimés définitivement : confirmez.`, { payments: pays.length, receipt: due.receiptNumber });
+    }
+    await this.db.transaction(async (tx) => {
+      await allowPurge(tx);
+      await tx.delete(membershipPayments).where(eq(membershipPayments.dueId, id));
+      await tx.delete(membershipDues).where(eq(membershipDues.id, id));
+      await this.audit.log({
+        ...actorLog(c), action: 'due.delete', resourceType: 'member', resourceId: due.memberId,
+        summary: `Suppression définitive de la cotisation « ${due.label} » (${formatCents(due.amountCents)}${pays.length ? `, ${pays.length} règlement(s)` : ''}${due.receiptNumber ? `, reçu n° ${due.receiptNumber}` : ''})`,
+        data: { dueId: id, payments: pays.map((x) => ({ amountCents: x.amountCents, method: x.method, paidAt: x.paidAt, cancelled: !!x.cancelledAt })) },
+      }, tx);
+    });
+    return { ok: true };
   }
 }

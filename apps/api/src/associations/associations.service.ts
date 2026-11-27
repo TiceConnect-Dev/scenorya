@@ -93,6 +93,7 @@ export class AssociationsService {
         members: sql<number>`(select count(*)::int from association_users au where au.association_id = ${associations.id} and au.status = 'active')`,
       })
       .from(associations)
+      .where(sql`${associations.status} <> 'deleted'`)
       .orderBy(asc(associations.name));
   }
 }

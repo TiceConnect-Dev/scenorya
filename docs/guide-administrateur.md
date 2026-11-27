@@ -21,6 +21,15 @@ Scenorya Admin → **Utilisateurs** → *Ajouter* : nom, e-mail, mot de passe pr
 
 Actions : modifier les rôles et l’expiration, définir un mot de passe provisoire (ferme les sessions de l’utilisateur), désactiver/réactiver l’accès.
 
+## Supprimer
+
+Tout ce que vous créez peut être supprimé (bouton **Supprimer**). La suppression est définitive et inscrite au journal d’audit, qui conserve la trace de ce qui a été effacé.
+
+- Quand elle a des conséquences importantes (règlements encaissés, reçus émis, procès-verbal figé), Scenorya les détaille et demande une seconde confirmation.
+- Un adhérent cité dans un procès-verbal clôturé est **anonymisé** plutôt qu’effacé : le document reste intact, mais ses données personnelles disparaissent.
+- Pour un simple arrêt d’activité, préférez *Archiver* (adhérents, groupes, projets), *Terminer* (mandats) ou *Annuler* (événements) : rien n’est perdu et tout reste restaurable.
+- Supprimer une association (Scenorya System) efface toutes ses données et ses documents. Faites une sauvegarde avant ; la saisie du nom exact de l’association est exigée.
+
 ## Rôles et permissions
 
 Scenorya Admin → **Rôles et permissions** : matrice module × ressource × action. Choisissez les rôles affichés, cochez/décochez, puis *Enregistrer* sous la colonne. Une case grisée cochée est couverte par un joker (ex. `asso.*`). Vous ne pouvez accorder ou retirer que des droits que vous possédez.

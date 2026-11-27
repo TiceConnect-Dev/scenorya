@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '../../api/client';
+import { api, errorMessage, deleteWithConfirm } from '../../api/client';
 import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, PageHead } from '../../components/ui';
 import { Group, MemberPicker } from './Groups';
@@ -115,6 +115,7 @@ export function MeetingDetailPage() {
   const { id } = useParams();
   const { can, toast } = useApp();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const q = useQuery({ queryKey: ['meeting', id], queryFn: () => api.get<MeetingDetail>(`/asso/meetings/${id}`) });
   const groups = useQuery({ queryKey: ['groups', false], queryFn: () => api.get<Group[]>('/asso/groups?archived=false'), enabled: can('asso.groups.read') });
   const [edit, setEdit] = useState(false);
@@ -157,6 +158,10 @@ export function MeetingDetailPage() {
             {editable && <button className="btn sm" type="button" onClick={() => setConvening(true)}>{m.convenedAt ? 'Reconvoquer' : 'Convoquer'}</button>}
             {can('asso.meetings.validate') && !m.closedAt && m.status !== 'draft' && (
               <button className="btn sm" type="button" onClick={() => window.confirm('Clôturer ? Le procès-verbal sera définitivement figé.') && act(() => api.post(`/asso/meetings/${m.id}/close`), 'Réunion clôturée : procès-verbal figé.')}>Clôturer</button>
+            )}
+            {can('asso.meetings.delete') && (
+              <button className="btn danger sm" type="button" onClick={() => deleteWithConfirm(`/asso/meetings/${m.id}`, `Supprimer la réunion « ${m.title} » ainsi que ses convocations, présences et délibérations ?`)
+                .then((r) => { if (r) { toast('Réunion supprimée.'); qc.invalidateQueries({ queryKey: ['meetings'] }); navigate('/asso/instances'); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>
             )}
           </>
         }
@@ -338,7 +343,9 @@ export function MandatesPage() {
                   <td><Link to={`/asso/adherents/${x.memberId}`}>{x.firstName} {x.lastName}</Link></td>
                   <td>{formatDate(x.startDate)}</td>
                   <td>{x.endDate ? formatDate(x.endDate) : '—'}</td>
-                  <td className="actions">{can('asso.mandates.update') && !x.endDate && <button className="btn ghost sm" type="button" onClick={async () => { const d = window.prompt('Date de fin du mandat (AAAA-MM-JJ) :', new Date().toISOString().slice(0, 10)); if (!d) return; try { await api.patch(`/asso/mandates/${x.id}`, { endDate: d }); toast('Mandat terminé.'); q.refetch(); } catch (e) { toast(errorMessage(e), 'error'); } }}>Terminer</button>}</td>
+                  <td className="actions">{can('asso.mandates.update') && !x.endDate && <button className="btn ghost sm" type="button" onClick={async () => { const d = window.prompt('Date de fin du mandat (AAAA-MM-JJ) :', new Date().toISOString().slice(0, 10)); if (!d) return; try { await api.patch(`/asso/mandates/${x.id}`, { endDate: d }); toast('Mandat terminé.'); q.refetch(); } catch (e) { toast(errorMessage(e), 'error'); } }}>Terminer</button>}
+                    {can('asso.mandates.delete') && <button className="btn ghost sm" type="button" onClick={() => deleteWithConfirm(`/asso/mandates/${x.id}`, `Supprimer le mandat « ${x.role} » de ${x.firstName} ${x.lastName} ? (Pour un mandat achevé, préférez « Terminer », qui conserve l’historique.)`).then((r) => { if (r) { toast('Mandat supprimé.'); q.refetch(); } }, (e) => toast(errorMessage(e), 'error'))}>Supprimer</button>}
+                  </td>
                 </tr>
               ))}
             </tbody>
