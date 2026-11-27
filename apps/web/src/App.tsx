@@ -14,6 +14,7 @@ import { AdminHome, AssociationPage, AuditPage, RolesPage, UsersPage } from './p
 import { AssociationsPage, BackupsPage, HealthPage, InstanceModulesPage, SmtpPage } from './pages/system/System';
 import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from './pages/asso/Asso';
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
+import { CardsPage, FieldsPage, GroupDetail, GroupsPage, VerifyCardPage } from './pages/asso/Groups';
 import { PwaPrompt } from './components/PwaPrompt';
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -39,6 +40,7 @@ export function App() {
         <Route path="/installation" element={<SetupPage />} />
         <Route path="/connexion" element={<LoginPage />} />
         <Route path="/mot-de-passe" element={<ChangePasswordPage />} />
+        <Route path="/verifier/carte/:token" element={<VerifyCardPage />} />
         <Route element={<RequireAuth><Shell /></RequireAuth>}>
           <Route index element={<Navigate to="/hub" replace />} />
           <Route path="/hub" element={<HubPage />} />
@@ -53,6 +55,10 @@ export function App() {
           <Route path="/asso/cotisations" element={<ModuleGate id="asso"><DuesPage /></ModuleGate>} />
           <Route path="/asso/renouvellements" element={<ModuleGate id="asso"><RenewalsPage /></ModuleGate>} />
           <Route path="/asso/formules" element={<ModuleGate id="asso"><PlansPage /></ModuleGate>} />
+          <Route path="/asso/groupes" element={<ModuleGate id="asso"><GroupsPage /></ModuleGate>} />
+          <Route path="/asso/groupes/:id" element={<ModuleGate id="asso"><GroupDetail /></ModuleGate>} />
+          <Route path="/asso/champs" element={<ModuleGate id="asso"><FieldsPage /></ModuleGate>} />
+          <Route path="/asso/cartes" element={<ModuleGate id="asso"><CardsPage /></ModuleGate>} />
 
           <Route path="/admin" element={<ModuleGate id="admin"><AdminHome /></ModuleGate>} />
           <Route path="/admin/modules" element={<ModuleGate id="admin"><ModulesPage /></ModuleGate>} />

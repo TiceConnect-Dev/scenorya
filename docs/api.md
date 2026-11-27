@@ -26,6 +26,10 @@ Documentation interactive OpenAPI : **`/api/docs`** (générée à partir du cod
 | GET/POST/PATCH | `/asso/members`, `/stats`, `/export.csv`, `/import`, `/:id`, `/:id/history`, `/:id/archive`, `/:id/restore` | `asso.members.*` |
 | GET/POST/PATCH | `/asso/plans`, `/:id` | `asso.plans.*` |
 | GET/POST | `/asso/dues`, `/summary`, `/renewals`, `/export.csv`, `/bulk`, `/:id`, `/:id/payments`, `/:id/payments/:paymentId/cancel`, `/:id/waive`, `/:id/cancel`, `/:id/receipt.pdf` | `asso.dues.*` |
+| GET/POST/PATCH/PUT/DELETE | `/asso/groups`, `/:id`, `/:id/archive`, `/:id/members`, `/:id/members/:memberId` | `asso.groups.*` |
+| GET/POST/PATCH | `/asso/fields`, `/:id` | lecture : `asso.members.read` ; gestion : `asso.fields.admin` |
+| GET/POST | `/asso/members/:id/card.pdf`, `/asso/cards.pdf`, `/asso/members/:id/card/revoke` | `asso.members.download` / `.update` |
+| GET | `/public/cards/:token` | public (vérification d’une carte) |
 | GET/PUT/POST | `/system/health`, `/associations`, `/instance-modules`, `/smtp`, `/smtp/test`, `/backups`, `/audit` | superadministrateur |
 | GET | `/system/healthz` | public (sonde) |
 

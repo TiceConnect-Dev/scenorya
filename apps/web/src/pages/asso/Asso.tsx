@@ -5,6 +5,7 @@ import { api, errorMessage } from '../../api/client';
 import type { AuditEntry, Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { MemberDues } from './Dues';
+import { CustomFieldsInputs, FieldDef, Group, GROUP_KINDS } from './Groups';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, ModuleLogo, PageHead, Pagination } from '../../components/ui';
 
 export const CATEGORIES: Record<string, string> = {
@@ -76,6 +77,8 @@ export function MembersList() {
   const [debounced, setDebounced] = useState('');
   const [status, setStatus] = useState('all');
   const [category, setCategory] = useState('');
+  const [groupId, setGroupId] = useState('');
+  const groups = useQuery({ queryKey: ['groups', false], queryFn: () => api.get<Group[]>('/asso/groups?archived=false'), enabled: can('asso.groups.read') });
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'lastName', dir: 'asc' });
   useEffect(() => {
     const t = setTimeout(() => {
@@ -87,6 +90,7 @@ export function MembersList() {
   const params = new URLSearchParams({ page: String(page), pageSize: '25', status, sort: sort.key, dir: sort.dir });
   if (debounced) params.set('q', debounced);
   if (category) params.set('category', category);
+  if (groupId) params.set('groupId', groupId);
   const list = useQuery({ queryKey: ['members', params.toString()], queryFn: () => api.get<Paged<Member>>(`/asso/members?${params}`), placeholderData: (prev) => prev });
 
   const header = (key: SortKey, label: string) => (
@@ -131,6 +135,16 @@ export function MembersList() {
             </select>
           )}
         </Field>
+        {groups.data && groups.data.length > 0 && (
+          <Field label="Groupe">
+            {(id) => (
+              <select id={id} value={groupId} onChange={(e) => { setGroupId(e.target.value); setPage(1); }}>
+                <option value="">Tous</option>
+                {groups.data.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+              </select>
+            )}
+          </Field>
+        )}
       </div>
       {list.isLoading && <Loading />}
       {list.error && <ErrorBox error={list.error} />}
@@ -196,6 +210,8 @@ export function MemberForm() {
   const navigate = useNavigate();
   const existing = useQuery({ queryKey: ['member', id], queryFn: () => api.get<Member>(`/asso/members/${id}`), enabled: editing });
   const [form, setForm] = useState(EMPTY);
+  const [custom, setCustom] = useState<Record<string, unknown>>({});
+  const fields = useQuery({ queryKey: ['fields'], queryFn: () => api.get<FieldDef[]>('/asso/fields') });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const sensitive = can('asso.members.sensitive');
@@ -209,6 +225,7 @@ export function MemberForm() {
       isMinor: m.isMinor, guardianName: m.guardianName ?? '', guardianPhone: m.guardianPhone ?? '', guardianEmail: m.guardianEmail ?? '', imageRights: m.imageRights,
       skills: m.skills.join(', '), notes: m.notes ?? '',
     });
+    setCustom(m.custom ?? {});
   }, [existing.data]);
 
   const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -219,6 +236,8 @@ export function MemberForm() {
     setBusy(true);
     setError(null);
     const payload: Record<string, unknown> = { ...form, skills: form.skills.split(',').map((s) => s.trim()).filter(Boolean) };
+    const defs = (fields.data ?? []).filter((d) => !d.archivedAt && (sensitive || !d.sensitive));
+    if (defs.length) payload.custom = Object.fromEntries(defs.map((d) => [d.key, custom[d.key] === '' ? null : custom[d.key] ?? null]));
     if (!sensitive) for (const k of ['birthDate', 'addressLine', 'postalCode', 'city', 'guardianName', 'guardianPhone', 'guardianEmail', 'notes']) delete payload[k];
     try {
       const m = editing ? await api.patch<Member>(`/asso/members/${id}`, payload) : await api.post<Member>('/asso/members', payload);
@@ -270,6 +289,7 @@ export function MemberForm() {
             </label>
           </div>
         </fieldset>
+        {fields.data && <CustomFieldsInputs defs={fields.data} values={custom} onChange={setCustom} sensitive={sensitive} />}
         {sensitive ? (
           <fieldset>
             <legend>Informations personnelles (données sensibles)</legend>
@@ -310,6 +330,8 @@ export function MemberDetail() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ['member', id], queryFn: () => api.get<Member>(`/asso/members/${id}`) });
   const history = useQuery({ queryKey: ['member-history', id], queryFn: () => api.get<AuditEntry[]>(`/asso/members/${id}/history`), enabled: can('asso.members.history') });
+  const fields = useQuery({ queryKey: ['fields'], queryFn: () => api.get<FieldDef[]>('/asso/fields') });
+  const memberGroups = useQuery({ queryKey: ['groups', 'member', id], queryFn: () => api.get<Group[]>(`/asso/groups?memberId=${id}`), enabled: can('asso.groups.read') });
   const act = useMutation({
     mutationFn: (action: 'archive' | 'restore') => api.post(`/asso/members/${id}/${action}`),
     onSuccess: (_d, action) => {
@@ -333,6 +355,9 @@ export function MemberDetail() {
         description={`Adhérent n° ${m.number} · ${CATEGORIES[m.category] ?? m.category}`}
         actions={
           <>
+            {!archived && can('asso.members.download') && (
+              <button className="btn secondary" type="button" onClick={() => api.download(`/asso/members/${m.id}/card.pdf`, `carte-${m.number}.pdf`).catch((e) => toast(errorMessage(e), 'error'))}>Carte d’adhérent</button>
+            )}
             {!archived && can('asso.members.update') && <Link className="btn secondary" to={`/asso/adherents/${m.id}/modifier`}>Modifier</Link>}
             {!archived && can('asso.members.archive') && (
               <button className="btn secondary" type="button" onClick={() => window.confirm('Archiver cette fiche ? Elle restera consultable et restaurable.') && act.mutate('archive')}>Archiver</button>
@@ -369,6 +394,43 @@ export function MemberDetail() {
           )}
         </section>
       </div>
+      {(() => {
+        const defs = (fields.data ?? []).filter((d) => !d.archivedAt && m.custom && d.key in m.custom);
+        const gs = memberGroups.data ?? [];
+        if (defs.length === 0 && gs.length === 0 && !can('asso.members.update')) return null;
+        return (
+          <div className="grid-2" style={{ marginTop: 16 }}>
+            <section className="card">
+              <h2>Informations complémentaires</h2>
+              {defs.length === 0 ? <p className="muted">Aucune.</p> : (
+                <dl className="props">
+                  {defs.map((d) => (
+                    <div key={d.key} style={{ display: 'contents' }}>
+                      <dt>{d.label}</dt>
+                      <dd>{typeof m.custom[d.key] === 'boolean' ? (m.custom[d.key] ? 'Oui' : 'Non') : d.type === 'date' ? formatDate(m.custom[d.key] as string) : String(m.custom[d.key])}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </section>
+            <section className="card">
+              <h2>Groupes</h2>
+              {gs.length === 0 ? <p className="muted">Aucun groupe.</p> : (
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {gs.map((g) => <li key={g.id}><Link to={`/asso/groupes/${g.id}`}>{g.name}</Link> <span className="small muted">({GROUP_KINDS[g.kind]}{g.role ? ` — ${g.role}` : ''})</span></li>)}
+                </ul>
+              )}
+              {can('asso.members.update') && !archived && (
+                <p style={{ marginTop: 12 }}>
+                  <button className="btn ghost sm" type="button" onClick={() => window.confirm('Révoquer la carte actuelle ? Son QR code ne sera plus reconnu ; il faudra imprimer une nouvelle carte.') && api.post(`/asso/members/${m.id}/card/revoke`).then(() => toast('Carte révoquée.')).catch((e) => toast(errorMessage(e), 'error'))}>
+                    Révoquer la carte (perte, vol)
+                  </button>
+                </p>
+              )}
+            </section>
+          </div>
+        );
+      })()}
       {can('asso.dues.read') && <MemberDues member={m} />}
       {history.data && (
         <section className="card" style={{ marginTop: 16 }}>

@@ -63,6 +63,7 @@ export interface Member {
   createdAt: string;
   updatedAt: string;
   sensitiveHidden: boolean;
+  custom: Record<string, unknown>;
 }
 
 export interface AuditEntry {

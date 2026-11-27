@@ -20,7 +20,8 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 
 - 🟡 Asso : fiches, numérotation, catégories, statuts, mineurs/représentants, droit à l’image, archivage, import/export CSV, historique
 - ✅ Asso : formules, cotisations, règlements, reçus PDF, renouvellements
-- ⏳ Asso : groupes/commissions, champs personnalisés, export Excel/PDF, cartes d’adhérent QR, formulaire d’adhésion en ligne
+- ✅ Asso : groupes et commissions, champs personnalisés, cartes d’adhérent QR avec vérification publique
+- ⏳ Asso : export Excel/PDF, formulaire d’adhésion en ligne, photo
 - ⏳ Gouvernance (AG, CA, convocations, procès-verbaux)
 - ⏳ Cast, Agenda, Projects, Drive, Espace
 

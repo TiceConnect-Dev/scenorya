@@ -23,3 +23,19 @@ export const zPassword = z
 export const zOptText = (max = 255) =>
   z.string().trim().max(max).optional().nullable().transform((v) => (v === '' || v === undefined ? null : v));
 export const zUuid = z.string().uuid();
+
+/**
+ * Schéma de modification partielle : chaque champ devient facultatif, SANS
+ * valeur par défaut ni transformation d'une valeur absente. (`.partial()` de
+ * zod appliquerait les `.default()` et les transformations `undefined → null`,
+ * ce qui réinitialiserait silencieusement les champs non transmis.)
+ */
+export function patchOf<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
+  const shape: Record<string, z.ZodTypeAny> = {};
+  for (const [key, field] of Object.entries(schema.shape)) {
+    let f = field as z.ZodTypeAny;
+    while (f instanceof z.ZodDefault) f = f.unwrap() as z.ZodTypeAny;
+    shape[key] = f.optional();
+  }
+  return z.object(shape).strip() as unknown as z.ZodType<Partial<z.output<z.ZodObject<T>>>>;
+}

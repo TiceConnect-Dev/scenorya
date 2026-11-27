@@ -45,6 +45,12 @@ Scenorya Asso → **Formules** : créez vos tarifs (montant, période couverte, 
 
 Le reçu de cotisation n’est **pas un reçu fiscal** (Cerfa 11580) : il le précise explicitement.
 
+## Groupes, champs et cartes
+
+- **Groupes et commissions** : créez un groupe (commission, troupe, bureau…), ajoutez des adhérents avec leur fonction. La liste des adhérents se filtre par groupe.
+- **Champs personnalisés** : ajoutez vos propres informations (taille de costume, permis…). Un champ « sensible » n’est visible qu’avec le droit « données sensibles ». Archiver un champ le masque sans effacer les valeurs.
+- **Cartes d’adhérent** : depuis la fiche (carte unitaire) ou « Cartes d’adhérent » (planche A4 de 10, tous les actifs ou un groupe). Le QR code renvoie vers une page publique qui indique si l’adhésion est valide aujourd’hui ; il ne contient aucune donnée personnelle. En cas de perte : « Révoquer la carte ».
+
 ## Adhérents
 
 Scenorya Asso → **Adhérents** : recherche, filtres, tri, pagination, export CSV (formules neutralisées, compatible Excel). **Importer (CSV)** : simulation obligatoire avant import, rapport ligne par ligne.

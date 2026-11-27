@@ -5,10 +5,11 @@ import { and, asc, desc, eq, ilike, or, sql, SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { grantsCover } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
-import { parse, zOptText, zUuid } from '../common/validation';
+import { parse, patchOf, zOptText, zUuid } from '../common/validation';
 import { BadRequest, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
-import { auditLogs, counters, members } from '../db/schema';
+import { auditLogs, counters, memberFieldDefs, memberGroupLinks, members } from '../db/schema';
+import { FieldDef, validateCustom, visibleCustom } from './custom-fields';
 import { AuditService } from '../audit/audit.service';
 import { ModulesService } from '../modules/modules.service';
 import { parseCsv, toCsv } from '../common/csv';
@@ -41,6 +42,7 @@ const zMember = z.object({
   guardianEmail: zOptText(254),
   imageRights: z.boolean().default(false),
   skills: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+  custom: z.record(z.string(), z.unknown()).optional(),
   notes: zOptText(4000),
 });
 
@@ -50,15 +52,19 @@ const zList = z.object({
   q: z.string().trim().max(100).optional(),
   status: z.enum([...MEMBER_STATUSES, 'all']).default('all'),
   category: z.enum(MEMBER_CATEGORIES).optional(),
+  groupId: zUuid.optional(),
   sort: z.enum(['number', 'lastName', 'joinedAt', 'createdAt']).default('lastName'),
   dir: z.enum(['asc', 'desc']).default('asc'),
 });
 
 type MemberRow = typeof members.$inferSelect;
 
-function present(m: MemberRow, sensitive: boolean) {
-  if (sensitive) return { ...m, sensitiveHidden: false };
-  const copy: Record<string, unknown> = { ...m, sensitiveHidden: true };
+function present(row: MemberRow, sensitive: boolean, defs: FieldDef[]) {
+  // Le jeton de carte n'est communiqué que par les routes de carte.
+  const { cardToken: _token, ...m } = row;
+  const custom = visibleCustom(defs, (m.custom ?? {}) as Record<string, unknown>, sensitive);
+  if (sensitive) return { ...m, custom, sensitiveHidden: false };
+  const copy: Record<string, unknown> = { ...m, custom, sensitiveHidden: true };
   for (const f of SENSITIVE_FIELDS) copy[f] = null;
   return copy;
 }
@@ -101,6 +107,10 @@ export class MembersController implements OnModuleInit {
     return row.value;
   }
 
+  fieldDefs(associationId: string): Promise<FieldDef[]> {
+    return this.db.select().from(memberFieldDefs).where(eq(memberFieldDefs.associationId, associationId));
+  }
+
   private async find(associationId: string, id: string) {
     parse(zUuid, id);
     const [m] = await this.db.select().from(members).where(and(eq(members.id, id), eq(members.associationId, associationId)));
@@ -112,6 +122,7 @@ export class MembersController implements OnModuleInit {
     const conds: SQL[] = [eq(members.associationId, associationId)];
     if (q.status !== 'all') conds.push(eq(members.status, q.status));
     if (q.category) conds.push(eq(members.category, q.category));
+    if (q.groupId) conds.push(sql`exists (select 1 from ${memberGroupLinks} gl where gl.member_id = ${members.id} and gl.group_id = ${q.groupId})`);
     if (q.q) {
       const like = `%${q.q.replace(/[%_\\]/g, (c) => '\\' + c)}%`;
       const numeric = /^\d+$/.test(q.q) ? eq(members.number, Number(q.q)) : undefined;
@@ -130,7 +141,8 @@ export class MembersController implements OnModuleInit {
     const [{ total }] = await this.db.select({ total: sql<number>`count(*)::int` }).from(members).where(where);
     const rows = await this.db.select().from(members).where(where).orderBy(order, asc(members.firstName)).limit(q.pageSize).offset((q.page - 1) * q.pageSize);
     const sensitive = grantsCover(c.grants, 'asso.members.sensitive');
-    return { items: rows.map((r) => present(r, sensitive)), total, page: q.page, pageSize: q.pageSize };
+    const defs = await this.fieldDefs(c.association.id);
+    return { items: rows.map((r) => present(r, sensitive, defs)), total, page: q.page, pageSize: q.pageSize };
   }
 
   @Access('asso', 'asso.members.read')
@@ -158,9 +170,13 @@ export class MembersController implements OnModuleInit {
     const sensitive = grantsCover(c.grants, 'asso.members.sensitive');
     const headers = ['Numéro', 'Nom', 'Prénom', 'E-mail', 'Téléphone', 'Catégorie', 'Statut', 'Date d’adhésion', 'Droit à l’image', 'Mineur'];
     if (sensitive) headers.push('Date de naissance', 'Adresse', 'Code postal', 'Ville', 'Représentant légal', 'Téléphone représentant', 'E-mail représentant');
+    const defs = (await this.fieldDefs(c.association.id)).filter((d) => !d.archivedAt && (sensitive || !d.sensitive));
+    headers.push(...defs.map((d) => d.label));
     const data = rows.map((m) => {
       const base: unknown[] = [m.number, m.lastName, m.firstName, m.email, m.phone, m.category, m.status, m.joinedAt, m.imageRights ? 'oui' : 'non', m.isMinor ? 'oui' : 'non'];
       if (sensitive) base.push(m.birthDate, m.addressLine, m.postalCode, m.city, m.guardianName, m.guardianPhone, m.guardianEmail);
+      const custom = (m.custom ?? {}) as Record<string, unknown>;
+      base.push(...defs.map((d) => (typeof custom[d.key] === 'boolean' ? (custom[d.key] ? 'oui' : 'non') : custom[d.key] ?? '')));
       return base;
     });
     await this.audit.log({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, action: 'member.export', resourceType: 'member', summary: `Export CSV de ${rows.length} adhérent(s)`, data: { sensitive }, ip: c.ip });
@@ -214,7 +230,7 @@ export class MembersController implements OnModuleInit {
   @Access('asso', 'asso.members.read')
   @Get(':id')
   async get(@AssocContext() c: AssocCtx, @Param('id') id: string) {
-    return present(await this.find(c.association.id, id), grantsCover(c.grants, 'asso.members.sensitive'));
+    return present(await this.find(c.association.id, id), grantsCover(c.grants, 'asso.members.sensitive'), await this.fieldDefs(c.association.id));
   }
 
   @Access('asso', 'asso.members.history')
@@ -235,17 +251,19 @@ export class MembersController implements OnModuleInit {
     const input = parse(zMember, body);
     const sensitive = grantsCover(c.grants, 'asso.members.sensitive');
     if (!sensitive) for (const f of SENSITIVE_FIELDS) (input as Record<string, unknown>)[f] = null;
+    const defs = await this.fieldDefs(c.association.id);
+    const custom = validateCustom(defs, input.custom, { sensitive, partial: false });
     const created = await this.db.transaction(async (tx) => {
       await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${'members:' + c.association.id}))`);
       const number = await this.nextNumber(tx, c.association.id);
       const [m] = await tx
         .insert(members)
-        .values({ ...input, joinedAt: input.joinedAt ?? undefined, associationId: c.association.id, number, createdBy: c.user.id })
+        .values({ ...input, custom, joinedAt: input.joinedAt ?? undefined, associationId: c.association.id, number, createdBy: c.user.id })
         .returning();
       await this.audit.log({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, action: 'member.create', resourceType: 'member', resourceId: m.id, summary: `Création de la fiche n° ${m.number} — ${m.firstName} ${m.lastName}`, ip: c.ip }, tx);
       return m;
     });
-    return present(created, sensitive);
+    return present(created, sensitive, defs);
   }
 
   @Access('asso', 'asso.members.update')
@@ -253,14 +271,17 @@ export class MembersController implements OnModuleInit {
   async update(@AssocContext() c: AssocCtx, @Param('id') id: string, @Body() body: unknown) {
     const before = await this.find(c.association.id, id);
     if (before.status === 'archived') throw BadRequest('ARCHIVED', 'Restaurez la fiche avant de la modifier.');
-    const input = parse(zMember.partial(), body);
+    const input = parse(patchOf(zMember), body);
     const sensitive = grantsCover(c.grants, 'asso.members.sensitive');
     if (!sensitive) for (const f of SENSITIVE_FIELDS) delete (input as Record<string, unknown>)[f];
-    const patch = Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined));
+    const defs = await this.fieldDefs(c.association.id);
+    const { custom: customInput, ...rest } = input;
+    const patch: Record<string, unknown> = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined));
+    if (customInput) patch.custom = validateCustom(defs, customInput, { sensitive, partial: true, previous: before.custom as Record<string, unknown> });
     const [m] = await this.db.update(members).set({ ...patch, updatedAt: new Date() }).where(eq(members.id, id)).returning();
     const changed = Object.keys(patch).filter((k) => JSON.stringify((before as Record<string, unknown>)[k]) !== JSON.stringify((m as Record<string, unknown>)[k]));
     await this.audit.log({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, action: 'member.update', resourceType: 'member', resourceId: id, summary: `Modification de la fiche n° ${m.number} — ${m.firstName} ${m.lastName}`, data: { fields: changed }, ip: c.ip });
-    return present(m, sensitive);
+    return present(m, sensitive, defs);
   }
 
   @Access('asso', 'asso.members.archive')

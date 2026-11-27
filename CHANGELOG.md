@@ -2,6 +2,22 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.3.0] — 2026-11-27
+
+Scenorya Asso : groupes, champs personnalisés, cartes d’adhérent.
+
+### Ajouté
+
+- Groupes, commissions, troupes et bureau : composition, fonction de chaque membre, archivage, filtre de la liste des adhérents, impression des cartes d’un groupe.
+- Champs personnalisés des fiches (texte, nombre, date, oui/non, liste) : obligatoires, sensibles (masqués sans droit dédié), archivables sans perte de valeurs, inclus dans l’export CSV.
+- Cartes d’adhérent au format carte bancaire (unitaire ou planche A4 de 10) avec QR code de vérification : jeton aléatoire sans donnée personnelle, validité calculée en direct d’après les cotisations, révocation en cas de perte.
+- Page publique de vérification (`/verifier/carte/…`) : prénom, initiale du nom, numéro et validité uniquement.
+- CI GitHub Actions : tests sur PostgreSQL et image Docker multi-architecture publiée sur GHCR.
+
+### Corrigé
+
+- Les modifications partielles (adhérent, formule, rôle, groupe) réinitialisaient les champs non transmis à leur valeur par défaut ou les vidaient (comportement de `.partial()` de zod). Nouveau schéma `patchOf` sans valeurs par défaut, test de non-régression.
+
 ## [0.2.0] — 2026-11-27
 
 Scenorya Asso : cotisations.

@@ -4,7 +4,7 @@ import { and, asc, eq, inArray, isNull, ne, sql, gt, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { grantsCover, isValidGrant, PERMISSIONS, PERMISSION_RESOURCES, PERMISSION_ACTIONS } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
-import { parse, zEmail, zPassword, zUuid } from '../common/validation';
+import { parse, patchOf, zEmail, zPassword, zUuid } from '../common/validation';
 import { BadRequest, Conflict, Forbidden, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
 import { associationUsers, roleAssignments, roles, users } from '../db/schema';
@@ -278,7 +278,7 @@ export class AdminRolesController {
   @Patch('roles/:id')
   async update(@AssocContext() c: AssocCtx, @Param('id') id: string, @Body() body: unknown) {
     parse(zUuid, id);
-    const input = parse(this.zRole.partial(), body);
+    const input = parse(patchOf(this.zRole), body);
     const [role] = await this.db.select().from(roles).where(and(eq(roles.id, id), eq(roles.associationId, c.association.id)));
     if (!role) throw NotFound('Rôle introuvable.');
     if (role.isSystem) throw Forbidden('SYSTEM_ROLE', 'Le rôle administrateur ne peut pas être modifié.');

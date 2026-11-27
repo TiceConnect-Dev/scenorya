@@ -49,8 +49,11 @@ export const PERMISSION_RESOURCES: PermissionResource[] = [
   { module: 'admin', resource: 'association', label: "Fiche de l'association", actions: ['read', 'update', 'sensitive'] },
   {
     module: 'asso', resource: 'members', label: 'Adhérents',
-    actions: ['read', 'create', 'update', 'archive', 'restore', 'import', 'export', 'sensitive', 'history'],
+    // download : cartes d'adhérent (PDF)
+    actions: ['read', 'create', 'update', 'archive', 'restore', 'import', 'export', 'download', 'sensitive', 'history'],
   },
+  { module: 'asso', resource: 'groups', label: 'Groupes et commissions', actions: ['read', 'create', 'update', 'archive'] },
+  { module: 'asso', resource: 'fields', label: 'Champs personnalisés', actions: ['read', 'admin'] },
   { module: 'asso', resource: 'plans', label: 'Formules de cotisation', actions: ['read', 'create', 'update', 'archive'] },
   {
     module: 'asso', resource: 'dues', label: 'Cotisations et règlements',

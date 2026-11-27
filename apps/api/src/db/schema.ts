@@ -199,6 +199,10 @@ export const members = pgTable('members', {
   imageRights: boolean('image_rights').notNull().default(false),
   skills: text('skills').array().notNull().default(sql`'{}'::text[]`),
   notes: text('notes'),
+  /** Valeurs des champs personnalisés définis par l'association (member_field_defs). */
+  custom: jsonb('custom').notNull().default({}),
+  /** Jeton opaque de la carte d'adhérent (QR) : aucune donnée personnelle. */
+  cardToken: text('card_token'),
   userId: uuid('user_id').references(() => users.id),
   archivedAt: ts('archived_at'),
   createdBy: uuid('created_by').references(() => users.id),
@@ -206,6 +210,7 @@ export const members = pgTable('members', {
   updatedAt: updatedAt(),
 }, (t) => [
   uniqueIndex('members_number_unique').on(t.associationId, t.number),
+  uniqueIndex('members_card_token_unique').on(t.cardToken),
   index('members_assoc_name_idx').on(t.associationId, t.lastName),
 ]);
 
@@ -266,3 +271,42 @@ export const membershipPayments = pgTable('membership_payments', {
   cancelledBy: uuid('cancelled_by').references(() => users.id),
   cancelReason: text('cancel_reason'),
 }, (t) => [index('membership_payments_due_idx').on(t.dueId)]);
+
+/* ------------------------------------- Module Asso : groupes et champs */
+
+export const memberGroups = pgTable('member_groups', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  /** group | commission | troupe | bureau */
+  kind: text('kind').notNull().default('group'),
+  description: text('description'),
+  archivedAt: ts('archived_at'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [uniqueIndex('member_groups_name_unique').on(t.associationId, t.name)]);
+
+export const memberGroupLinks = pgTable('member_group_links', {
+  groupId: uuid('group_id').notNull().references(() => memberGroups.id, { onDelete: 'cascade' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  /** Fonction dans le groupe (président de commission, référent…). */
+  role: text('role'),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.groupId, t.memberId] }), index('member_group_links_member_idx').on(t.memberId)]);
+
+/** Définition des champs personnalisés des fiches adhérent. */
+export const memberFieldDefs = pgTable('member_field_defs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  key: text('key').notNull(),
+  label: text('label').notNull(),
+  /** text | number | date | boolean | select */
+  type: text('type').notNull(),
+  options: text('options').array().notNull().default(sql`'{}'::text[]`),
+  required: boolean('required').notNull().default(false),
+  /** Visible seulement avec asso.members.sensitive. */
+  sensitive: boolean('sensitive').notNull().default(false),
+  position: integer('position').notNull().default(0),
+  archivedAt: ts('archived_at'),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('member_field_defs_key_unique').on(t.associationId, t.key)]);

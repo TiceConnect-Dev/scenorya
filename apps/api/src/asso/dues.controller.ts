@@ -5,7 +5,7 @@ import { and, asc, desc, eq, ilike, inArray, isNull, or, sql, SQL } from 'drizzl
 import { z } from 'zod';
 import { computePeriod, formatCents, PAYMENT_METHODS, PERIOD_TYPES, PeriodType } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
-import { parse, zOptText, zUuid } from '../common/validation';
+import { parse, patchOf, zOptText, zUuid } from '../common/validation';
 import { BadRequest, Conflict, NotFound } from '../common/errors';
 import { DB, Db, DbOrTx } from '../db/db';
 import { associations, counters, members, membershipDues, membershipPayments, membershipPlans } from '../db/schema';
@@ -66,7 +66,7 @@ export class PlansController {
   @Patch(':id')
   async update(@AssocContext() c: AssocCtx, @Param('id') id: string, @Body() body: unknown) {
     parse(zUuid, id);
-    const input = parse(zPlan.partial(), body);
+    const input = parse(patchOf(zPlan), body);
     const [before] = await this.db.select().from(membershipPlans).where(and(eq(membershipPlans.id, id), eq(membershipPlans.associationId, c.association.id)));
     if (!before) throw NotFound('Formule introuvable.');
     if (input.name && input.name !== before.name) {
