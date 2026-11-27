@@ -1,0 +1,16 @@
+{
+  "name": "scenorya",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scenorya — Gestion associative, culturelle et événementielle. Une application de TiceConnect.",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "npm run build -w @scenorya/shared && npm run build -w @scenorya/api && npm run build -w @scenorya/web",
+    "dev:api": "npm run dev -w @scenorya/api",
+    "dev:web": "npm run dev -w @scenorya/web",
+    "test": "npm run test -w @scenorya/shared && npm run test -w @scenorya/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:migrate": "npm run db:migrate -w @scenorya/api"
+  },
+  "engines": { "node": ">=22" }
+}
