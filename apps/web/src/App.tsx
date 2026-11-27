@@ -15,6 +15,7 @@ import { AssociationsPage, BackupsPage, HealthPage, InstanceModulesPage, SmtpPag
 import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from './pages/asso/Asso';
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
+import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
 import { CardsPage, FieldsPage, GroupDetail, GroupsPage, VerifyCardPage } from './pages/asso/Groups';
 import { PwaPrompt } from './components/PwaPrompt';
 
@@ -32,7 +33,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects']);
 
 export function App() {
   return (
@@ -62,6 +63,10 @@ export function App() {
           <Route path="/asso/cartes" element={<ModuleGate id="asso"><CardsPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/projects" element={<ModuleGate id="projects"><ProjectsPage /></ModuleGate>} />
+          <Route path="/projects/modeles" element={<ModuleGate id="projects"><ProjectsPage templates /></ModuleGate>} />
+          <Route path="/projects/mes-taches" element={<ModuleGate id="projects"><MyTasksPage /></ModuleGate>} />
+          <Route path="/projects/:id" element={<ModuleGate id="projects"><ProjectBoard /></ModuleGate>} />
           <Route path="/admin" element={<ModuleGate id="admin"><AdminHome /></ModuleGate>} />
           <Route path="/admin/modules" element={<ModuleGate id="admin"><ModulesPage /></ModuleGate>} />
           <Route path="/admin/utilisateurs" element={<ModuleGate id="admin"><UsersPage /></ModuleGate>} />

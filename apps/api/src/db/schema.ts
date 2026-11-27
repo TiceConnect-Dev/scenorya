@@ -354,3 +354,52 @@ export const calendarFeeds = pgTable('calendar_feeds', {
   lastUsedAt: ts('last_used_at'),
   revokedAt: ts('revoked_at'),
 });
+
+/* ----------------------------------------------------- Scenorya Projects */
+
+export const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  /** Date de référence (ex. première représentation) pour les échéances relatives des modèles. */
+  referenceDate: date('reference_date'),
+  isTemplate: boolean('is_template').notNull().default(false),
+  archivedAt: ts('archived_at'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('projects_assoc_idx').on(t.associationId)]);
+
+export const tasks = pgTable('tasks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  parentId: uuid('parent_id'),
+  title: text('title').notNull(),
+  description: text('description'),
+  /** todo | doing | waiting | done */
+  status: text('status').notNull().default('todo'),
+  /** low | normal | high | urgent */
+  priority: text('priority').notNull().default('normal'),
+  /** Personne responsable (compte ayant accès à l'association). */
+  assigneeId: uuid('assignee_id').references(() => associationUsers.id, { onDelete: 'set null' }),
+  dueDate: date('due_date'),
+  /** Modèles : échéance en jours par rapport à la date de référence (négatif = avant). */
+  dueOffsetDays: integer('due_offset_days'),
+  labels: text('labels').array().notNull().default(sql`'{}'::text[]`),
+  checklist: jsonb('checklist').$type<{ text: string; done: boolean }[]>().notNull().default([]),
+  position: integer('position').notNull().default(0),
+  completedAt: ts('completed_at'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('tasks_project_idx').on(t.projectId, t.status, t.position), index('tasks_assignee_idx').on(t.assigneeId)]);
+
+export const taskComments = pgTable('task_comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  taskId: uuid('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
+  authorId: uuid('author_id').references(() => users.id),
+  body: text('body').notNull(),
+  createdAt: createdAt(),
+});

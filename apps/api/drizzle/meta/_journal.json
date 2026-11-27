@@ -43,6 +43,13 @@
       "when": 1795800443772,
       "tag": "0005_agenda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795800887454,
+      "tag": "0006_projects",
+      "breakpoints": true
     }
   ]
 }

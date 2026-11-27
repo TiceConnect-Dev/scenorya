@@ -2,6 +2,20 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.5.0] — 2026-11-27
+
+Scenorya Projects.
+
+### Ajouté
+
+- Projets avec date de référence, archivage (lecture seule) et restauration.
+- Tâches : état, priorité, responsable, échéance, étiquettes, checklist, sous-tâches (un niveau), commentaires.
+- Tableau Kanban (À faire, En cours, En attente, Terminé) par glisser-déposer, avec alternative au clavier (sélecteur « Déplacer ») ; vue liste ; filtres par responsable et étiquette ; ajout rapide par colonne.
+- « Mes tâches » : tâches attribuées, tous projets confondus ; indicateur dans Scenorya Hub (en retard, cette semaine).
+- Droit « responsable » : la personne à qui une tâche est attribuée peut en changer l’état, cocher la checklist et commenter, sans autre droit de modification.
+- Modèles de projets avec échéances relatives (J-30, J+1…) ; modèle fourni « Organisation d’un spectacle » (16 étapes, sous-tâches et checklists).
+- Rôle Bénévole : consultation des projets et de ses tâches ; rôles Secrétaire et Metteur en scène : gestion complète des projets et de l’agenda.
+
 ## [0.4.0] — 2026-11-27
 
 Scenorya Agenda.

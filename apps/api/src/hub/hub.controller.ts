@@ -4,7 +4,7 @@ import { and, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
 import { DEFAULT_TIMEZONE, expandOccurrences, grantsCover, MODULES, RecurrenceRule } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
 import { DB, Db } from '../db/db';
-import { associationUsers, auditLogs, events, members, membershipDues } from '../db/schema';
+import { associationUsers, auditLogs, events, members, membershipDues, projects, tasks } from '../db/schema';
 
 /**
  * Tableau de bord : chaque widget n'est calculé que si le module source est
@@ -62,6 +62,19 @@ export class HubController {
         .flatMap((e) => expandOccurrences({ start: e.startAt, end: e.endAt, rule: e.rule as RecurrenceRule | null, exdates: e.exdates }, from, to, DEFAULT_TIMEZONE).map((o) => ({ id: e.id, title: e.title, category: e.category, location: e.location, allDay: e.allDay, start: o.start, end: o.end })))
         .sort((a, b) => a.start.getTime() - b.start.getTime())
         .slice(0, 6);
+    }
+
+    if (c.modules.projects.usable && can('projects.tasks.read')) {
+      const [r] = await this.db
+        .select({
+          mine: sql<number>`count(*)::int`,
+          overdue: sql<number>`count(*) filter (where ${tasks.dueDate} < current_date)::int`,
+          dueSoon: sql<number>`count(*) filter (where ${tasks.dueDate} between current_date and current_date + 7)::int`,
+        })
+        .from(tasks)
+        .innerJoin(projects, eq(projects.id, tasks.projectId))
+        .where(and(eq(tasks.assigneeId, c.membershipId), sql`${tasks.status} <> 'done'`, isNull(projects.archivedAt), eq(projects.isTemplate, false)));
+      widgets.tasks = r;
     }
 
     if (can('admin.users.read')) {

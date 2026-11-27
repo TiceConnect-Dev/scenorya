@@ -57,6 +57,12 @@ Scenorya Agenda → **Planning** : vues mois, semaine et liste. *Nouvel événem
 
 **Agenda sur mon téléphone** : chaque utilisateur peut créer son lien d’abonnement personnel ; il cesse de fonctionner s’il le révoque ou perd ses droits.
 
+## Projets et tâches
+
+Scenorya Projects → **Modèles** : installez le modèle fourni « Organisation d’un spectacle » ou créez les vôtres (échéances relatives : J-30, J+1…). **Projets** → *Nouveau projet* : partez d’un modèle et indiquez la date de référence (ex. première représentation) ; les échéances sont calculées.
+
+Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le sélecteur « Déplacer » de chaque carte). Une personne responsable d’une tâche peut changer son état, cocher la checklist et commenter, même sans droit de modification. **Mes tâches** regroupe les tâches de chacun.
+
 ## Adhérents
 
 Scenorya Asso → **Adhérents** : recherche, filtres, tri, pagination, export CSV (formules neutralisées, compatible Excel). **Importer (CSV)** : simulation obligatoire avant import, rapport ligne par ligne.

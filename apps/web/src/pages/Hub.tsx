@@ -13,6 +13,7 @@ interface Summary {
     members?: { active: number; pending: number; volunteers: number; newThisMonth: number };
     users?: { active: number };
     dues?: { open: number; outstandingCents: number };
+    tasks?: { mine: number; overdue: number; dueSoon: number };
     upcoming?: { id: string; title: string; category: string; location: string | null; allDay: boolean; start: string; end: string }[];
     recentActivity?: AuditEntry[];
   };
@@ -147,6 +148,15 @@ export function HubPage() {
                 <span className="label">Cotisations en attente</span>
                 <span className="value">{q.data.widgets.dues.open}</span>
                 <span className="small muted">Reste à encaisser : {formatCents(q.data.widgets.dues.outstandingCents)}</span>
+              </Link>
+            )}
+            {q.data.widgets.tasks && (
+              <Link to="/projects/mes-taches" className="card kpi" style={{ textDecoration: 'none' }}>
+                <span className="label">Mes tâches à réaliser</span>
+                <span className="value">{q.data.widgets.tasks.mine}</span>
+                <span className="small muted">
+                  {q.data.widgets.tasks.overdue > 0 ? <strong style={{ color: 'var(--danger)' }}>{q.data.widgets.tasks.overdue} en retard</strong> : 'Aucune en retard'} · {q.data.widgets.tasks.dueSoon} cette semaine
+                </span>
               </Link>
             )}
             {q.data.widgets.users && (

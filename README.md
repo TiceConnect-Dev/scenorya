@@ -10,7 +10,7 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 
 > Application indépendante, sans lien avec les services de l’État. L’interface s’inspire des sites institutionnels français sans en reprendre les logos ni prétendre à une quelconque affiliation.
 
-## État d’avancement (v0.4.0)
+## État d’avancement (v0.5.0)
 
 | Domaine | État |
 |---|---|
@@ -21,7 +21,8 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Admin** : utilisateurs, rôles, matrice des droits, modules, association, audit | ✅ Opérationnel |
 | **Scenorya System** : associations, modules de l’instance, santé, SMTP, sauvegardes, journal de l’instance | 🟡 Partiel (sauvegardes planifiées et S3 à venir) |
 | **Scenorya Agenda** : événements, récurrences, invitations d’adhérents et de groupes, conflits, vues mois/semaine/liste, export et abonnement iCal | 🟡 Partiel (salles avec Booking, vue année) |
-| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Drive, Web, Com, Projects, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Projects** : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles | 🟡 Partiel (vues calendrier, pièces jointes) |
+| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Drive, Web, Com, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 
@@ -56,7 +57,7 @@ Voir [ARCHITECTURE.md](ARCHITECTURE.md) et [SECURITY.md](SECURITY.md).
 npm test            # registre partagé (vitest) + tests de bout en bout de l'API (jest, PostgreSQL réel)
 ```
 
-99 tests : graphe de dépendances, montants et périodes de cotisation, refus par défaut, CSRF, verrouillage des connexions, cycle de vie des modules (activation, désactivation, réactivation sans perte, lecture seule, instance), permissions et anti-escalade, isolation entre associations, concurrence, inaltérabilité du journal d’audit et des règlements, trop-perçus simultanés, reçus PDF, temps réel, import CSV.
+108 tests : graphe de dépendances, montants et périodes de cotisation, refus par défaut, CSRF, verrouillage des connexions, cycle de vie des modules (activation, désactivation, réactivation sans perte, lecture seule, instance), permissions et anti-escalade, isolation entre associations, concurrence, inaltérabilité du journal d’audit et des règlements, trop-perçus simultanés, reçus PDF, temps réel, import CSV.
 
 ## Licence et identité
 

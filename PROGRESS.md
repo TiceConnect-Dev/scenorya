@@ -1,19 +1,19 @@
 # État d’avancement — reprise du développement
 
-_Dernière mise à jour : 27 novembre 2026 — version 0.4.0_
+_Dernière mise à jour : 27 novembre 2026 — version 0.5.0_
 
 Ce fichier permet de reprendre le travail dans une nouvelle session sans perte de contexte.
 
 ## Où en est-on ?
 
-Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés ; **Scenorya Agenda** livré (événements, récurrences, invitations, conflits, iCal). Les 18 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
+Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés ; **Scenorya Agenda** livré (événements, récurrences, invitations, conflits, iCal) ; **Scenorya Projects** livré (Kanban, tâches, modèles). Les 18 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
 
 ## Vérifications effectuées
 
 | Vérification | Résultat |
 |---|---|
 | `packages/shared` : vitest | 32/32 |
-| `apps/api` : jest e2e sur PostgreSQL 16 | 67/67 (plateforme 28, cotisations 16, groupes/champs/cartes 12, agenda 11) |
+| `apps/api` : jest e2e sur PostgreSQL 16 | 76/76 (plateforme 28, cotisations 16, groupes/champs/cartes 12, agenda 11, projets 9) |
 | CI GitHub Actions (tests) | OK |
 | Typage strict API et web | OK |
 | Build Vite + PWA | OK |
@@ -40,7 +40,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 
 1. Asso : formulaire d’adhésion en ligne, photo, passage automatique en « expirée » (tâche planifiée), export Excel/PDF.
 2. Drive (stockage local + S3), nécessaire au logo d’association, aux pièces jointes et aux sauvegardes de fichiers.
-3. Projects (tâches, Kanban), puis Gouvernance (AG, convocations, procès-verbaux) qui s’appuie sur Agenda.
+3. Gouvernance (AG, convocations, feuilles de présence, procès-verbaux) qui s’appuie sur Agenda et Asso.
 4. Ajouter à chaque nouveau module : permissions dans `permissions.ts`, navigation dans `apps/web/src/navigation.ts`, `implementation.status` dans `modules.ts`, fournisseur d’impact, tests d’accès (module désactivé, lecture seule, isolation).
 
 ## Démarrer en développement

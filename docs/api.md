@@ -32,6 +32,8 @@ Documentation interactive OpenAPI : **`/api/docs`** (générée à partir du cod
 | GET | `/public/cards/:token` | public (vérification d’une carte) |
 | GET/POST/PATCH/PUT/DELETE | `/agenda/events`, `/:id`, `/:id/cancel-occurrence`, `/:id/participants`, `/:id/participants/:memberId`, `/agenda/conflicts`, `/agenda/events.ics`, `/agenda/feed` | `agenda.events.*` |
 | GET | `/public/agenda/:token.ics` | public (abonnement personnel, droits réévalués) |
+| GET/POST/PATCH | `/projects`, `/projects/assignees`, `/projects/templates/spectacle`, `/projects/:id`, `/:id/archive`, `/:id/tasks`, `/:id/board` | `projects.projects.*` / `projects.tasks.*` |
+| GET/PATCH/DELETE/POST | `/tasks/mine`, `/tasks/:id`, `/tasks/:id/comments` | `projects.tasks.*` (la personne responsable peut changer l’état, la checklist et commenter) |
 | GET/PUT/POST | `/system/health`, `/associations`, `/instance-modules`, `/smtp`, `/smtp/test`, `/backups`, `/audit` | superadministrateur |
 | GET | `/system/healthz` | public (sonde) |
 
