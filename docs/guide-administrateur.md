@@ -101,6 +101,17 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Indisponibilités** : saisissez-les dans *Indisponibilités*, ou laissez chaque comédien les déclarer dans son espace (*Mes rôles et répétitions*).
 - Tout se supprime : rôles, distribution, scènes, répétitions (avec leur événement d’agenda), indisponibilités, production entière.
 
+## Spectacles et représentations (Scenorya Show)
+
+- **Lieux** : saisissez vos salles (adresse, jauge, accessibilité) dans *Lieux*.
+- **Spectacle** : *Nouveau spectacle* (auteur, mise en scène, durée, entracte, âge conseillé, présentation, état).
+- **Représentations** : *Ajouter des dates* : une ligne par date (bouton « lendemain » pour une série), lieu, jauge (celle du lieu par défaut), heure d’accueil du public. La fin se calcule avec la durée et l’entracte. Pour une date annulée, préférez l’état *Annulée* : elle reste visible et son événement d’agenda est annulé.
+- **Équipe** : *Ajouter à l’équipe* avec une fonction (régie lumière, accueil…).
+- **Distribution** : avec Scenorya Cast, *Rattacher une distribution* : ses titulaires confirmés sont convoqués à chaque représentation, comme l’équipe, dans l’agenda de chacun ; tout changement de distribution met les convocations à jour.
+- **Documents** (avec Drive) : fiche technique, affiche… rangés dans le dossier Drive « Pièces jointes ».
+- **Fiche spectacle (PDF)** : présentation, distribution, équipe et dates.
+- Chacun retrouve ses dates dans *Mon espace → Mes représentations*.
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.

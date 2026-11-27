@@ -43,6 +43,8 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Convocations de répétition dans l’agenda | Cast | Agenda |
 | Rôles, répétitions et indisponibilités dans l’espace du comédien | Cast | Espace |
 | Distributions rattachées aux spectacles | Cast | Show |
+| Représentations dans l’agenda (équipe et distribution) | Show | Agenda |
+| Documents du spectacle | Show | Drive |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

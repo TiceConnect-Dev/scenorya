@@ -76,7 +76,7 @@ export class EspaceController {
   @Get('espace/me')
   async me(@AssocContext() c: AssocCtx) {
     const m = await this.self(c);
-    const sections = { dues: false, card: false, events: false, meetings: false, documents: false, cast: false };
+    const sections = { dues: false, card: false, events: false, meetings: false, documents: false, cast: false, show: false };
     if (!m) return { member: null, association: c.association.name, sections };
     const asso = this.usable(c, 'asso');
     const cov = (await coverage(this.db, [m.id])).get(m.id)!;
@@ -93,7 +93,7 @@ export class EspaceController {
         isMinor: m.isMinor, guardianName: m.guardianName, imageRights: m.imageRights,
       },
       upToDate: cov.valid, validUntil: cov.until, groups, mandates: mandatesNow,
-      sections: { dues: asso, card: asso && m.status !== 'archived', events: this.usable(c, 'agenda'), meetings: asso, documents: docs, cast: !!c.modules.cast?.usable && isFeatureEnabled(c.modules, 'cast.espace') },
+      sections: { dues: asso, card: asso && m.status !== 'archived', events: this.usable(c, 'agenda'), meetings: asso, documents: docs, cast: !!c.modules.cast?.usable && isFeatureEnabled(c.modules, 'cast.espace'), show: !!c.modules.show?.usable },
     };
   }
 

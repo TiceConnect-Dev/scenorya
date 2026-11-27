@@ -57,6 +57,10 @@ export const PERMISSION_RESOURCES: PermissionResource[] = [
   { module: 'asso', resource: 'fields', label: 'Champs personnalisés', actions: ['read', 'admin'] },
   // publish : créer des liens de partage publics ; admin : dossiers restreints, journal des accès, corbeille de tous
   { module: 'drive', resource: 'files', label: 'Documents', actions: ['read', 'create', 'update', 'delete', 'publish', 'admin'] },
+  // download : fiche spectacle (PDF)
+  { module: 'show', resource: 'shows', label: 'Spectacles', actions: ['read', 'create', 'update', 'delete', 'download'] },
+  { module: 'show', resource: 'performances', label: 'Représentations', actions: ['read', 'create', 'update', 'delete'] },
+  { module: 'show', resource: 'venues', label: 'Lieux de représentation', actions: ['read', 'update'] },
   // productions : pièces, rôles, distribution, scènes ; rehearsals : répétitions ; availability : indisponibilités de tous
   { module: 'cast', resource: 'productions', label: 'Productions et distributions', actions: ['read', 'create', 'update', 'delete', 'download'] },
   { module: 'cast', resource: 'rehearsals', label: 'Répétitions', actions: ['read', 'create', 'update', 'delete'] },
@@ -140,11 +144,11 @@ export const ROLE_TEMPLATES: { key: string; name: string; description: string; p
   { key: 'admin', name: 'Administrateur associatif', description: "Tous les droits sur l'association.", permissions: ['*'] },
   {
     key: 'president', name: 'Président', description: 'Pilotage général, consultation étendue.',
-    permissions: ['hub.read', 'asso.*', 'admin.read', 'admin.users.read', 'admin.roles.read', 'admin.modules.read', 'admin.audit.read', 'admin.association.read', 'admin.association.update', 'show.read', 'finance.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update', 'drive.files.publish', 'analytics.read'],
+    permissions: ['hub.read', 'asso.*', 'admin.read', 'admin.users.read', 'admin.roles.read', 'admin.modules.read', 'admin.audit.read', 'admin.association.read', 'admin.association.update', 'show.read', 'show.shows.read', 'show.performances.read', 'show.venues.read', 'finance.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update', 'drive.files.publish', 'analytics.read'],
   },
   {
     key: 'vice_president', name: 'Vice-président', description: 'Suppléance de la présidence.',
-    permissions: ['hub.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'asso.meetings.read', 'asso.mandates.read', 'admin.read', 'admin.association.read', 'show.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read'],
+    permissions: ['hub.read', 'asso.read', 'asso.members.read', 'asso.members.export', 'asso.meetings.read', 'asso.mandates.read', 'admin.read', 'admin.association.read', 'show.read', 'show.shows.read', 'show.performances.read', 'show.venues.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read'],
   },
   {
     key: 'tresorier', name: 'Trésorier', description: 'Finances, factures et cotisations.',
@@ -154,17 +158,17 @@ export const ROLE_TEMPLATES: { key: string; name: string; description: string; p
     key: 'secretaire', name: 'Secrétaire', description: 'Adhérents, gouvernance et documents.',
     permissions: ['hub.read', 'asso.*', 'agenda.*', 'projects.*', 'drive.*', 'com.read', 'admin.read', 'admin.association.read', 'admin.association.update'],
   },
-  { key: 'regisseur', name: 'Régisseur général', description: 'Régie, matériel et spectacles.', permissions: ['hub.read', 'regie.read', 'show.read', 'stock.read', 'booking.read', 'maintenance.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update'] },
+  { key: 'regisseur', name: 'Régisseur général', description: 'Régie, matériel et spectacles.', permissions: ['hub.read', 'regie.read', 'show.read', 'show.shows.read', 'show.performances.read', 'show.venues.read', 'stock.read', 'booking.read', 'maintenance.read', 'agenda.read', 'agenda.events.read', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update'] },
   { key: 'tech_son', name: 'Technicien son', description: 'Vue son de la régie.', permissions: ['hub.read', 'regie.read', 'stock.read', 'agenda.read', 'agenda.events.read'] },
   { key: 'tech_lumiere', name: 'Technicien lumière', description: 'Vue lumière de la régie.', permissions: ['hub.read', 'regie.read', 'stock.read', 'agenda.read', 'agenda.events.read'] },
   { key: 'tech_video', name: 'Technicien vidéo', description: 'Vue vidéo de la régie.', permissions: ['hub.read', 'regie.read', 'stock.read', 'agenda.read', 'agenda.events.read'] },
   { key: 'resp_materiel', name: 'Responsable matériel', description: 'Parc matériel, prêts et maintenance.', permissions: ['hub.read', 'stock.read', 'booking.read', 'maintenance.read', 'agenda.read', 'agenda.events.read'] },
-  { key: 'resp_billetterie', name: 'Responsable billetterie', description: 'Billetterie et contrôle.', permissions: ['hub.read', 'tickets.read', 'scan.read', 'pos.read', 'show.read', 'analytics.read'] },
+  { key: 'resp_billetterie', name: 'Responsable billetterie', description: 'Billetterie et contrôle.', permissions: ['hub.read', 'tickets.read', 'scan.read', 'pos.read', 'show.read', 'show.shows.read', 'show.performances.read', 'show.venues.read', 'analytics.read'] },
   { key: 'controleur', name: 'Contrôleur de billets', description: 'Contrôle des entrées uniquement.', permissions: ['scan.read'] },
   { key: 'caissier', name: 'Caissier', description: 'Caisse tactile.', permissions: ['pos.read'] },
   { key: 'resp_com', name: 'Responsable communication', description: 'Communication et site.', permissions: ['hub.read', 'com.read', 'web.read', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update', 'drive.files.delete', 'drive.files.publish', 'agenda.read', 'agenda.events.read'] },
   { key: 'webmaster', name: 'Webmaster', description: 'Sites internet.', permissions: ['hub.read', 'web.read', 'drive.read', 'drive.files.read', 'drive.files.create'] },
-  { key: 'metteur_en_scene', name: 'Metteur en scène', description: 'Spectacles, distributions, régie.', permissions: ['hub.read', 'asso.read', 'asso.members.read', 'show.read', 'cast.*', 'regie.read', 'agenda.*', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update', 'projects.*'] },
+  { key: 'metteur_en_scene', name: 'Metteur en scène', description: 'Spectacles, distributions, régie.', permissions: ['hub.read', 'asso.read', 'asso.members.read', 'show.*', 'cast.*', 'regie.read', 'agenda.*', 'drive.read', 'drive.files.read', 'drive.files.create', 'drive.files.update', 'projects.*'] },
   { key: 'comedien', name: 'Comédien', description: 'Espace personnel et planning.', permissions: ['espace.read', 'agenda.read', 'agenda.events.read'] },
   { key: 'benevole', name: 'Bénévole', description: 'Espace personnel, planning et tâches confiées.', permissions: ['espace.read', 'agenda.read', 'agenda.events.read', 'projects.read', 'projects.projects.read', 'projects.tasks.read'] },
   { key: 'adherent', name: 'Adhérent', description: 'Espace personnel.', permissions: ['espace.read'] },

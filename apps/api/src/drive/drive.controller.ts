@@ -19,7 +19,7 @@ import { randomToken, sha256 } from '../common/crypto';
 import { DB, Db, DbOrTx } from '../db/db';
 import {
   associations, driveAccessLog, driveBlobs, driveFavorites, driveFileVersions, driveFiles, driveFolders, driveLinks, driveSettings, driveShares,
-  roleAssignments, roles, tasks, users,
+  roleAssignments, roles, shows, tasks, users,
 } from '../db/schema';
 import { AuditService } from '../audit/audit.service';
 import { ModuleImpact, ModulesService } from '../modules/modules.service';
@@ -49,6 +49,10 @@ const uploadOptions = () => ({
 
 /** Éléments d'autres modules auxquels un fichier peut être rattaché. */
 const LINK_TARGETS: Record<string, { feature: string; exists: (db: Db, associationId: string, id: string) => Promise<boolean> }> = {
+  'show:show': {
+    feature: 'show.attachments',
+    exists: async (db, associationId, id) => (await db.select({ id: shows.id }).from(shows).where(and(eq(shows.id, id), eq(shows.associationId, associationId)))).length > 0,
+  },
   'projects:task': {
     feature: 'projects.attachments',
     exists: async (db, associationId, id) => (await db.select({ id: tasks.id }).from(tasks).where(and(eq(tasks.id, id), eq(tasks.associationId, associationId)))).length > 0,

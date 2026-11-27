@@ -43,7 +43,9 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 
 ## Phase 4 — Spectacles et régie
 
-⏳ Service d’événements partagé, Show, Régie (conduite, tops, modes, synchronisation, cartoucheur, hors connexion)
+- ✅ Show : spectacles, représentations, lieux, équipe, distributions de Cast, agenda, documents, fiche spectacle PDF, espace personnel
+- ⏳ Show : dossier de diffusion complet, contrats de cession, budget de production (avec Finance)
+- ⏳ Régie (conduite, tops, modes, synchronisation, cartoucheur, hors connexion)
 
 ## Phase 5 — Billetterie et caisse
 

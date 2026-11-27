@@ -8,6 +8,8 @@ export interface NavItem {
   superAdmin?: boolean;
   /** Fonctionnalité conditionnelle requise (ex. cast.espace). */
   feature?: string;
+  /** Module qui doit être utilisable (actif ou en lecture seule). */
+  module?: string;
   group?: string;
 }
 
@@ -37,6 +39,12 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Assemblées et réunions', to: '/espace/reunions', permission: 'espace.read' },
     { label: 'Documents', to: '/espace/documents', permission: 'espace.read' },
     { label: 'Mes rôles et répétitions', to: '/espace/scene', permission: 'espace.read', feature: 'cast.espace' },
+    { label: 'Mes représentations', to: '/espace/representations', permission: 'espace.read', module: 'show' },
+  ],
+  show: [
+    { label: 'Spectacles', to: '/show', permission: 'show.shows.read' },
+    { label: 'Représentations', to: '/show/representations', permission: 'show.performances.read' },
+    { label: 'Lieux', to: '/show/lieux', permission: 'show.venues.read' },
   ],
   cast: [
     { label: 'Productions', to: '/cast', permission: 'cast.productions.read' },

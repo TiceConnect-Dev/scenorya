@@ -2,6 +2,26 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.11.0] — 2026-11-27
+
+### Ajouté — Scenorya Show
+
+- Spectacles (auteur, mise en scène, genre, durée, entracte, âge conseillé, présentation, état).
+- Représentations : ajout de plusieurs dates d’un coup, fin calculée d’après la durée et l’entracte, heure d’accueil du public, jauge (celle du lieu par défaut), états prévue / confirmée / jouée / annulée ; déplacer une date conserve la durée.
+- Lieux de représentation (adresse, jauge, accessibilité).
+- Équipe du spectacle par fonction.
+- Distributions de Scenorya Cast rattachées au spectacle (fonctionnalité `cast.distributions`).
+- Avec Agenda : un événement par représentation, équipe et titulaires convoqués, réponses visibles par date ; resynchronisé quand l’équipe ou la distribution change (y compris depuis Cast) ; annuler une date annule son événement.
+- Avec Drive : documents du spectacle (fiche technique, affiche…).
+- Fiche spectacle en PDF ; calendrier de toutes les représentations.
+- Espace personnel : *Mes représentations*.
+- Suppression de tout (équipe, rattachement, représentation et son événement, lieu, spectacle).
+- Permissions `show.shows`, `show.performances`, `show.venues` ; modèles de rôles mis à jour.
+
+### Corrigé
+
+- Formulaire de dates : le bouton de retrait d’une date s’affichait sous le champ.
+
 ## [0.10.0] — 2026-11-27
 
 ### Ajouté — Scenorya Cast

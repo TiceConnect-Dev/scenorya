@@ -616,6 +616,8 @@ export const castProductions = pgTable('cast_productions', {
   /** preparation | rehearsal | running | closed */
   status: text('status').notNull().default('preparation'),
   premiereDate: date('premiere_date'),
+  /** Spectacle de Scenorya Show auquel la distribution est rattachée (fonctionnalité cast.distributions). */
+  showId: uuid('show_id'),
   createdBy: uuid('created_by').references(() => users.id),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
@@ -693,3 +695,65 @@ export const castRehearsals = pgTable('cast_rehearsals', {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 }, (t) => [index('cast_rehearsals_prod_idx').on(t.productionId, t.startAt)]);
+
+/* --------------------------------------------------------- Scenorya Show */
+
+export const showVenues = pgTable('show_venues', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  addressLine: text('address_line'),
+  postalCode: text('postal_code'),
+  city: text('city'),
+  capacity: integer('capacity'),
+  accessibility: text('accessibility'),
+  notes: text('notes'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('show_venues_assoc_idx').on(t.associationId)]);
+
+export const shows = pgTable('shows', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  title: text('title').notNull(),
+  subtitle: text('subtitle'),
+  author: text('author'),
+  director: text('director'),
+  genre: text('genre'),
+  durationMin: integer('duration_min'),
+  intermissionMin: integer('intermission_min'),
+  ageMin: integer('age_min'),
+  synopsis: text('synopsis'),
+  /** draft | announced | running | archived */
+  status: text('status').notNull().default('draft'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('shows_assoc_idx').on(t.associationId)]);
+
+export const showPerformances = pgTable('show_performances', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  showId: uuid('show_id').notNull().references(() => shows.id, { onDelete: 'cascade' }),
+  venueId: uuid('venue_id').references(() => showVenues.id, { onDelete: 'set null' }),
+  startAt: ts('start_at').notNull(),
+  endAt: ts('end_at').notNull(),
+  /** Accueil du public (ouverture des portes), facultatif. */
+  doorsAt: ts('doors_at'),
+  capacity: integer('capacity'),
+  /** planned | confirmed | cancelled | done */
+  status: text('status').notNull().default('planned'),
+  notes: text('notes'),
+  eventId: uuid('event_id').references(() => events.id, { onDelete: 'set null' }),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('show_perf_show_idx').on(t.showId, t.startAt)]);
+
+/** Équipe d'un spectacle (technique, administration, accueil…). */
+export const showCrew = pgTable('show_crew', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  showId: uuid('show_id').notNull().references(() => shows.id, { onDelete: 'cascade' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  job: text('job').notNull(),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('show_crew_unique').on(t.showId, t.memberId, t.job), index('show_crew_member_idx').on(t.memberId)]);

@@ -115,7 +115,7 @@ function Sidebar({ module }: { module: ModuleId }) {
   const { ctx, can, me } = useApp();
   const def = MODULES_BY_ID[module];
   const items = (MODULE_NAV[module] ?? [{ label: 'Accueil du module', to: def.route }]).filter(
-    (i) => (!i.permission || can(i.permission)) && (!i.superAdmin || me?.user.isSuperAdmin) && (!i.feature || Boolean(ctx && isFeatureEnabled(ctx.modules, i.feature))),
+    (i) => (!i.permission || can(i.permission)) && (!i.superAdmin || me?.user.isSuperAdmin) && (!i.feature || Boolean(ctx && isFeatureEnabled(ctx.modules, i.feature))) && (!i.module || Boolean(ctx?.modules[i.module as ModuleId]?.usable)),
   );
   let lastGroup: string | undefined;
   const apps = MODULES.filter((m) => ctx?.visibleModules.includes(m.id) && m.id !== module);

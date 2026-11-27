@@ -15,6 +15,7 @@ import { AuditService } from '../audit/audit.service';
 import { ModuleImpact, ModulesService } from '../modules/modules.service';
 import { occurrencesOf } from '../agenda/agenda.controller';
 import { callSheetPdf, distributionPdf } from './cast-pdf';
+import { resyncShow } from '../show/show-sync';
 
 const TZ = DEFAULT_TIMEZONE;
 const log = (c: AssocCtx) => ({ associationId: c.association.id, actorId: c.user.id, actorLabel: c.user.displayName, ip: c.ip });
@@ -213,6 +214,8 @@ export class CastController implements OnModuleInit {
 
   /** Après un changement de distribution ou de scènes : mise à jour des convocations à venir. */
   private async resyncUpcoming(c: AssocCtx, p: Production) {
+    // Les représentations du spectacle rattaché convoquent aussi la distribution.
+    if (p.showId && c.modules.show?.usable) await resyncShow(this.db, { associationId: c.association.id, userId: c.user.id, modules: c.modules }, p.showId);
     if (!isFeatureEnabled(c.modules, 'cast.agendaCalls')) return;
     const list = await this.db.select().from(castRehearsals).where(and(eq(castRehearsals.productionId, p.id), gt(castRehearsals.startAt, new Date())));
     for (const r of list) await this.db.transaction((tx) => this.syncEvent(tx, c, p, r));

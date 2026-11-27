@@ -131,8 +131,12 @@ const defs: Def[] = [
   {
     id: 'show', shortName: 'Show', tagline: 'Spectacles et productions', color: '#7539B2', core: false, category: 'artistique',
     description: 'Spectacles, productions et représentations',
-    requires: [], integrations: ['cast', 'tickets', 'regie', 'stock', 'finance', 'agenda'], features: [],
-    implementation: { status: 'planned', phase: 4, note: 'Prévu en phase 4.' },
+    requires: [], integrations: ['cast', 'tickets', 'regie', 'stock', 'finance', 'agenda', 'drive'],
+    features: [
+      { id: 'show.agenda', label: 'Représentations dans l’agenda (équipe et distribution convoquées)', requires: ['agenda'] },
+      { id: 'show.attachments', label: 'Documents du spectacle (fiche technique, affiche…) dans Drive', requires: ['drive'] },
+    ],
+    implementation: { status: 'partial', phase: 4, note: 'Spectacles, représentations, lieux, équipe, rattachement des distributions de Cast, agenda, documents, fiche spectacle PDF. Billetterie avec Tickets, conduite avec Régie.' },
   },
   {
     id: 'regie', name: 'Scenorya Régie', shortName: 'Régie', tagline: 'Conduite technique', color: '#1266B2', core: false, category: 'artistique',

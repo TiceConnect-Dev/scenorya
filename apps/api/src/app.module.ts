@@ -28,6 +28,7 @@ import { DriveController } from './drive/drive.controller';
 import { ShareController } from './drive/share.controller';
 import { EspaceController } from './espace/espace.controller';
 import { CastController } from './cast/cast.controller';
+import { ShowController } from './show/show.controller';
 import { GovernanceController } from './asso/governance.controller';
 import { RealtimeGateway } from './realtime/realtime.gateway';
 
@@ -50,7 +51,7 @@ class PoolLifecycle implements OnApplicationShutdown {
     AdminModulesController, AdminUsersController, AdminRolesController, AdminAuditController, AdminAssociationController,
     InstanceModulesController, SystemController,
     MembersController, PlansController, DuesController, GroupsController, FieldsController, CardsController,
-    AgendaController, ProjectsController, GovernanceController, DriveController, ShareController, EspaceController, CastController,
+    AgendaController, ProjectsController, GovernanceController, DriveController, ShareController, EspaceController, CastController, ShowController,
   ],
   providers: [
     { provide: PG_POOL, useFactory: () => createPool(loadConfig().DATABASE_URL) },

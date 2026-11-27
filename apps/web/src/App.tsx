@@ -16,6 +16,7 @@ import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from '
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { EspaceShows, PerformancesPage, ShowHome, ShowPage, VenuesPage } from './pages/show/Show';
 import { CastHome, EspaceCast, ProductionPage, UnavailabilityPage } from './pages/cast/Cast';
 import { EspaceAgenda, EspaceDocuments, EspaceDues, EspaceHome, EspaceMeetings, EspaceProfile, InvitationPage } from './pages/espace/Espace';
 import { DriveAccessLogPage, DriveFavoritesPage, DrivePage, DriveRecentPage, DriveSearchPage, DriveSharesPage, DriveTrashPage, PublicSharePage } from './pages/drive/Drive';
@@ -50,7 +51,7 @@ function HubOrEspace() {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show']);
 
 export function App() {
   return (
@@ -85,6 +86,11 @@ export function App() {
           <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/show" element={<ModuleGate id="show"><ShowHome /></ModuleGate>} />
+          <Route path="/show/spectacles/:id" element={<ModuleGate id="show"><ShowPage /></ModuleGate>} />
+          <Route path="/show/representations" element={<ModuleGate id="show"><PerformancesPage /></ModuleGate>} />
+          <Route path="/show/lieux" element={<ModuleGate id="show"><VenuesPage /></ModuleGate>} />
+          <Route path="/espace/representations" element={<ModuleGate id="espace"><EspaceShows /></ModuleGate>} />
           <Route path="/cast" element={<ModuleGate id="cast"><CastHome /></ModuleGate>} />
           <Route path="/cast/productions/:id" element={<ModuleGate id="cast"><ProductionPage /></ModuleGate>} />
           <Route path="/cast/disponibilites" element={<ModuleGate id="cast"><UnavailabilityPage /></ModuleGate>} />

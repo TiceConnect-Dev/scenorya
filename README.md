@@ -25,7 +25,8 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Drive** : dossiers, envoi par glisser-déposer, contenu dédupliqué, versions, corbeille (30 jours), dossiers restreints par rôle, étiquettes, recherche, favoris, aperçus sûrs, liens de partage (expiration, mot de passe, nombre de téléchargements), quota par association, journal des accès | ✅ Opérationnel, testé |
 | **Scenorya Espace** : invitation des adhérents (e-mail ou lien), création ou rattachement du compte, coordonnées modifiables, cotisations et reçus, carte d’adhérent, agenda avec réponse de présence, convocations et procès-verbaux, documents publiés depuis Drive | 🟡 Partiel (espace spectateurs avec Tickets) |
 | **Scenorya Cast** : productions, rôles, distribution (titulaires, doublures, pressentis), scènes et présence des personnages, indisponibilités, répétitions avec convoqués calculés, conflits et événement d’agenda, feuille de service et distribution en PDF, espace du comédien | 🟡 Partiel (rattachement aux spectacles avec Show) |
-| Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Show** : spectacles, représentations (séries, jauge, accueil du public, états), lieux, équipe, distributions de Cast rattachées, convocations dans l’agenda, documents dans Drive, fiche spectacle PDF, représentations dans l’espace personnel | 🟡 Partiel (billetterie avec Tickets, conduite avec Régie) |
+| Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 
