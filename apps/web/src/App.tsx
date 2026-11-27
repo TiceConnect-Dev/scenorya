@@ -16,6 +16,7 @@ import { AssoHome, MemberDetail, MemberForm, MembersImport, MembersList } from '
 import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
+import { EspaceAgenda, EspaceDocuments, EspaceDues, EspaceHome, EspaceMeetings, EspaceProfile, InvitationPage } from './pages/espace/Espace';
 import { DriveAccessLogPage, DriveFavoritesPage, DrivePage, DriveRecentPage, DriveSearchPage, DriveSharesPage, DriveTrashPage, PublicSharePage } from './pages/drive/Drive';
 import { MandatesPage, MeetingDetailPage, MeetingsPage } from './pages/asso/Governance';
 import { CardsPage, FieldsPage, GroupDetail, GroupsPage, VerifyCardPage } from './pages/asso/Groups';
@@ -34,8 +35,21 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/** Page d'accueil : le Hub, ou l'Espace pour un compte qui n'a accès qu'à son espace personnel. */
+function HomeRedirect() {
+  const { isVisible, ctxLoading } = useApp();
+  if (ctxLoading) return <Loading />;
+  return <Navigate to={!isVisible('hub') && isVisible('espace') ? '/espace' : '/hub'} replace />;
+}
+function HubOrEspace() {
+  const { isVisible, ctxLoading } = useApp();
+  if (ctxLoading) return <Loading />;
+  if (!isVisible('hub') && isVisible('espace')) return <Navigate to="/espace" replace />;
+  return <HubPage />;
+}
+
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace']);
 
 export function App() {
   return (
@@ -46,9 +60,10 @@ export function App() {
         <Route path="/mot-de-passe" element={<ChangePasswordPage />} />
         <Route path="/verifier/carte/:token" element={<VerifyCardPage />} />
         <Route path="/partage/:token" element={<PublicSharePage />} />
+        <Route path="/invitation/:token" element={<InvitationPage />} />
         <Route element={<RequireAuth><Shell /></RequireAuth>}>
-          <Route index element={<Navigate to="/hub" replace />} />
-          <Route path="/hub" element={<HubPage />} />
+          <Route index element={<HomeRedirect />} />
+          <Route path="/hub" element={<HubOrEspace />} />
           <Route path="/compte" element={<AccountPage />} />
 
           <Route path="/asso" element={<ModuleGate id="asso"><AssoHome /></ModuleGate>} />
@@ -69,6 +84,12 @@ export function App() {
           <Route path="/asso/mandats" element={<ModuleGate id="asso"><MandatesPage /></ModuleGate>} />
 
           <Route path="/agenda" element={<ModuleGate id="agenda"><AgendaPage /></ModuleGate>} />
+          <Route path="/espace" element={<ModuleGate id="espace"><EspaceHome /></ModuleGate>} />
+          <Route path="/espace/profil" element={<ModuleGate id="espace"><EspaceProfile /></ModuleGate>} />
+          <Route path="/espace/cotisations" element={<ModuleGate id="espace"><EspaceDues /></ModuleGate>} />
+          <Route path="/espace/agenda" element={<ModuleGate id="espace"><EspaceAgenda /></ModuleGate>} />
+          <Route path="/espace/reunions" element={<ModuleGate id="espace"><EspaceMeetings /></ModuleGate>} />
+          <Route path="/espace/documents" element={<ModuleGate id="espace"><EspaceDocuments /></ModuleGate>} />
           <Route path="/drive" element={<ModuleGate id="drive"><DrivePage /></ModuleGate>} />
           <Route path="/drive/dossier/:id" element={<ModuleGate id="drive"><DrivePage /></ModuleGate>} />
           <Route path="/drive/favoris" element={<ModuleGate id="drive"><DriveFavoritesPage /></ModuleGate>} />

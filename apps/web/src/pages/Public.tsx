@@ -1,12 +1,12 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BRAND, MODULES, MODULE_PROFILES, MODULES_BY_ID, ModuleId, planActivation } from '@scenorya/shared';
 import { api, errorMessage } from '../api/client';
 import { useApp } from '../state';
 import { Alert, BrandLogo, ErrorBox, Field, Loading } from '../components/ui';
 
-function AuthLayout({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
+export function AuthLayout({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <div className="auth-page">
       <div className={`auth-card${wide ? ' wide' : ''}`}>
@@ -26,8 +26,13 @@ export function LoginPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { me } = useApp();
+  const location = useLocation();
+  const [params] = useSearchParams();
+  // Retour après connexion : uniquement un chemin interne (jamais une adresse externe).
+  const wanted = params.get('next') ?? (location.state as { from?: string } | null)?.from ?? '';
+  const dest = /^\/(?!\/)[\w\-/%.]*$/.test(wanted) && !wanted.startsWith('/connexion') ? wanted : '/';
   const status = useQuery({ queryKey: ['setup-status'], queryFn: () => api.get<{ needsSetup: boolean }>('/setup/status') });
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(params.get('email') ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,7 +41,7 @@ export function LoginPage() {
   }, []);
 
   if (status.data?.needsSetup) return <Navigate to="/installation" replace />;
-  if (me) return <Navigate to={me.user.mustChangePassword ? '/mot-de-passe' : '/hub'} replace />;
+  if (me) return <Navigate to={me.user.mustChangePassword ? '/mot-de-passe' : dest} replace />;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,7 +50,7 @@ export function LoginPage() {
     try {
       await api.post('/auth/login', { email, password });
       await qc.invalidateQueries({ queryKey: ['me'] });
-      navigate('/hub');
+      navigate(dest);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -89,7 +94,7 @@ export function ChangePasswordPage() {
       await api.post('/auth/password', { current, next });
       toast('Mot de passe modifié.');
       await qc.invalidateQueries({ queryKey: ['me'] });
-      navigate('/hub');
+      navigate('/');
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -190,7 +195,7 @@ export function SetupPage() {
       });
       localStorage.setItem('scenorya:association', res.associationId);
       await qc.invalidateQueries();
-      navigate('/hub');
+      navigate('/');
       window.location.reload();
     } catch (err) {
       setError(errorMessage(err));

@@ -207,7 +207,21 @@ export class FieldsController {
 
 /* ------------------------------------------------- Cartes d'adhérent */
 
-async function coverage(db: DbOrTx, memberIds: string[]) {
+/** Attribue un jeton de carte aux adhérents qui n'en ont pas encore. */
+export async function ensureCardTokens(db: Db, associationId: string, ids: string[]) {
+  const rows = await db.select().from(members).where(and(eq(members.associationId, associationId), inArray(members.id, ids)));
+  for (const m of rows) {
+    if (!m.cardToken) {
+      m.cardToken = randomToken(18);
+      await db.update(members).set({ cardToken: m.cardToken }).where(and(eq(members.id, m.id), isNull(members.cardToken)));
+      const [fresh] = await db.select({ t: members.cardToken }).from(members).where(eq(members.id, m.id));
+      m.cardToken = fresh.t;
+    }
+  }
+  return rows;
+}
+
+export async function coverage(db: DbOrTx, memberIds: string[]) {
   if (memberIds.length === 0) return new Map<string, { valid: boolean; until: string | null }>();
   const rows = await db
     .select({
@@ -228,24 +242,15 @@ async function coverage(db: DbOrTx, memberIds: string[]) {
   return map;
 }
 
-const verifyUrl = (token: string) => `${loadConfig().PUBLIC_URL.replace(/\/$/, '')}/verifier/carte/${token}`;
+export const verifyUrl = (token: string) => `${loadConfig().PUBLIC_URL.replace(/\/$/, '')}/verifier/carte/${token}`;
 
 @ApiTags("Scenorya Asso — Cartes d'adhérent")
 @Controller()
 export class CardsController {
   constructor(@Inject(DB) private readonly db: Db, private readonly audit: AuditService, private readonly modules: ModulesService) {}
 
-  private async ensureTokens(associationId: string, ids: string[]) {
-    const rows = await this.db.select().from(members).where(and(eq(members.associationId, associationId), inArray(members.id, ids)));
-    for (const m of rows) {
-      if (!m.cardToken) {
-        m.cardToken = randomToken(18);
-        await this.db.update(members).set({ cardToken: m.cardToken }).where(and(eq(members.id, m.id), isNull(members.cardToken)));
-        const [fresh] = await this.db.select({ t: members.cardToken }).from(members).where(eq(members.id, m.id));
-        m.cardToken = fresh.t;
-      }
-    }
-    return rows;
+  private ensureTokens(associationId: string, ids: string[]) {
+    return ensureCardTokens(this.db, associationId, ids);
   }
 
   private async render(c: AssocCtx, ids: string[], layout: 'single' | 'sheet', res: Response) {

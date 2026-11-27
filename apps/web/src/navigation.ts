@@ -27,6 +27,14 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Mandats', to: '/asso/mandats', permission: 'asso.mandates.read', group: 'Gouvernance' },
   ],
   agenda: [{ label: 'Planning', to: '/agenda' }],
+  espace: [
+    { label: 'Accueil', to: '/espace', permission: 'espace.read' },
+    { label: 'Mes coordonnées', to: '/espace/profil', permission: 'espace.read' },
+    { label: 'Mes cotisations', to: '/espace/cotisations', permission: 'espace.read' },
+    { label: 'Mon agenda', to: '/espace/agenda', permission: 'espace.read' },
+    { label: 'Assemblées et réunions', to: '/espace/reunions', permission: 'espace.read' },
+    { label: 'Documents', to: '/espace/documents', permission: 'espace.read' },
+  ],
   drive: [
     { label: 'Documents', to: '/drive', permission: 'drive.files.read' },
     { label: 'Récents', to: '/drive/recents', permission: 'drive.files.read' },

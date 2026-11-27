@@ -11,7 +11,7 @@ interface DriveFile {
   id: string; name: string; folderId: string | null; mime: string; size: number; version: number; tags: string[]; description: string | null;
   updatedAt: string; updatedBy: string | null; favorite: boolean; shared: boolean; preview: boolean; path?: string;
 }
-interface FolderRow { id: string; name: string; restricted: boolean; allowedRoleIds?: string[]; updatedAt: string }
+interface FolderRow { id: string; name: string; restricted: boolean; espace?: boolean; allowedRoleIds?: string[]; updatedAt: string }
 interface Browse { folder: (FolderRow & { parentId: string | null }) | null; breadcrumb: { id: string; name: string; restricted: boolean }[]; folders: FolderRow[]; files: DriveFile[] }
 interface Overview {
   used: number; quota: number; maxUploadBytes: number; trashDays: number; roles: { id: string; name: string }[]; hasFolders: boolean;
@@ -218,6 +218,7 @@ export function DrivePage() {
                 <td>
                   <Link to={folderUrl(f.id)} className="strong">{f.name}</Link>
                   {f.restricted && <> <Badge tone="warning">Restreint</Badge></>}
+                  {f.espace && <> <Badge tone="info">Publié dans l’Espace</Badge></>}
                 </td>
                 <td className="muted">—</td>
                 <td className="small muted">{formatDate(f.updatedAt)}</td>
@@ -275,6 +276,7 @@ function FolderModal({ state, parentId, roles, onClose, onSaved }: {
   const [name, setName] = useState(folder?.name ?? '');
   const [restricted, setRestricted] = useState(folder?.restricted ?? false);
   const [allowed, setAllowed] = useState<string[]>(folder?.allowedRoleIds ?? []);
+  const [espace, setEspace] = useState(folder?.espace ?? false);
   const [error, setError] = useState<string | null>(null);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -282,7 +284,7 @@ function FolderModal({ state, parentId, roles, onClose, onSaved }: {
     try {
       if (state.mode === 'create') await api.post('/drive/folders', { name, parentId });
       else if (state.mode === 'rename') await api.patch(`/drive/folders/${folder!.id}`, { name });
-      else await api.put(`/drive/folders/${folder!.id}/access`, { restricted, allowedRoleIds: allowed });
+      else await api.put(`/drive/folders/${folder!.id}/access`, { restricted, allowedRoleIds: allowed, espace });
       toast(state.mode === 'access' ? 'Accès mis à jour.' : 'Dossier enregistré.');
       onSaved();
       onClose();
@@ -311,6 +313,8 @@ function FolderModal({ state, parentId, roles, onClose, onSaved }: {
                 <p className="small muted">Les administrateurs de Drive voient toujours tous les dossiers. Sans rôle coché, le dossier leur est réservé.</p>
               </fieldset>
             )}
+            <label className="check"><input type="checkbox" checked={espace} onChange={(e) => setEspace(e.target.checked)} /> Publier dans l’Espace des membres (lecture seule, sous-dossiers compris)</label>
+            <p className="small muted" style={{ margin: 0 }}>Tous les adhérents reliés à un compte pourront consulter et télécharger ces documents depuis leur espace, même si le dossier est restreint dans Drive.</p>
           </>
         )}
       </form>

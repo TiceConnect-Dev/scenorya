@@ -30,6 +30,19 @@ const zMeeting = z.object({
 });
 type MeetingRow = typeof meetings.$inferSelect;
 
+/** Président(e) et secrétaire en exercice (mandats du bureau), pour les signatures. */
+export async function signatoriesOf(db: DbOrTx, associationId: string): Promise<Signatories> {
+  const rows = await db
+    .select({ role: mandates.role, firstName: members.firstName, lastName: members.lastName })
+    .from(mandates)
+    .innerJoin(members, eq(members.id, mandates.memberId))
+    .where(and(eq(mandates.associationId, associationId), sql`${mandates.startDate} <= current_date and (${mandates.endDate} is null or ${mandates.endDate} >= current_date)`));
+  const find = (re: RegExp) => rows.find((r) => re.test(r.role.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()));
+  const p = find(/^presid/);
+  const s = find(/^secretaire/);
+  return { president: p ? `${p.firstName} ${p.lastName}` : null, secretary: s ? `${s.firstName} ${s.lastName}` : null };
+}
+
 @ApiTags('Scenorya Asso — Gouvernance')
 @Controller('asso')
 export class GovernanceController {
@@ -61,17 +74,8 @@ export class GovernanceController {
     return { total, present, represented, percent, required: m.quorumPercent, reached: m.quorumPercent ? percent >= m.quorumPercent : null };
   }
 
-  /** Président(e) et secrétaire en exercice (mandats du bureau), pour les signatures. */
-  private async signatories(associationId: string): Promise<Signatories> {
-    const rows = await this.db
-      .select({ role: mandates.role, firstName: members.firstName, lastName: members.lastName })
-      .from(mandates)
-      .innerJoin(members, eq(members.id, mandates.memberId))
-      .where(and(eq(mandates.associationId, associationId), sql`${mandates.startDate} <= current_date and (${mandates.endDate} is null or ${mandates.endDate} >= current_date)`));
-    const find = (re: RegExp) => rows.find((r) => re.test(r.role.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()));
-    const p = find(/^presid/);
-    const s = find(/^secretaire/);
-    return { president: p ? `${p.firstName} ${p.lastName}` : null, secretary: s ? `${s.firstName} ${s.lastName}` : null };
+  private signatories(associationId: string): Promise<Signatories> {
+    return signatoriesOf(this.db, associationId);
   }
 
   /** Événement d'agenda lié (fonctionnalité conditionnée à Scenorya Agenda). */

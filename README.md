@@ -23,7 +23,8 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Agenda** : événements, récurrences, invitations d’adhérents et de groupes, conflits, vues mois/semaine/liste, export et abonnement iCal | 🟡 Partiel (salles avec Booking, vue année) |
 | **Scenorya Projects** : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles, pièces jointes | 🟡 Partiel (vues calendrier et chronologique) |
 | **Scenorya Drive** : dossiers, envoi par glisser-déposer, contenu dédupliqué, versions, corbeille (30 jours), dossiers restreints par rôle, étiquettes, recherche, favoris, aperçus sûrs, liens de partage (expiration, mot de passe, nombre de téléchargements), quota par association, journal des accès | ✅ Opérationnel, testé |
-| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Espace, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Espace** : invitation des adhérents (e-mail ou lien), création ou rattachement du compte, coordonnées modifiables, cotisations et reçus, carte d’adhérent, agenda avec réponse de présence, convocations et procès-verbaux, documents publiés depuis Drive | 🟡 Partiel (espace spectateurs avec Tickets) |
+| Cast, Show, Régie, Tickets, Scan, POS, Finance, Factures, Stock, Booking, Maintenance, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 

@@ -32,7 +32,9 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 - ⏳ Gouvernance : vote électronique (selon statuts), envoi du PV aux membres
 - ✅ Drive : dossiers, versions, corbeille, dossiers restreints par rôle, étiquettes, recherche, favoris, aperçus sûrs, liens de partage protégés, quota, journal des accès, rattachement aux autres modules
 - ⏳ Drive : stockage S3, prévisualisation des documents bureautiques, édition en ligne, logo de l’association
-- ⏳ Cast, Espace
+- ✅ Espace des adhérents : invitation, compte, coordonnées, cotisations et reçus, carte, agenda avec réponse, convocations et PV, documents publiés depuis Drive
+- ⏳ Espace : billets et commandes (avec Tickets), distributions et convocations de répétition (avec Cast), notifications (avec Com)
+- ⏳ Cast
 
 ## Phase 3 — Gestion technique
 

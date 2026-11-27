@@ -225,7 +225,7 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
     const subfolders = [...s.folders.values()]
       .filter((f) => !f.deletedAt && (f.parentId ?? null) === fid && this.canSee(s, f.id))
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-      .map((f) => ({ id: f.id, name: f.name, restricted: f.restricted, allowedRoleIds: s.admin ? f.allowedRoleIds : undefined, updatedAt: f.updatedAt }));
+      .map((f) => ({ id: f.id, name: f.name, restricted: f.restricted, espace: f.espace, allowedRoleIds: s.admin ? f.allowedRoleIds : undefined, updatedAt: f.updatedAt }));
     const files = await this.db.select().from(driveFiles)
       .where(and(eq(driveFiles.associationId, c.association.id), isNull(driveFiles.deletedAt), fid ? eq(driveFiles.folderId, fid) : isNull(driveFiles.folderId)))
       .orderBy(sql`lower(${driveFiles.name})`);
@@ -374,7 +374,7 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
   @Access('drive', 'drive.files.admin')
   @Put('drive/folders/:id/access')
   async folderAccess(@AssocContext() c: AssocCtx, @Param('id') id: string, @Body() body: unknown) {
-    const input = parse(z.object({ restricted: z.boolean(), allowedRoleIds: z.array(zUuid).max(50).default([]) }), body);
+    const input = parse(z.object({ restricted: z.boolean(), allowedRoleIds: z.array(zUuid).max(50).default([]), espace: z.boolean().optional() }), body);
     const s = await this.scope(c);
     const f = this.folderOf(s, id)!;
     if (input.allowedRoleIds.length) {
@@ -382,11 +382,11 @@ export class DriveController implements OnModuleInit, OnModuleDestroy {
       if (known.length !== new Set(input.allowedRoleIds).size) throw BadRequest('UNKNOWN_ROLE', 'Rôle inconnu.');
     }
     const allowed = input.restricted ? [...new Set(input.allowedRoleIds)] : [];
-    await this.db.update(driveFolders).set({ restricted: input.restricted, allowedRoleIds: allowed, updatedAt: new Date() }).where(eq(driveFolders.id, f.id));
+    await this.db.update(driveFolders).set({ restricted: input.restricted, allowedRoleIds: allowed, ...(input.espace !== undefined ? { espace: input.espace } : {}), updatedAt: new Date() }).where(eq(driveFolders.id, f.id));
     const names = allowed.length ? (await this.db.select({ n: roles.name }).from(roles).where(inArray(roles.id, allowed))).map((r) => r.n) : [];
     await this.audit.log({
       ...log(c), action: 'drive.folder.access', resourceType: 'drive_folder', resourceId: f.id,
-      summary: input.restricted ? `Dossier « ${f.name} » restreint à : ${names.join(', ') || 'administrateurs de Drive uniquement'}` : `Dossier « ${f.name} » ouvert à tous les utilisateurs de Drive`,
+      summary: `${input.restricted ? `Dossier « ${f.name} » restreint à : ${names.join(', ') || 'administrateurs de Drive uniquement'}` : `Dossier « ${f.name} » ouvert à tous les utilisateurs de Drive`}${input.espace !== undefined && input.espace !== f.espace ? (input.espace ? ' ; publié dans l’Espace des membres' : ' ; retiré de l’Espace des membres') : ''}`,
       data: { before: { restricted: f.restricted, allowedRoleIds: f.allowedRoleIds }, after: { restricted: input.restricted, allowedRoleIds: allowed } },
     });
     return { ok: true };

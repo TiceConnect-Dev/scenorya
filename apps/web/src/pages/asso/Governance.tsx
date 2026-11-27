@@ -6,7 +6,7 @@ import { useApp } from '../../state';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, Modal, PageHead } from '../../components/ui';
 import { Group, MemberPicker } from './Groups';
 
-const TYPES: Record<string, string> = { ag_ordinaire: 'Assemblée générale ordinaire', ag_extraordinaire: 'Assemblée générale extraordinaire', ca: 'Conseil d’administration', bureau: 'Réunion du bureau', autre: 'Autre réunion' };
+export const MEETING_TYPES: Record<string, string> = { ag_ordinaire: 'Assemblée générale ordinaire', ag_extraordinaire: 'Assemblée générale extraordinaire', ca: 'Conseil d’administration', bureau: 'Réunion du bureau', autre: 'Autre réunion' };
 const STATUS: Record<string, [string, 'neutral' | 'info' | 'warning' | 'success']> = { draft: ['Brouillon', 'neutral'], convened: ['Convoquée', 'info'], held: ['Tenue', 'warning'], closed: ['✓ Clôturée', 'success'] };
 const PRESENCE: Record<string, string> = { convened: 'Convoqué', present: 'Présent', represented: 'Représenté', excused: 'Excusé', absent: 'Absent' };
 const crumbs = (label: string, extra: { label: string; to?: string }[] = []) => [{ label: 'Scenorya Asso', to: '/asso' }, ...extra, { label }];
@@ -50,7 +50,7 @@ function MeetingForm({ open, initial, onClose, onSubmit }: { open: boolean; init
       <form className="stack" onSubmit={submit}>
         {error && <div className="alert danger" role="alert">{error}</div>}
         <div className="form-grid">
-          <Field label="Instance">{(id) => <select id={id} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>{Object.entries(TYPES).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field>
+          <Field label="Instance">{(id) => <select id={id} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>{Object.entries(MEETING_TYPES).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>}</Field>
           <Field label="Intitulé">{(id) => <input id={id} type="text" required value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="AG annuelle 2027" />}</Field>
           <Field label="Date et heure">{(id) => <input id={id} type="datetime-local" required value={f.startAt} onChange={(e) => setF({ ...f, startAt: e.target.value })} />}</Field>
           <Field label="Lieu">{(id) => <input id={id} type="text" value={f.location} onChange={(e) => setF({ ...f, location: e.target.value })} />}</Field>
@@ -96,7 +96,7 @@ export function MeetingsPage() {
               {q.data.map((m) => (
                 <tr key={m.id}>
                   <td className="nowrap">{formatDate(m.startAt, true)}</td>
-                  <td><Link to={`/asso/instances/${m.id}`}><strong>{m.title}</strong></Link><div className="small muted">{TYPES[m.type]}</div></td>
+                  <td><Link to={`/asso/instances/${m.id}`}><strong>{m.title}</strong></Link><div className="small muted">{MEETING_TYPES[m.type]}</div></td>
                   <td>{m.attendees}</td>
                   <td>{m.resolutions}</td>
                   <td><Badge tone={STATUS[m.status][1]}>{STATUS[m.status][0]}</Badge></td>
@@ -142,7 +142,7 @@ export function MeetingDetailPage() {
       <Breadcrumb items={crumbs(m.title, [{ label: 'Instances et assemblées', to: '/asso/instances' }])} />
       <PageHead
         title={m.title}
-        description={`${TYPES[m.type]} — ${formatDate(m.startAt, true)}${m.location ? ` — ${m.location}` : ''}`}
+        description={`${MEETING_TYPES[m.type]} — ${formatDate(m.startAt, true)}${m.location ? ` — ${m.location}` : ''}`}
         actions={
           <>
             <Badge tone={STATUS[m.status][1]}>{STATUS[m.status][0]}</Badge>

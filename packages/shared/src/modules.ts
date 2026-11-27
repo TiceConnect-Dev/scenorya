@@ -242,8 +242,8 @@ const defs: Def[] = [
   {
     id: 'espace', shortName: 'Espace', tagline: 'Espace personnel', color: '#00899B', core: false, category: 'association',
     description: 'Espace personnel des membres et spectateurs',
-    requires: [], integrations: ['asso', 'tickets', 'agenda', 'cast'], features: [],
-    implementation: { status: 'planned', phase: 2, note: 'Prévu en phase 2.' },
+    requires: [], integrations: ['asso', 'tickets', 'agenda', 'cast', 'drive'], features: [],
+    implementation: { status: 'partial', phase: 2, note: 'Espace des adhérents : invitation, coordonnées, cotisations et reçus, carte, agenda avec réponse, convocations et procès-verbaux, documents publiés depuis Drive. Espace spectateurs (billets) avec Tickets.' },
   },
   {
     id: 'analytics', shortName: 'Analytics', tagline: 'Statistiques', color: '#C65D11', core: false, category: 'collaboration',

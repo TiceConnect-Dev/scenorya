@@ -75,6 +75,14 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Traçabilité** : *Journal des accès* (qui a ouvert ou téléchargé quoi, y compris par lien public) ; les modifications sont dans le journal d’audit.
 - **Associations existantes** : les nouvelles permissions Drive ne sont pas ajoutées automatiquement aux rôles déjà créés ; ajoutez-les dans *Admin → Rôles* (les administrateurs les ont déjà).
 
+## Espace personnel des adhérents (Scenorya Espace)
+
+- **Activer** Scenorya Espace (Admin → Modules), puis, sur la fiche d’un adhérent, *Inviter à l’Espace*. L’invitation part par e-mail si la messagerie est configurée ; sinon (ou au choix) copiez le lien et transmettez-le. Le lien est valable 14 jours ; une nouvelle invitation annule la précédente.
+- L’adhérent choisit son mot de passe et arrive directement dans son espace. S’il a déjà un compte Scenorya avec cette adresse, il se connecte puis accepte l’invitation. Vous pouvez aussi *Relier à un compte existant* de l’association.
+- Le compte reçoit le rôle « Adhérent » (permission `espace.read`), sauf s’il a déjà accès à l’Espace par un autre rôle. Il ne voit **que sa propre fiche** : jamais la liste des adhérents.
+- Ce que voit l’adhérent : son adhésion et sa validité, ses coordonnées (e-mail de contact, téléphone, adresse, droit à l’image — modifiables, chaque changement est journalisé), ses cotisations et reçus, sa carte d’adhérent, les événements où il est invité (avec réponse de présence), les réunions où il est convoqué (convocation, puis procès-verbal après clôture) et les documents des dossiers Drive publiés dans l’Espace (*Drive → Accès → Publier dans l’Espace des membres*).
+- *Retirer l’accès* détache la fiche du compte (le compte n’est pas supprimé).
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.

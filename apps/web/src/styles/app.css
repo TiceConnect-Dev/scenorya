@@ -353,3 +353,6 @@ dl.props dd { margin: 0; }
 .drive-search input { flex: 1; min-width: 0; }
 .table th.actions { text-align: right; }
 .chip-count { opacity: 0.7; font-size: 0.8em; }
+.tile-link { display: block; text-decoration: none; color: inherit; transition: border-color 0.15s; }
+.tile-link:hover { border-color: var(--blue); }
+.tile-link h2 { color: var(--blue); }

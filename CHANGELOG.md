@@ -2,6 +2,20 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.8.0] — 2026-11-27
+
+### Ajouté — Scenorya Espace (adhérents)
+
+- Invitation depuis la fiche d’un adhérent : e-mail (si la messagerie est configurée) ou lien à transmettre, valable 14 jours, usage unique.
+- Page publique `/invitation/…` : création du compte (mot de passe choisi par l’adhérent) ou, pour un compte existant, connexion puis acceptation.
+- Rattachement d’une fiche à un compte existant de l’association ; retrait de l’accès.
+- Espace personnel : accueil (adhésion, validité de la cotisation, groupes, mandats), coordonnées modifiables et journalisées, cotisations et reçus PDF, carte d’adhérent, agenda des six prochains mois avec réponse de présence, assemblées et réunions (convocation, procès-verbal après clôture), documents des dossiers Drive publiés dans l’Espace.
+- Drive : option « Publier dans l’Espace des membres » sur un dossier (sous-dossiers compris).
+
+### Modifié
+
+- Après connexion, retour à la page demandée (`?next=`, chemins internes uniquement) ; un compte n’ayant accès qu’à l’Espace arrive directement sur celui-ci au lieu d’un Hub inaccessible.
+
 ## [0.7.0] — 2026-11-27
 
 ### Ajouté — Scenorya Drive

@@ -487,6 +487,8 @@ export const driveFolders = pgTable('drive_folders', {
   name: text('name').notNull(),
   /** Dossier restreint : visible uniquement des rôles listés (et des administrateurs de Drive). */
   restricted: boolean('restricted').notNull().default(false),
+  /** Publié dans Scenorya Espace : lisible par tous les membres liés à un compte. */
+  espace: boolean('espace').notNull().default(false),
   allowedRoleIds: uuid('allowed_role_ids').array().notNull().default(sql`'{}'::uuid[]`),
   deletedAt: ts('deleted_at'),
   /** Lot de suppression : un dossier et son contenu partent et reviennent ensemble. */
@@ -582,3 +584,21 @@ export const driveSettings = pgTable('drive_settings', {
   quotaBytes: bigint('quota_bytes', { mode: 'number' }),
   updatedAt: updatedAt(),
 });
+
+/* --------------------------------------------------------- Scenorya Espace */
+
+/** Invitation d'un adhérent à créer (ou relier) son compte pour accéder à son espace personnel. */
+export const memberInvitations = pgTable('member_invitations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: ts('expires_at').notNull(),
+  acceptedAt: ts('accepted_at'),
+  revokedAt: ts('revoked_at'),
+  /** sent | failed: … | not_sent */
+  emailStatus: text('email_status'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+}, (t) => [index('member_invitations_member_idx').on(t.memberId)]);

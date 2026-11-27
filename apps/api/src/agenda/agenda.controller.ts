@@ -61,7 +61,7 @@ function bounds(input: { start: string; end: string; allDay: boolean }) {
   return { start, end };
 }
 
-const occurrencesOf = (e: Pick<EventRow, 'startAt' | 'endAt' | 'rule' | 'exdates'>, from: Date, to: Date) =>
+export const occurrencesOf = (e: Pick<EventRow, 'startAt' | 'endAt' | 'rule' | 'exdates'>, from: Date, to: Date) =>
   expandOccurrences({ start: e.startAt, end: e.endAt, rule: (e.rule as RecurrenceRule | null) ?? null, exdates: e.exdates }, from, to, TZ);
 
 @ApiTags('Scenorya Agenda')

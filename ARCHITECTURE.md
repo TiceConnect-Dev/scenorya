@@ -58,7 +58,7 @@ Contrôleur → requêtes filtrées par association_id (jamais d'identifiant seu
 
 ## Données
 
-Tables du socle : `users`, `sessions`, `login_attempts`, `associations`, `association_users`, `roles`, `role_assignments` (portée facultative `scope_type/scope_id` et expiration), `instance_modules`, `association_modules`, `module_config_history`, `audit_logs`, `instance_settings`, `backups`, `counters`. Module Asso : `members`, cotisations, groupes, champs, gouvernance. Agenda : `events`, `event_participants`, `calendar_feeds`. Projects : `projects`, `tasks`, `task_comments`. Drive : `drive_blobs` (contenus), `drive_folders`, `drive_files`, `drive_file_versions`, `drive_favorites`, `drive_shares`, `drive_access_log`, `drive_links` (rattachement générique fichier ↔ élément d'un autre module), `drive_settings` (quota).
+Tables du socle : `users`, `sessions`, `login_attempts`, `associations`, `association_users`, `roles`, `role_assignments` (portée facultative `scope_type/scope_id` et expiration), `instance_modules`, `association_modules`, `module_config_history`, `audit_logs`, `instance_settings`, `backups`, `counters`. Module Asso : `members`, cotisations, groupes, champs, gouvernance. Agenda : `events`, `event_participants`, `calendar_feeds`. Projects : `projects`, `tasks`, `task_comments`. Drive : `drive_blobs` (contenus), `drive_folders`, `drive_files`, `drive_file_versions`, `drive_favorites`, `drive_shares`, `drive_access_log`, `drive_links` (rattachement générique fichier ↔ élément d'un autre module), `drive_settings` (quota). Espace : `member_invitations` ; la fiche est reliée au compte par `members.user_id` (index unique partiel par association).
 
 Toutes les tables métier portent `association_id` ; l’isolation est testée.
 

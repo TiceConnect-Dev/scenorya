@@ -6,6 +6,7 @@ import type { AuditEntry, Member, Paged } from '../../api/types';
 import { useApp } from '../../state';
 import { MemberDues } from './Dues';
 import { CustomFieldsInputs, FieldDef, Group, GROUP_KINDS } from './Groups';
+import { MemberEspaceCard } from '../espace/Espace';
 import { Alert, Badge, Breadcrumb, ErrorBox, Field, formatDate, Loading, ModuleLogo, PageHead, Pagination } from '../../components/ui';
 
 export const CATEGORIES: Record<string, string> = {
@@ -432,6 +433,7 @@ export function MemberDetail() {
         );
       })()}
       {can('asso.dues.read') && <MemberDues member={m} />}
+      <MemberEspaceCard memberId={m.id} memberEmail={m.email} archived={archived} />
       {history.data && (
         <section className="card" style={{ marginTop: 16 }}>
           <h2>Historique de la fiche</h2>

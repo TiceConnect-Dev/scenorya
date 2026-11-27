@@ -25,6 +25,8 @@
 | Fichiers (Drive) | Exécutables refusés par extension **et** par signature (MZ, ELF, Mach-O, `#!`) ; type MIME déduit du nom, jamais du navigateur ; SVG/HTML toujours téléchargés ; aperçus servis avec `nosniff`, `CSP: sandbox` (sauf PDF), `no-store` ; noms nettoyés ; contenu stocké sous son empreinte (aucun chemin fourni par l’utilisateur) ; fichiers temporaires supprimés même en cas d’erreur | tests e2e |
 | Dossiers restreints | Visibilité calculée côté serveur sur toute la chaîne de dossiers parents (liste, recherche, favoris, téléchargement, corbeille) ; sortir un document d’un dossier restreint ou le partager publiquement est réservé aux administrateurs de Drive | tests e2e |
 | Liens de partage | Jeton 192 bits stocké haché ; expiration obligatoire (90 jours max) ; mot de passe Argon2id facultatif ; verrouillage 15 min après 10 échecs ; limite de téléchargements atomique ; révocation immédiate, et automatique à la suppression du document ; suspendus si Drive est désactivé ; accès journalisés | tests e2e |
+| Espace personnel | Chaque route `espace/*` ne lit que la fiche reliée au compte connecté (aucun identifiant d’adhérent accepté) ; coordonnées modifiables limitées à une liste blanche et journalisées ; procès-verbal communiqué seulement après clôture ; documents limités aux dossiers publiés | tests e2e |
+| Invitations | Jeton 192 bits haché, usage unique (verrou de ligne), 14 jours, révoqué par une nouvelle invitation ; un compte existant doit être connecté avec l’adresse invitée ; redirection après connexion limitée aux chemins internes | tests e2e |
 | PWA | Le service worker ne met jamais en cache `/api` | configuration |
 
 ## Limites connues
