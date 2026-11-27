@@ -286,3 +286,27 @@ dl.props dd { margin: 0; }
 .progress > span { display: block; height: 100%; background: var(--blue); }
 
 .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------------------------------------------------------------- Agenda */
+.agenda-month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--border); gap: 1px; }
+.agenda-head { background: var(--surface-2); font-size: 0.8rem; font-weight: 700; padding: 6px 8px; }
+.agenda-cell { background: var(--surface); min-height: 108px; padding: 4px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.agenda-cell.other { background: var(--bg); }
+.agenda-cell.other .agenda-daynum { color: var(--text-muted); }
+.agenda-cell.today .agenda-daynum, .agenda-col.today .agenda-head { background: var(--blue); color: #fff; border-radius: 4px; }
+[data-theme='dark'] .agenda-cell.today .agenda-daynum, [data-theme='dark'] .agenda-col.today .agenda-head { color: #0d1726; }
+.agenda-daynum { font-size: 0.8rem; font-weight: 700; align-self: flex-start; padding: 0 5px; }
+.agenda-chip { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid var(--c, var(--blue)); background: var(--surface-2); color: var(--text); font: inherit; font-size: 0.78rem; padding: 2px 5px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agenda-chip:hover { background: var(--blue-soft); }
+.agenda-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.agenda-col { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; min-height: 220px; min-width: 0; }
+.agenda-col .agenda-chip { white-space: normal; }
+.agenda-row { display: flex; gap: 12px; align-items: center; width: 100%; background: none; border: 0; border-bottom: 1px solid var(--border); padding: 8px 4px; font: inherit; color: var(--text); cursor: pointer; flex-wrap: wrap; }
+.agenda-row:hover { background: var(--surface-2); }
+@media (max-width: 900px) {
+  .agenda-week { grid-template-columns: 1fr; }
+  .agenda-col { min-height: 0; }
+  .agenda-cell { min-height: 64px; }
+  .agenda-chip { font-size: 0.7rem; }
+}
+.cap-first::first-letter { text-transform: uppercase; }

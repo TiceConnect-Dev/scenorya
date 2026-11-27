@@ -200,8 +200,9 @@ const defs: Def[] = [
   {
     id: 'agenda', shortName: 'Agenda', tagline: 'Agenda et planning', color: '#1168A9', core: false, category: 'collaboration',
     description: 'Planning, répétitions et événements',
-    requires: [], integrations: ['show', 'booking', 'web'], features: [],
-    implementation: { status: 'planned', phase: 2, note: 'Prévu en phase 2.' },
+    requires: [], integrations: ['show', 'booking', 'web', 'asso'],
+    features: [{ id: 'agenda.memberInvitations', label: 'Invitations des adhérents et des groupes', requires: ['asso'] }],
+    implementation: { status: 'partial', phase: 2, note: 'Événements, récurrences, participants, conflits, export et abonnement iCal ; réservation de salles avec Booking (phase 3).' },
   },
   {
     id: 'drive', shortName: 'Drive', tagline: 'Documents', color: '#008A9A', core: false, category: 'collaboration',

@@ -24,6 +24,7 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Renouvellements', to: '/asso/renouvellements', permission: 'asso.dues.read', group: 'Cotisations' },
     { label: 'Formules', to: '/asso/formules', permission: 'asso.plans.read', group: 'Cotisations' },
   ],
+  agenda: [{ label: 'Planning', to: '/agenda' }],
   admin: [
     { label: "Vue d'ensemble", to: '/admin' },
     { label: 'Modules et fonctionnalités', to: '/admin/modules', permission: 'admin.modules.read', group: 'Plateforme' },

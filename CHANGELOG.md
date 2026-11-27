@@ -2,6 +2,20 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.4.0] — 2026-11-27
+
+Scenorya Agenda.
+
+### Ajouté
+
+- Événements typés (répétition, représentation, réunion, AG, permanence, échéance, public, maintenance), journée entière, lieu, visibilité interne/publique.
+- Récurrences quotidiennes, hebdomadaires (plusieurs jours, toutes les N semaines) et mensuelles, calculées à l’heure de Paris (aucun décalage au changement d’heure), annulation d’une seule date.
+- Invitations d’adhérents et de groupes entiers (fonctionnalité conditionnée à Scenorya Asso), réponses des participants (présent, excusé, peut-être), noms visibles seulement avec l’accès aux adhérents.
+- Détection des conflits de participants et de lieu, en direct dans le formulaire.
+- Vues mois, semaine et liste (liste par défaut sur smartphone), filtre par type.
+- Export iCalendar et abonnement personnel pour les applications d’agenda (lien secret révocable, droits réévalués à chaque synchronisation).
+- Bloc « Prochains événements » dans Scenorya Hub ; conséquences signalées avant désactivation d’Agenda.
+
 ## [0.3.0] — 2026-11-27
 
 Scenorya Asso : groupes, champs personnalisés, cartes d’adhérent.

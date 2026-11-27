@@ -30,6 +30,8 @@ Documentation interactive OpenAPI : **`/api/docs`** (générée à partir du cod
 | GET/POST/PATCH | `/asso/fields`, `/:id` | lecture : `asso.members.read` ; gestion : `asso.fields.admin` |
 | GET/POST | `/asso/members/:id/card.pdf`, `/asso/cards.pdf`, `/asso/members/:id/card/revoke` | `asso.members.download` / `.update` |
 | GET | `/public/cards/:token` | public (vérification d’une carte) |
+| GET/POST/PATCH/PUT/DELETE | `/agenda/events`, `/:id`, `/:id/cancel-occurrence`, `/:id/participants`, `/:id/participants/:memberId`, `/agenda/conflicts`, `/agenda/events.ics`, `/agenda/feed` | `agenda.events.*` |
+| GET | `/public/agenda/:token.ics` | public (abonnement personnel, droits réévalués) |
 | GET/PUT/POST | `/system/health`, `/associations`, `/instance-modules`, `/smtp`, `/smtp/test`, `/backups`, `/audit` | superadministrateur |
 | GET | `/system/healthz` | public (sonde) |
 

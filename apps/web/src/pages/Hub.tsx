@@ -13,6 +13,7 @@ interface Summary {
     members?: { active: number; pending: number; volunteers: number; newThisMonth: number };
     users?: { active: number };
     dues?: { open: number; outstandingCents: number };
+    upcoming?: { id: string; title: string; category: string; location: string | null; allDay: boolean; start: string; end: string }[];
     recentActivity?: AuditEntry[];
   };
 }
@@ -177,6 +178,25 @@ export function HubPage() {
               </ul>
             )}
           </section>
+          {q.data.widgets.upcoming && (
+            <section className="card">
+              <div className="row between"><h2 style={{ margin: 0 }}>Prochains événements</h2><Link to="/agenda">Agenda</Link></div>
+              {q.data.widgets.upcoming.length === 0 ? (
+                <p className="muted" style={{ marginTop: 10 }}>Rien de prévu dans les 14 prochains jours.</p>
+              ) : (
+                <ul style={{ listStyle: 'none', padding: 0, margin: '10px 0 0' }}>
+                  {q.data.widgets.upcoming.map((e) => (
+                    <li key={e.id + e.start} className="row" style={{ padding: '6px 0', borderBottom: '1px solid var(--border)', flexWrap: 'nowrap' }}>
+                      <span className="nowrap small cap-first" style={{ minWidth: 150, display: 'inline-block' }}>
+                        {new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'short', day: 'numeric', month: 'short', ...(e.allDay ? {} : { hour: '2-digit', minute: '2-digit' }) }).format(new Date(e.start))}
+                      </span>
+                      <span><strong>{e.title}</strong>{e.location && <span className="muted"> · {e.location}</span>}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
           {q.data.widgets.recentActivity && (
             <section className="card">
               <h2>Activité récente</h2>

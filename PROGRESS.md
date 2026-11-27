@@ -1,19 +1,19 @@
 # État d’avancement — reprise du développement
 
-_Dernière mise à jour : 27 novembre 2026 — version 0.3.0_
+_Dernière mise à jour : 27 novembre 2026 — version 0.4.0_
 
 Ce fichier permet de reprendre le travail dans une nouvelle session sans perte de contexte.
 
 ## Où en est-on ?
 
-Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés. Les 18 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
+Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés ; **Scenorya Agenda** livré (événements, récurrences, invitations, conflits, iCal). Les 18 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
 
 ## Vérifications effectuées
 
 | Vérification | Résultat |
 |---|---|
-| `packages/shared` : vitest | 26/26 |
-| `apps/api` : jest e2e sur PostgreSQL 16 | 56/56 (plateforme 28, cotisations 16, groupes/champs/cartes 12) |
+| `packages/shared` : vitest | 32/32 |
+| `apps/api` : jest e2e sur PostgreSQL 16 | 67/67 (plateforme 28, cotisations 16, groupes/champs/cartes 12, agenda 11) |
 | CI GitHub Actions (tests) | OK |
 | Typage strict API et web | OK |
 | Build Vite + PWA | OK |
@@ -30,6 +30,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 
 - Drizzle ORM (pas de binaire Prisma) ; sessions opaques ; jeton d’installation ; System réservé au superadministrateur.
 - Graphe strict minimal : Scan → Tickets, Maintenance → Stock ; le reste en intégrations et fonctionnalités conditionnelles (docs/modules.md).
+- Agenda : heures stockées en UTC, récurrences développées à l’heure de `Europe/Paris` (`packages/shared/src/recurrence.ts`) ; abonnement iCal par jeton haché, droits réévalués à chaque lecture.
 - Validation : toute modification partielle utilise `patchOf(schema)` (jamais `.partial()`, qui applique les valeurs par défaut).
 - Cartes : QR = URL de vérification avec jeton aléatoire ; validité calculée en direct.
 - Cotisations : centimes entiers partout ; règlements inaltérables (annulation motivée) ; reçu non fiscal numéroté `AAAA-NNNN` par association ; pdfkit épinglé en 0.16 (dépendances CommonJS, compatibles Jest).
@@ -39,7 +40,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 
 1. Asso : formulaire d’adhésion en ligne, photo, passage automatique en « expirée » (tâche planifiée), export Excel/PDF.
 2. Drive (stockage local + S3), nécessaire au logo d’association, aux pièces jointes et aux sauvegardes de fichiers.
-3. Agenda et Projects.
+3. Projects (tâches, Kanban), puis Gouvernance (AG, convocations, procès-verbaux) qui s’appuie sur Agenda.
 4. Ajouter à chaque nouveau module : permissions dans `permissions.ts`, navigation dans `apps/web/src/navigation.ts`, `implementation.status` dans `modules.ts`, fournisseur d’impact, tests d’accès (module désactivé, lecture seule, isolation).
 
 ## Démarrer en développement

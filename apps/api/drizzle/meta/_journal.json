@@ -36,6 +36,13 @@
       "when": 1795799218490,
       "tag": "0004_groups_fields_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795800443772,
+      "tag": "0005_agenda",
+      "breakpoints": true
     }
   ]
 }

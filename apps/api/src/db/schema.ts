@@ -310,3 +310,47 @@ export const memberFieldDefs = pgTable('member_field_defs', {
   archivedAt: ts('archived_at'),
   createdAt: createdAt(),
 }, (t) => [uniqueIndex('member_field_defs_key_unique').on(t.associationId, t.key)]);
+
+/* ------------------------------------------------------- Scenorya Agenda */
+
+export const events = pgTable('events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  location: text('location'),
+  category: text('category').notNull().default('other'),
+  startAt: ts('start_at').notNull(),
+  endAt: ts('end_at').notNull(),
+  allDay: boolean('all_day').notNull().default(false),
+  /** Règle de récurrence (RecurrenceRule) ou null. */
+  rule: jsonb('rule').$type<import('@scenorya/shared').RecurrenceRule | null>(),
+  /** Dates locales des occurrences annulées. */
+  exdates: text('exdates').array().notNull().default(sql`'{}'::text[]`),
+  /** internal | public (publiable sur le site, phase 7) */
+  visibility: text('visibility').notNull().default('internal'),
+  cancelledAt: ts('cancelled_at'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('events_assoc_start_idx').on(t.associationId, t.startAt)]);
+
+export const eventParticipants = pgTable('event_participants', {
+  eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
+  memberId: uuid('member_id').notNull().references(() => members.id, { onDelete: 'cascade' }),
+  /** invited | yes | no | maybe */
+  status: text('status').notNull().default('invited'),
+  comment: text('comment'),
+  respondedAt: ts('responded_at'),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.eventId, t.memberId] }), index('event_participants_member_idx').on(t.memberId)]);
+
+/** Abonnements iCal personnels (jeton secret, révocable). */
+export const calendarFeeds = pgTable('calendar_feeds', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationUserId: uuid('association_user_id').notNull().references(() => associationUsers.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull().unique(),
+  createdAt: createdAt(),
+  lastUsedAt: ts('last_used_at'),
+  revokedAt: ts('revoked_at'),
+});

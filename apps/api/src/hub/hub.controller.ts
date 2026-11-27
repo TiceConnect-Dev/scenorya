@@ -1,10 +1,10 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { grantsCover, MODULES } from '@scenorya/shared';
+import { and, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
+import { DEFAULT_TIMEZONE, expandOccurrences, grantsCover, MODULES, RecurrenceRule } from '@scenorya/shared';
 import { Access, AssocContext, AssocCtx } from '../common/access';
 import { DB, Db } from '../db/db';
-import { associationUsers, auditLogs, members, membershipDues } from '../db/schema';
+import { associationUsers, auditLogs, events, members, membershipDues } from '../db/schema';
 
 /**
  * Tableau de bord : chaque widget n'est calculé que si le module source est
@@ -49,6 +49,19 @@ export class HubController {
         .from(membershipDues)
         .where(and(eq(membershipDues.associationId, c.association.id), sql`${membershipDues.status} in ('due','partial')`));
       widgets.dues = r;
+    }
+
+    if (c.modules.agenda.usable && can('agenda.events.read')) {
+      const from = new Date();
+      const to = new Date(Date.now() + 14 * 86_400_000);
+      const rows = await this.db
+        .select()
+        .from(events)
+        .where(and(eq(events.associationId, c.association.id), isNull(events.cancelledAt), lt(events.startAt, to), or(gt(events.endAt, from), sql`${events.rule} is not null`)));
+      widgets.upcoming = rows
+        .flatMap((e) => expandOccurrences({ start: e.startAt, end: e.endAt, rule: e.rule as RecurrenceRule | null, exdates: e.exdates }, from, to, DEFAULT_TIMEZONE).map((o) => ({ id: e.id, title: e.title, category: e.category, location: e.location, allDay: e.allDay, start: o.start, end: o.end })))
+        .sort((a, b) => a.start.getTime() - b.start.getTime())
+        .slice(0, 6);
     }
 
     if (can('admin.users.read')) {

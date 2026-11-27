@@ -23,7 +23,9 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 - ✅ Asso : groupes et commissions, champs personnalisés, cartes d’adhérent QR avec vérification publique
 - ⏳ Asso : export Excel/PDF, formulaire d’adhésion en ligne, photo
 - ⏳ Gouvernance (AG, CA, convocations, procès-verbaux)
-- ⏳ Cast, Agenda, Projects, Drive, Espace
+- ✅ Agenda : événements, récurrences, participants, conflits, export et abonnement iCal
+- ⏳ Agenda : vue année, planning par ressource, réservations de salles (avec Booking)
+- ⏳ Cast, Projects, Drive, Espace
 
 ## Phase 3 — Gestion technique
 
