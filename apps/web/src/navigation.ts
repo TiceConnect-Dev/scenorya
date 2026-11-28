@@ -49,6 +49,12 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Réservations', to: '/booking', permission: 'booking.bookings.read' },
     { label: 'Ressources', to: '/booking/ressources', permission: 'booking.resources.read' },
   ],
+  tickets: [
+    { label: 'Séances', to: '/tickets', permission: 'tickets.events.read' },
+  ],
+  scan: [
+    { label: 'Contrôle des entrées', to: '/scan', permission: 'scan.entries.read' },
+  ],
   maintenance: [
     { label: 'Interventions', to: '/maintenance', permission: 'maintenance.tickets.read' },
     { label: 'Entretien préventif', to: '/maintenance/entretiens', permission: 'maintenance.plans.read' },

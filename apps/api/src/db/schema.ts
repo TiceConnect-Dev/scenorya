@@ -991,3 +991,101 @@ export const maintenancePlans = pgTable('maintenance_plans', {
   notes: text('notes'),
   createdAt: createdAt(),
 }, (t) => [index('maintenance_plans_assoc_idx').on(t.associationId, t.nextDueOn)]);
+
+/* --------------------------------------------------------- Scenorya Tickets */
+
+/** Séance mise en vente : autonome ou représentation de Show (fonctionnalité tickets.showEvents). */
+export const ticketEvents = pgTable('ticket_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  performanceId: uuid('performance_id').references(() => showPerformances.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  startAt: ts('start_at').notNull(),
+  venue: text('venue'),
+  /** Jauge : nombre maximal de billets valides (null = illimitée) */
+  capacity: integer('capacity'),
+  /** draft | on_sale | closed | cancelled */
+  status: text('status').notNull().default('draft'),
+  /** Réservation en ligne sur la page publique (règlement sur place) */
+  publicSale: boolean('public_sale').notNull().default(false),
+  salesOpenAt: ts('sales_open_at'),
+  salesCloseAt: ts('sales_close_at'),
+  maxPerOrder: integer('max_per_order').notNull().default(10),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('ticket_events_assoc_idx').on(t.associationId, t.startAt), uniqueIndex('ticket_events_perf_unique').on(t.performanceId)]);
+
+export const ticketRates = pgTable('ticket_rates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  eventId: uuid('event_id').notNull().references(() => ticketEvents.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  priceCents: integer('price_cents').notNull().default(0),
+  /** Nombre maximal de billets à ce tarif (null = selon la jauge) */
+  quota: integer('quota'),
+  /** Proposé sur la page publique (sinon guichet uniquement : invitations, tarifs spéciaux) */
+  publicVisible: boolean('public_visible').notNull().default(true),
+  position: integer('position').notNull().default(0),
+}, (t) => [index('ticket_rates_event_idx').on(t.eventId)]);
+
+export const ticketOrders = pgTable('ticket_orders', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  eventId: uuid('event_id').notNull().references(() => ticketEvents.id, { onDelete: 'cascade' }),
+  number: text('number').notNull(),
+  buyerName: text('buyer_name').notNull(),
+  buyerEmail: text('buyer_email'),
+  buyerPhone: text('buyer_phone'),
+  /** pending (à régler) | paid | cancelled */
+  status: text('status').notNull().default('paid'),
+  /** box_office | online | invitation */
+  channel: text('channel').notNull().default('box_office'),
+  /** cash | card | cheque | transfer | free | other */
+  paymentMethod: text('payment_method'),
+  totalCents: integer('total_cents').notNull().default(0),
+  paidAt: ts('paid_at'),
+  refundedAt: ts('refunded_at'),
+  notes: text('notes'),
+  /** Lien de l'acheteur vers ses billets */
+  publicToken: text('public_token').notNull(),
+  ipHash: text('ip_hash'),
+  emailStatus: text('email_status'),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('ticket_orders_event_idx').on(t.eventId), uniqueIndex('ticket_orders_number_unique').on(t.associationId, t.number), uniqueIndex('ticket_orders_token_unique').on(t.publicToken)]);
+
+export const tickets = pgTable('tickets', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orderId: uuid('order_id').notNull().references(() => ticketOrders.id, { onDelete: 'cascade' }),
+  eventId: uuid('event_id').notNull().references(() => ticketEvents.id, { onDelete: 'cascade' }),
+  rateId: uuid('rate_id').references(() => ticketRates.id, { onDelete: 'set null' }),
+  /** Tarif au moment de la vente (le tarif peut être supprimé ensuite) */
+  rateName: text('rate_name').notNull(),
+  priceCents: integer('price_cents').notNull(),
+  /** Code du QR (secret porteur) */
+  code: text('code').notNull(),
+  holderName: text('holder_name'),
+  /** valid | cancelled */
+  status: text('status').notNull().default('valid'),
+  scannedAt: ts('scanned_at'),
+  scannedBy: uuid('scanned_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex('tickets_code_unique').on(t.code), index('tickets_event_idx').on(t.eventId, t.status), index('tickets_order_idx').on(t.orderId)]);
+
+/* --------------------------------------------------------- Scenorya Scan */
+
+/** Journal du contrôle : chaque lecture, acceptée ou refusée. */
+export const ticketScans = pgTable('ticket_scans', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  eventId: uuid('event_id').notNull().references(() => ticketEvents.id, { onDelete: 'cascade' }),
+  ticketId: uuid('ticket_id').references(() => tickets.id, { onDelete: 'cascade' }),
+  /** ok | already | unknown | wrong_event | cancelled | event_cancelled | undo */
+  result: text('result').notNull(),
+  at: ts('at').notNull(),
+  offline: boolean('offline').notNull().default(false),
+  device: text('device'),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+}, (t) => [index('ticket_scans_event_idx').on(t.eventId, t.id)]);

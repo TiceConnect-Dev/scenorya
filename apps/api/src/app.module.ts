@@ -33,6 +33,9 @@ import { RegieController } from './regie/regie.controller';
 import { StockController } from './stock/stock.controller';
 import { BookingController } from './booking/booking.controller';
 import { MaintenanceController } from './maintenance/maintenance.controller';
+import { TicketsController } from './tickets/tickets.controller';
+import { PublicTicketsController } from './tickets/public-tickets.controller';
+import { ScanController } from './scan/scan.controller';
 import { GovernanceController } from './asso/governance.controller';
 import { RealtimeGateway } from './realtime/realtime.gateway';
 
@@ -55,7 +58,7 @@ class PoolLifecycle implements OnApplicationShutdown {
     AdminModulesController, AdminUsersController, AdminRolesController, AdminAuditController, AdminAssociationController,
     InstanceModulesController, SystemController,
     MembersController, PlansController, DuesController, GroupsController, FieldsController, CardsController,
-    AgendaController, ProjectsController, GovernanceController, DriveController, ShareController, EspaceController, CastController, ShowController, RegieController, StockController, BookingController, MaintenanceController,
+    AgendaController, ProjectsController, GovernanceController, DriveController, ShareController, EspaceController, CastController, ShowController, RegieController, StockController, BookingController, MaintenanceController, TicketsController, PublicTicketsController, ScanController,
   ],
   providers: [
     { provide: PG_POOL, useFactory: () => createPool(loadConfig().DATABASE_URL) },

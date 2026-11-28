@@ -1,3 +1,4 @@
+import type { ModuleId } from '@scenorya/shared';
 import { ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +19,9 @@ import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
 import { CuesheetPage, LivePage, RegieHome } from './pages/regie/Regie';
 import { LocationsPage, StockHome, StockItemPage } from './pages/stock/Stock';
+import { EventPage as TicketEventPage, TicketsHome } from './pages/tickets/Tickets';
+import { PublicOrderPage, PublicTicketCheck, PublicTicketing } from './pages/tickets/PublicTickets';
+import { ScanHome, ScanPage } from './pages/scan/Scan';
 import { BookingHome, ResourcesPage } from './pages/booking/Booking';
 import { MaintenanceHome, PlansPage as MaintenancePlansPage, TicketPage } from './pages/maintenance/Maintenance';
 import { EspaceShows, PerformancesPage, ShowHome, ShowPage, VenuesPage } from './pages/show/Show';
@@ -42,20 +46,27 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 /** Page d'accueil : le Hub, ou l'Espace pour un compte qui n'a accès qu'à son espace personnel. */
+/** Sans accès au Hub : l'Espace adhérent, sinon le contrôle des entrées (contrôleurs). */
+function fallbackHome(isVisible: (m: ModuleId) => boolean) {
+  if (isVisible('hub')) return '/hub';
+  if (isVisible('espace')) return '/espace';
+  if (isVisible('scan')) return '/scan';
+  return '/hub';
+}
 function HomeRedirect() {
   const { isVisible, ctxLoading } = useApp();
   if (ctxLoading) return <Loading />;
-  return <Navigate to={!isVisible('hub') && isVisible('espace') ? '/espace' : '/hub'} replace />;
+  return <Navigate to={fallbackHome(isVisible)} replace />;
 }
 function HubOrEspace() {
   const { isVisible, ctxLoading } = useApp();
   if (ctxLoading) return <Loading />;
-  if (!isVisible('hub') && isVisible('espace')) return <Navigate to="/espace" replace />;
+  if (!isVisible('hub') && fallbackHome(isVisible) !== '/hub') return <Navigate to={fallbackHome(isVisible)} replace />;
   return <HubPage />;
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie', 'stock', 'booking', 'maintenance']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie', 'stock', 'booking', 'maintenance', 'tickets', 'scan']);
 
 export function App() {
   return (
@@ -67,6 +78,9 @@ export function App() {
         <Route path="/verifier/carte/:token" element={<VerifyCardPage />} />
         <Route path="/partage/:token" element={<PublicSharePage />} />
         <Route path="/invitation/:token" element={<InvitationPage />} />
+        <Route path="/billetterie/:slug" element={<PublicTicketing />} />
+        <Route path="/billets/:token" element={<PublicOrderPage />} />
+        <Route path="/billet/:code" element={<PublicTicketCheck />} />
         <Route element={<RequireAuth><Shell /></RequireAuth>}>
           <Route index element={<HomeRedirect />} />
           <Route path="/hub" element={<HubOrEspace />} />
@@ -97,6 +111,10 @@ export function App() {
           <Route path="/show/spectacles/:id" element={<ModuleGate id="show"><ShowPage /></ModuleGate>} />
           <Route path="/show/representations" element={<ModuleGate id="show"><PerformancesPage /></ModuleGate>} />
           <Route path="/show/lieux" element={<ModuleGate id="show"><VenuesPage /></ModuleGate>} />
+          <Route path="/tickets" element={<ModuleGate id="tickets"><TicketsHome /></ModuleGate>} />
+          <Route path="/tickets/seances/:id" element={<ModuleGate id="tickets"><TicketEventPage /></ModuleGate>} />
+          <Route path="/scan" element={<ModuleGate id="scan"><ScanHome /></ModuleGate>} />
+          <Route path="/scan/:id" element={<ModuleGate id="scan"><ScanPage /></ModuleGate>} />
           <Route path="/stock" element={<ModuleGate id="stock"><StockHome /></ModuleGate>} />
           <Route path="/stock/articles/:id" element={<ModuleGate id="stock"><StockItemPage /></ModuleGate>} />
           <Route path="/stock/emplacements" element={<ModuleGate id="stock"><LocationsPage /></ModuleGate>} />

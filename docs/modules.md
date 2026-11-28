@@ -51,6 +51,8 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Réservations confirmées dans l’agenda | Booking | Agenda |
 | Pannes et entretien du matériel | Maintenance | Stock (requis) |
 | Matériel hors service retiré des prêts | Maintenance | Booking |
+| Billetterie des représentations (date et lieu suivis) | Tickets | Show |
+| Contrôle des entrées | Scan | Tickets (requis) |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

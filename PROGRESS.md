@@ -1,19 +1,19 @@
 # État d’avancement — reprise du développement
 
-_Dernière mise à jour : 27 novembre 2026 — version 0.13.0_
+_Dernière mise à jour : 27 novembre 2026 — version 0.14.0_
 
 Ce fichier permet de reprendre le travail dans une nouvelle session sans perte de contexte.
 
 ## Où en est-on ?
 
-Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés ; **Scenorya Agenda** livré (événements, récurrences, invitations, conflits, iCal) ; **Scenorya Projects** livré (Kanban, tâches, modèles) ; **gouvernance** livrée (instances, convocations, PV figés, mandats) ; **Scenorya Drive** livré (stockage adressé par contenu, versions, corbeille, dossiers restreints, partage public protégé, quota, journal des accès, pièces jointes des tâches) ; **Scenorya Espace** livré pour les adhérents (invitation, compte, cotisations, carte, agenda, réunions, documents). **Scenorya Cast** livré (productions, distribution, scènes, indisponibilités, répétitions, PDF, espace du comédien). **Scenorya Show** livré (spectacles, représentations, lieux, équipe, distributions, agenda, PDF). **Scenorya Régie** livré (conduites, direct synchronisé, cartoucheur, hors connexion, rapports). **Gestion technique** livrée : **Scenorya Stock** (inventaire, mouvements, étiquettes QR), **Scenorya Booking** (salles, réservations, prêts de matériel) et **Scenorya Maintenance** (pannes, interventions, entretien préventif). Les 10 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
+Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : fichier des adhérents, **cotisations** (formules, règlements, reçus PDF, renouvellements), **groupes et commissions**, **champs personnalisés** et **cartes d’adhérent QR** livrés ; **Scenorya Agenda** livré (événements, récurrences, invitations, conflits, iCal) ; **Scenorya Projects** livré (Kanban, tâches, modèles) ; **gouvernance** livrée (instances, convocations, PV figés, mandats) ; **Scenorya Drive** livré (stockage adressé par contenu, versions, corbeille, dossiers restreints, partage public protégé, quota, journal des accès, pièces jointes des tâches) ; **Scenorya Espace** livré pour les adhérents (invitation, compte, cotisations, carte, agenda, réunions, documents). **Scenorya Cast** livré (productions, distribution, scènes, indisponibilités, répétitions, PDF, espace du comédien). **Scenorya Show** livré (spectacles, représentations, lieux, équipe, distributions, agenda, PDF). **Scenorya Régie** livré (conduites, direct synchronisé, cartoucheur, hors connexion, rapports). **Gestion technique** livrée : **Scenorya Stock** (inventaire, mouvements, étiquettes QR), **Scenorya Booking** (salles, réservations, prêts de matériel) et **Scenorya Maintenance** (pannes, interventions, entretien préventif). **Billetterie** livrée : **Scenorya Tickets** (séances, tarifs, guichet, réservation en ligne, billets QR) et **Scenorya Scan** (contrôle à la caméra, hors connexion). Les 8 modules métier non livrés sont **activables et configurables** mais affichent une page d’accueil indiquant honnêtement leur phase ; aucun bouton fictif.
 
 ## Vérifications effectuées
 
 | Vérification | Résultat |
 |---|---|
 | `packages/shared` : vitest | 32/32 |
-| `apps/api` : jest e2e sur PostgreSQL 16 | 152/152 (plateforme 28, cotisations 16, Drive 13, groupes/champs/cartes 12, agenda 11, logistique 11, Espace 10, suppressions 10, projets 9, Régie 9, Cast 8, gouvernance 8, Show 7) |
+| `apps/api` : jest e2e sur PostgreSQL 16 | 164/164 (plateforme 28, cotisations 16, Drive 13, billetterie 12, groupes/champs/cartes 12, agenda 11, logistique 11, Espace 10, suppressions 10, projets 9, Régie 9, Cast 8, gouvernance 8, Show 7) |
 | CI GitHub Actions (tests) | OK |
 | Typage strict API et web | OK |
 | Build Vite + PWA | OK |
@@ -41,6 +41,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 - Show : les convoqués d’une représentation (équipe + titulaires confirmés des distributions rattachées) sont recalculés par `show/show-sync.ts`, appelé aussi par Cast quand une distribution rattachée change. Annuler une représentation annule son événement d’agenda ; la supprimer le supprime.
 - Régie : temps réel par la salle Socket.IO `regie:<conduite>` (adhésion contrôlée : membre, `regie.runs.read`, module utilisable, conduite de l’association). Les actions passent toujours par l’API (`POST /regie/runs/:id/actions`, par lots) ; hors connexion, le poste applique localement et rejoue la file avec l’heure d’origine, bornée entre le début de la séance et l’heure du serveur. Une seule séance ouverte par conduite (verrou consultatif). Les sons du cartoucheur sont des fichiers Drive rattachés à la conduite et servis par `/regie/sounds/:id/audio` (droit de lecture des conduites, sans droit Drive).
 - Logistique : la disponibilité du matériel (`stock/availability.ts`) se calcule à la demande : quantité − unités des interventions ouvertes − quantités des prêts en attente ou confirmés qui chevauchent le créneau (un prêt sorti et non rendu compte toujours). La création et la modification d’une réservation passent sous un verrou consultatif par association, puis vérifient le chevauchement de la ressource et la disponibilité. Statut : confirmée si la personne a `booking.bookings.validate` ou si la ressource ne l’exige pas ; un prêt de matériel seul est toujours soumis à validation pour qui n’a pas ce droit.
+- Billetterie : `tickets/tickets-core.ts` regroupe l’émission (`issueOrder`, verrou consultatif par séance, jauge et quotas recomptés sous verrou), les valeurs effectives d’une séance liée à Show (`effectiveEvents`) et le PDF des billets. Le contrôle (`scan.controller.ts`) valide par `UPDATE … WHERE scanned_at IS NULL RETURNING` ; tout passage est journalisé dans `ticket_scans`. Le hors connexion ne transmet que les empreintes SHA-256 des codes.
 - PDF : les polices standard de pdfkit (WinAnsi) n’ont pas « → », « ✓ »… : n’utiliser que des caractères latins dans les PDF.
 - **Règle de développement : tout ce qui se crée doit pouvoir se supprimer** (demande de Thomas). Chaque nouvelle entité livre sa route `DELETE`, son bouton et son test. Quand la suppression a des conséquences, le serveur répond `CONFIRM_REQUIRED` avec le détail et l’interface passe par `deleteWithConfirm` (seconde confirmation, puis `?force=1`). Les lignes protégées par déclencheur se suppriment via `allowPurge(tx)` (common/purge.ts).
 - Espace : la fiche d’adhérent est reliée au compte par `members.user_id` (unique par association) ; invitation à jeton haché, usage unique, 14 jours ; un compte existant doit se connecter avec la même adresse pour accepter ; le rôle « Adhérent » est ajouté seulement si le compte n’a pas déjà `espace.read`. Toutes les routes `espace/*` ne lisent que la fiche du compte connecté.
@@ -51,7 +52,7 @@ Phase 1 terminée (hors points notés 🟡 dans ROADMAP.md). Phase 2 en cours : 
 ## Prochaines étapes suggérées
 
 1. Asso : formulaire d’adhésion en ligne, photo, passage automatique en « expirée » (tâche planifiée), export Excel/PDF.
-2. Tickets et Scan (phase 5), puis POS, Finance et Factures.
+2. POS (caisse : buvette, bar, vente au guichet), puis Finance et Factures ; paiement en ligne de la billetterie (HelloAsso, Stripe).
 3. Asso : formulaire d’adhésion en ligne (s’appuiera sur l’Espace).
 4. Drive : stockage S3, logo de l’association.
 5. Ajouter à chaque nouveau module : permissions dans `permissions.ts`, navigation dans `apps/web/src/navigation.ts`, `implementation.status` dans `modules.ts`, fournisseur d’impact, tests d’accès (module désactivé, lecture seule, isolation).

@@ -324,7 +324,9 @@ export class ShowController implements OnModuleInit {
         const [p] = await tx.insert(showPerformances).values({
           showId: id, startAt: start, endAt: end, doorsAt: doors, venueId: input.venueId ?? null, capacity: input.capacity ?? null, status: input.status, notes: input.notes ?? null, createdBy: c.user.id,
         }).returning();
-        const eventId = await syncPerformanceEvent(tx, sctx(c), p);
+        // Billetterie : la date stockée suit la représentation (utile si celle-ci est supprimée plus tard).
+      await tx.execute(sql`update ticket_events set start_at = ${p.startAt}, updated_at = now() where performance_id = ${p.id}`);
+      const eventId = await syncPerformanceEvent(tx, sctx(c), p);
         out.push({ ...p, eventId });
       }
       await this.audit.log({ ...log(c), action: 'show.performance.create', resourceType: 'show', resourceId: id, summary: `${out.length} représentation(s) de « ${s.title} » ajoutée(s) : ${out.map((p) => fr(p.startAt)).join(', ')}` }, tx);

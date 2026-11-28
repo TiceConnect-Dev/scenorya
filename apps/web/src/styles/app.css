@@ -418,3 +418,32 @@ dl.props dd { margin: 0; }
 .regie-top select { width: auto; }
 .regie-controls form { flex: 1 1 320px; flex-wrap: nowrap; }
 .regie-controls form input { flex: 1; min-width: 0; }
+
+/* ------------------------------------------------------------ Billetterie et contrôle */
+.grid-4 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.gauge { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.gauge span { display: block; height: 100%; background: var(--blue); }
+.box-line { padding: 8px 0; border-bottom: 1px solid var(--border); align-items: center; flex-wrap: nowrap; }
+.box-line:last-child { border-bottom: 0; }
+.linklike { background: none; border: 0; padding: 0; color: var(--blue); font: inherit; cursor: pointer; text-decoration: underline; }
+.public-event { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; }
+.public-ticket { display: flex; gap: 20px; align-items: center; }
+.public-ticket img { border: 1px solid var(--border); border-radius: 6px; background: #fff; flex: none; }
+@media (max-width: 560px) { .public-event, .public-ticket { flex-direction: column; align-items: stretch; } .public-ticket img { align-self: center; } }
+.scan-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+@media (max-width: 900px) { .scan-grid { grid-template-columns: 1fr; } }
+.scan-counter { text-align: right; line-height: 1.1; }
+.scan-counter strong { font-size: 2.2rem; display: block; }
+.scan-view { position: relative; min-height: 240px; border-radius: 8px; background: #0b1726; display: grid; place-items: center; overflow: hidden; }
+.scan-view video { display: none; width: 100%; max-height: 60vh; object-fit: cover; }
+.scan-view.on video { display: block; }
+.scan-frame { position: absolute; width: min(60%, 280px); aspect-ratio: 1; border: 3px solid rgba(255, 255, 255, 0.85); border-radius: 12px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.25); }
+.scan-result { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; gap: 6px; text-align: center; color: #fff; padding: 16px; font-size: 1.05rem; }
+.scan-result strong { font-size: 2.6rem; letter-spacing: 0.04em; }
+.scan-result.ok { background: rgba(26, 127, 55, 0.94); }
+.scan-result.warn { background: rgba(199, 122, 8, 0.95); }
+.scan-result.ko { background: rgba(198, 61, 65, 0.95); }
+.scan-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 60vh; overflow-y: auto; }
+.scan-log li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 6px 8px; border-left: 4px solid var(--border); background: var(--bg); border-radius: 4px; }
+.scan-log li.ok { border-left-color: var(--success, #1a7f37); }
+.scan-log li.ko { border-left-color: var(--danger); }

@@ -159,13 +159,13 @@ const defs: Def[] = [
       { id: 'tickets.showEvents', label: 'Vente des représentations de Show', requires: ['show'] },
       { id: 'tickets.accounting', label: 'Écritures comptables des ventes', requires: ['finance'] },
     ],
-    implementation: { status: 'planned', phase: 5, note: 'Prévu en phase 5.' },
+    implementation: { status: 'available', phase: 5, note: 'Séances (autonomes ou représentations de Show), tarifs et quotas, jauge, vente au guichet, réservation en ligne, billets QR (PDF et lien), annulations, statistiques, exports.' },
   },
   {
     id: 'scan', shortName: 'Scan', tagline: 'Contrôle des billets', color: '#00845D', core: false, category: 'billetterie',
     description: 'Contrôle des billets sur smartphone',
     requires: ['tickets'], integrations: [], features: [],
-    implementation: { status: 'planned', phase: 5, note: 'Prévu en phase 5.' },
+    implementation: { status: 'available', phase: 5, note: 'Lecture des QR codes à la caméra ou saisie du code, refus des doublons, annulation d’une entrée, compteur en direct, fonctionnement hors connexion.' },
   },
   {
     id: 'pos', shortName: 'POS', tagline: 'Caisse tactile', color: '#B52668', core: false, category: 'billetterie',

@@ -2,6 +2,20 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.14.0] — 2026-11-28
+
+### Ajouté — Billetterie : Scenorya Tickets et Scenorya Scan
+
+- **Séances** autonomes (concert, bal, conférence) ou **représentations de Show** (fonctionnalité `tickets.showEvents`) : la date et le lieu suivent alors Show. États en préparation, en vente, ventes closes, annulée ; jauge ; présentation.
+- **Tarifs** : prix, quota, proposé en ligne ou au guichet seul (invitations) ; trois tarifs créés d’office ; un changement de prix ne touche pas les billets déjà vendus.
+- **Guichet** : vente rapide (+/−), règlement espèces, carte, chèque, virement ou « à régler plus tard », invitations gratuites, impression des billets, envoi par e-mail. Jauge, quotas et limites vérifiés de façon atomique (verrou par séance) : jamais de survente.
+- **Réservation en ligne** sur une page publique par association (`/billetterie/<association>`), sans paiement en ligne (règlement sur place) : période de vente, billets par commande limités, champ piège anti-robots, 5 réservations par heure et par connexion. L’acheteur reçoit ses billets par e-mail (PDF joint) et une page `/billets/…` avec les QR codes, d’où il peut annuler une réservation non réglée.
+- **Billets** : code secret de 128 bits, QR code renvoyant à `/billet/…` (validité visible sans donnée personnelle), PDF trois billets par page A4. Commandes numérotées `B2026-00001`.
+- **Commandes** : recherche (nom, e-mail, numéro, code), encaissement d’une réservation, annulation de la commande ou d’un seul billet (montant recalculé), remboursement noté (droit `tickets.orders.refund`), renvoi par e-mail, suppression ; export CSV des spectateurs. Tableau de bord : remplissage, encaissé par mode de règlement, à régler, entrées.
+- **Scan** : lecture des QR à la caméra (lecteur natif du navigateur, sinon jsQR — compatible iPhone) ou saisie du code ; validation atomique (un billet ne passe qu’une fois, même lu par deux postes) ; refus motivés (déjà utilisé à telle heure, autre séance, annulé, inconnu) ; alerte « à régler » ; signal visuel, sonore et vibration ; compteur en direct ; annulation d’une entrée (`scan.entries.update`).
+- **Hors connexion** : la liste de la séance est téléchargée sous forme d’empreintes SHA-256 (jamais les codes) ; les entrées sont contrôlées sur l’appareil puis transmises au retour du réseau avec leur heure d’origine, les conflits entre postes étant signalés.
+- Rôle « Contrôleur » : accès direct au contrôle des entrées après connexion. Suppression de tout (séance, tarif, commande, billet par annulation).
+
 ## [0.13.0] — 2026-11-28
 
 ### Ajouté — Gestion technique : Scenorya Stock, Booking et Maintenance

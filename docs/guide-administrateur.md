@@ -121,6 +121,21 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Fin** : *Terminer* avec un rapport ; *Séances* → *Rapport (PDF)* avec le journal horodaté (GO, notes, incidents).
 - Permissions : `regie.runs.operate` pour mener la conduite ; `regie.runs.read` suffit pour la suivre (techniciens).
 
+## Billetterie (Scenorya Tickets)
+
+- **Nouvelle séance** : autonome (titre, date, lieu) ou représentation de Show (date et lieu suivent Show). Jauge, état, réservation en ligne. Trois tarifs sont créés d’office (plein, réduit, invitation) : ajustez-les dans l’onglet *Tarifs* (prix, quota, proposé en ligne ou non).
+- **Mettre en vente** ouvre le guichet et, si cochée, la réservation en ligne. Le lien public (`/billetterie/<votre-association>`) s’affiche sur la séance : *Copier le lien* pour votre site ou vos réseaux.
+- **Guichet** : choisissez les billets (+/−), le règlement, puis *Encaisser* ; imprimez les billets ou envoyez-les par e-mail. « À régler plus tard » crée une réservation à encaisser ensuite.
+- **Réservation en ligne** : sans paiement en ligne. Le spectateur reçoit ses billets par e-mail (si la messagerie est configurée) et règle à l’accueil ; il peut annuler tant qu’il n’a pas réglé.
+- **Commandes** : ouvrez une commande pour l’encaisser, renvoyer les billets, annuler un billet ou toute la commande (avec remboursement noté), ou la supprimer. *Liste des spectateurs (CSV)* pour l’accueil.
+
+## Contrôle des entrées (Scenorya Scan)
+
+- Donnez le rôle **Contrôleur** aux bénévoles de l’accueil : à la connexion, ils arrivent directement sur le contrôle.
+- Choisissez la séance, *Activer la caméra* (HTTPS obligatoire sur téléphone) et présentez les QR codes : vert = entrée, orange = entrée mais montant à régler, rouge = refus avec le motif. On peut aussi saisir le code imprimé sous le QR.
+- **Hors connexion** : avant l’ouverture des portes, *Préparer le hors connexion* sur chaque téléphone. Si le réseau tombe, le contrôle continue ; les entrées sont transmises au retour du réseau. Rafraîchissez la liste si des ventes ont eu lieu depuis.
+- Une erreur ? *Annuler* une entrée dans « Dernières lectures » (responsable billetterie).
+
 ## Matériel (Scenorya Stock)
 
 - **Inventaire** : *Nouvel article* (matériel ou consommable, référence unique, catégorie, emplacement, seuil d’alerte, valeur, état, prêtable). Filtres par catégorie, emplacement, « Stock bas », « Archivés » ; *Exporter (CSV)*.

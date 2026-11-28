@@ -30,7 +30,9 @@ Scenorya est une suite modulaire de gestion pour associations, compagnies de th�
 | **Scenorya Stock** : articles (matériel et consommables), emplacements, mouvements tracés et inventaire, seuils d’alerte, archivage, export CSV, étiquettes QR | 🟡 Partiel (kits et scan avec Scan à venir) |
 | **Scenorya Booking** : salles et ressources, réservations sans double réservation, validation, prêts de matériel avec disponibilité, sortie et retour (pertes sorties du stock), agenda | 🟡 Partiel (vue planning à venir) |
 | **Scenorya Maintenance** : pannes et interventions (priorité, assignation, coût, journal), unités hors service retirées des prêts, entretien préventif périodique | ✅ Opérationnel, testé |
-| Tickets, Scan, POS, Finance, Factures, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
+| **Scenorya Tickets** : séances (autonomes ou représentations de Show), tarifs et quotas, guichet, réservation en ligne (règlement sur place), billets QR (PDF, e-mail, page de l’acheteur), annulations, statistiques, export | 🟡 Partiel (paiement en ligne et plans de salle à venir) |
+| **Scenorya Scan** : contrôle des entrées à la caméra ou par saisie, un seul passage par billet, refus motivés, compteur en direct, fonctionnement hors connexion | ✅ Opérationnel, testé |
+| POS, Finance, Factures, Web, Com, Analytics | ⏳ Prévus — activables et configurables, sans fonctionnalité métier pour l’instant |
 
 Le détail est tenu à jour dans [PROGRESS.md](PROGRESS.md) et le plan dans [ROADMAP.md](ROADMAP.md).
 
