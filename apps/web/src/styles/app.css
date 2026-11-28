@@ -447,3 +447,31 @@ dl.props dd { margin: 0; }
 .scan-log li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 6px 8px; border-left: 4px solid var(--border); background: var(--bg); border-radius: 4px; }
 .scan-log li.ok { border-left-color: var(--success, #1a7f37); }
 .scan-log li.ko { border-left-color: var(--danger); }
+
+/* ------------------------------------------------------------ Caisse */
+.pos-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
+@media (max-width: 960px) { .pos-grid { grid-template-columns: 1fr; } }
+.pos-keys { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+.pos-key { display: flex; flex-direction: column; justify-content: space-between; gap: 6px; min-height: 92px; padding: 12px; text-align: left; font: inherit; color: var(--text); background: var(--surface, #fff); border: 1px solid var(--border); border-top: 5px solid var(--blue); border-radius: 8px; cursor: pointer; touch-action: manipulation; }
+.pos-key:hover { background: var(--bg); }
+.pos-key:active { transform: scale(0.98); }
+.pos-key:disabled { opacity: 0.45; cursor: not-allowed; }
+.pos-key span { font-weight: 600; line-height: 1.2; }
+.pos-key strong { font-size: 1.1rem; }
+.pos-key small { font-size: 0.75rem; color: var(--muted, #4f6077); }
+.pos-key small.out { color: var(--danger); font-weight: 600; }
+.pos-key.ghost { border-top-color: var(--border); border-style: dashed; }
+.pos-cart { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.pos-cart > ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 46vh; overflow-y: auto; }
+.pos-cart > ul > li { display: flex; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.pos-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.2rem; padding: 8px 0; border-top: 2px solid var(--text); }
+.pos-total strong { font-size: 1.8rem; }
+.pos-pay { min-height: 56px; font-size: 1.2rem; }
+.pos-quick { min-height: 48px; min-width: 96px; }
+.pos-change { font-size: 1.4rem; padding: 14px; border-radius: 8px; background: rgba(26, 127, 55, 0.12); text-align: center; }
+.pos-change strong { font-size: 2rem; display: block; }
+.pos-recent { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.pos-recent li { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; }
+.cash-count { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cash-count label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.9rem; }
+.cash-count input { width: 72px; text-align: center; }

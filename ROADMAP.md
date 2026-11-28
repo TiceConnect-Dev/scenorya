@@ -56,7 +56,9 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 ✅ Tickets : séances (autonomes ou représentations de Show), tarifs et quotas, jauge atomique, guichet, réservation en ligne (règlement sur place), billets PDF/QR, e-mail, annulations et remboursements notés, exports
 - ✅ Scan : caméra (natif ou jsQR), validation atomique, refus motivés, annulation d’entrée, hors connexion par empreintes
 - ⏳ Tickets : plans de salle numérotés, paiement en ligne (HelloAsso/Stripe), abonnements et pass ; Espace : billets de l’adhérent
-- ⏳ POS ; fournisseurs d’impact bloquants (ventes ouvertes, caisses ouvertes) ; Redis
+- ✅ POS : caisses, catalogue, sessions avec fond de caisse et clôture (rapports X et Z, comptage par coupure, écart), écran tactile, règlements mixtes, rendu de monnaie, tickets de caisse, stock et billets en caisse, annulations tracées
+- ⏳ POS : mode hors connexion, terminal de paiement (SumUp…), imprimante de tickets directe, formules (menus)
+- fournisseurs d’impact bloquants (ventes ouvertes, caisses ouvertes) ; Redis
 
 ## Phase 6 — Comptabilité
 

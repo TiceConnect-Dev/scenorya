@@ -176,7 +176,7 @@ const defs: Def[] = [
       { id: 'pos.stockSync', label: 'Décrément des stocks en temps réel', requires: ['stock'] },
       { id: 'pos.accounting', label: 'Export comptable des clôtures', requires: ['finance'] },
     ],
-    implementation: { status: 'planned', phase: 5, note: 'Prévu en phase 5.' },
+    implementation: { status: 'available', phase: 5, note: 'Caisses, catalogue, sessions avec fond de caisse et clôture (rapport Z), ventes à règlements mixtes, rendu de monnaie, annulations tracées, tickets de caisse, stock et billets en caisse.' },
   },
   {
     id: 'finance', shortName: 'Finance', tagline: 'Comptabilité', color: '#238143', core: false, category: 'finance',

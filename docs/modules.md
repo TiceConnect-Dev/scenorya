@@ -53,6 +53,8 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Matériel hors service retiré des prêts | Maintenance | Booking |
 | Billetterie des représentations (date et lieu suivis) | Tickets | Show |
 | Contrôle des entrées | Scan | Tickets (requis) |
+| Décrément du stock à chaque vente | POS | Stock |
+| Billets vendus en caisse | POS | Tickets |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

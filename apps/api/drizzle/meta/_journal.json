@@ -113,6 +113,13 @@
       "when": 1795826382800,
       "tag": "0015_billetterie",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795851136377,
+      "tag": "0016_caisse",
+      "breakpoints": true
     }
   ]
 }

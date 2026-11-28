@@ -2,6 +2,23 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.15.0] — 2026-11-28
+
+### Ajouté — Caisse : Scenorya POS
+
+- **Caisses** (buvette, bar, accueil) avec couleur, archivage, vente de billets activable par caisse.
+- **Catalogue** : catégories colorées et ordonnées, produits (prix, mise en vente), liaison à un article de Stock avec le nombre d’unités consommées par vente (fonctionnalité `pos.stockSync`).
+- **Sessions** : ouverture avec fond de caisse (une seule session ouverte par caisse), apports et retraits d’espèces, **clôture** avec comptage par coupure, espèces attendues, écart figé ; rapport X (en cours) et Z (clôture) en PDF ; export CSV des ventes ; historique des sessions avec écarts.
+- **Écran de caisse tactile** : grandes touches par catégorie, panier modifiable, montant libre, onglet Billets (séances en vente de Tickets, fonctionnalité `pos.ticketSales`), encaissement en espèces (compte juste, montants rapides, rendu de monnaie), carte, chèque, autre, ou **règlement mixte** ; ticket de caisse 80 mm en PDF.
+- **Stock** décrémenté à chaque vente sans bloquer la vente (le stock ne passe pas sous zéro ; la rupture est signalée) et restitué en cas d’annulation.
+- **Annulation** d’une vente (motif obligatoire, session ouverte uniquement) : stock restitué, billets annulés ; la vente reste au journal et dans le rapport. Après clôture, plus aucune modification.
+- Rôle « Caissier » : accès direct aux caisses après connexion ; ventes, ouverture et clôture, sans accès au catalogue ni aux exports.
+- Suppression : produit, catégorie, mouvement d’espèces (session ouverte), session clôturée (confirmation renforcée), caisse.
+
+### Corrigé
+
+- Documents PDF : le pied de page pouvait ajouter une page blanche en fin de document.
+
 ## [0.14.0] — 2026-11-28
 
 ### Ajouté — Billetterie : Scenorya Tickets et Scenorya Scan

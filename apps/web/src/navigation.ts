@@ -52,6 +52,11 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
   tickets: [
     { label: 'Séances', to: '/tickets', permission: 'tickets.events.read' },
   ],
+  pos: [
+    { label: 'Caisses', to: '/pos', permission: 'pos.catalog.read' },
+    { label: 'Historique', to: '/pos/sessions', permission: 'pos.sessions.read' },
+    { label: 'Caisses et produits', to: '/pos/catalogue', permission: 'pos.catalog.update' },
+  ],
   scan: [
     { label: 'Contrôle des entrées', to: '/scan', permission: 'scan.entries.read' },
   ],

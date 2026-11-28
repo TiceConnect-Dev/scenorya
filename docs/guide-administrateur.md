@@ -129,6 +129,16 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Réservation en ligne** : sans paiement en ligne. Le spectateur reçoit ses billets par e-mail (si la messagerie est configurée) et règle à l’accueil ; il peut annuler tant qu’il n’a pas réglé.
 - **Commandes** : ouvrez une commande pour l’encaisser, renvoyer les billets, annuler un billet ou toute la commande (avec remboursement noté), ou la supprimer. *Liste des spectateurs (CSV)* pour l’accueil.
 
+## Caisse (Scenorya POS)
+
+- **Mise en place** (*Caisses et produits*) : créez vos caisses (Buvette, Bar…), vos catégories et vos produits. Liez un produit à un article de Stock pour suivre les consommations (ex. une bière = 1 bouteille). Cochez « Vendre aussi des billets » sur la caisse d’accueil.
+- **Ouverture** : *Ouvrir la caisse* et saisissez le fond de caisse.
+- **Vente** : touchez les produits, puis *Encaisser* : « Compte juste » ou le billet remis (le rendu s’affiche), carte, chèque, ou plusieurs règlements. *Imprimer le ticket* si le client le demande. *Montant libre* pour une vente hors catalogue (tombola, don).
+- **Erreur** : *Dernières ventes* → *Annuler* (motif obligatoire) ; le stock est restitué. Rendez l’argent au client.
+- **Clôture** : *Session et clôture* → *Clôturer la caisse* ; comptez les espèces coupure par coupure : l’écart s’affiche. Après clôture, plus rien ne peut être modifié. Téléchargez le rapport de clôture (PDF) pour la trésorerie.
+- Donnez le rôle **Caissier** aux bénévoles : ils arrivent directement sur les caisses.
+- **Fiscalité** : l’obligation d’utiliser un logiciel de caisse sécurisé (article 286-I-3° bis du CGI) ne vise que les assujettis à la TVA ; elle ne concerne pas les associations non assujetties, celles en franchise en base de TVA, ni celles qui ne réalisent que des opérations exonérées. **Scenorya POS n’est pas certifié** : une association assujettie à la TVA qui encaisse des particuliers doit utiliser un système de caisse certifié ou attesté. En cas de doute, renseignez-vous auprès de votre service des impôts. Scenorya conserve dans tous les cas un journal non modifiable des ventes et des clôtures.
+
 ## Contrôle des entrées (Scenorya Scan)
 
 - Donnez le rôle **Contrôleur** aux bénévoles de l’accueil : à la connexion, ils arrivent directement sur le contrôle.

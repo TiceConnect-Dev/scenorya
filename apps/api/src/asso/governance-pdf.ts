@@ -45,9 +45,13 @@ export function footer(d: PDFKit.PDFDocument) {
   const logo = join(brandingDir(), 'derived', 'logos', 'scenorya-horizontal-small.png');
   for (let i = range.start; i < range.start + range.count; i++) {
     d.switchToPage(i);
+    // Le pied de page est dans la marge basse : sans cela, PDFKit ouvrirait une page blanche.
+    const bottom = d.page.margins.bottom;
+    d.page.margins.bottom = 0;
     const y = d.page.height - 46;
     if (existsSync(logo)) d.image(logo, 56, y - 4, { height: 16 });
     d.font('Helvetica').fontSize(7.5).fillColor('#8090a4').text(`Page ${i + 1}/${range.count} — Document généré par ${BRAND.name}`, 56, y, { width: d.page.width - 112, align: 'right', lineBreak: false });
+    d.page.margins.bottom = bottom;
   }
 }
 

@@ -1089,3 +1089,114 @@ export const ticketScans = pgTable('ticket_scans', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: createdAt(),
 }, (t) => [index('ticket_scans_event_idx').on(t.eventId, t.id)]);
+
+/* --------------------------------------------------------- Scenorya POS */
+
+export const posRegisters = pgTable('pos_registers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  color: text('color'),
+  /** Billets vendables depuis cette caisse (fonctionnalité pos.ticketSales) */
+  ticketSales: boolean('ticket_sales').notNull().default(false),
+  archivedAt: ts('archived_at'),
+  createdAt: createdAt(),
+}, (t) => [index('pos_registers_assoc_idx').on(t.associationId)]);
+
+export const posCategories = pgTable('pos_categories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  color: text('color'),
+  position: integer('position').notNull().default(0),
+}, (t) => [index('pos_categories_assoc_idx').on(t.associationId)]);
+
+export const posProducts = pgTable('pos_products', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  categoryId: uuid('category_id').references(() => posCategories.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  priceCents: integer('price_cents').notNull(),
+  color: text('color'),
+  /** Article de Stock décrémenté à chaque vente (fonctionnalité pos.stockSync) */
+  stockItemId: uuid('stock_item_id').references(() => stockItems.id, { onDelete: 'set null' }),
+  /** Unités de stock consommées par unité vendue (ex. 1 fût = 50 verres : 1 ; une bouteille : 1) */
+  stockUnits: integer('stock_units').notNull().default(1),
+  active: boolean('active').notNull().default(true),
+  position: integer('position').notNull().default(0),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('pos_products_assoc_idx').on(t.associationId)]);
+
+/** Session de caisse : de l'ouverture (fond de caisse) à la clôture (comptage, écart). */
+export const posSessions = pgTable('pos_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  registerId: uuid('register_id').notNull().references(() => posRegisters.id, { onDelete: 'cascade' }),
+  number: integer('number').notNull(),
+  /** open | closed */
+  status: text('status').notNull().default('open'),
+  openingFloatCents: integer('opening_float_cents').notNull().default(0),
+  openedAt: ts('opened_at').notNull().defaultNow(),
+  openedBy: uuid('opened_by').references(() => users.id, { onDelete: 'set null' }),
+  closedAt: ts('closed_at'),
+  closedBy: uuid('closed_by').references(() => users.id, { onDelete: 'set null' }),
+  expectedCashCents: integer('expected_cash_cents'),
+  countedCashCents: integer('counted_cash_cents'),
+  /** Comptage détaillé par coupure à la clôture : { "2000": 3, "50": 12, ... } (centimes → nombre) */
+  cashCount: jsonb('cash_count'),
+  notes: text('notes'),
+  eventId: uuid('event_id').references(() => ticketEvents.id, { onDelete: 'set null' }),
+}, (t) => [index('pos_sessions_register_idx').on(t.registerId, t.openedAt), uniqueIndex('pos_sessions_open_unique').on(t.registerId).where(sql`status = 'open'`), uniqueIndex('pos_sessions_number_unique').on(t.associationId, t.number)]);
+
+export const posSales = pgTable('pos_sales', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sessionId: uuid('session_id').notNull().references(() => posSessions.id, { onDelete: 'cascade' }),
+  number: text('number').notNull(),
+  totalCents: integer('total_cents').notNull(),
+  /** completed | voided */
+  status: text('status').notNull().default('completed'),
+  voidedAt: ts('voided_at'),
+  voidedBy: uuid('voided_by').references(() => users.id, { onDelete: 'set null' }),
+  voidReason: text('void_reason'),
+  ticketOrderId: uuid('ticket_order_id').references(() => ticketOrders.id, { onDelete: 'set null' }),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+}, (t) => [index('pos_sales_session_idx').on(t.sessionId, t.createdAt)]);
+
+export const posSaleLines = pgTable('pos_sale_lines', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  saleId: uuid('sale_id').notNull().references(() => posSales.id, { onDelete: 'cascade' }),
+  /** product | ticket | custom */
+  kind: text('kind').notNull().default('product'),
+  productId: uuid('product_id').references(() => posProducts.id, { onDelete: 'set null' }),
+  ticketRateId: uuid('ticket_rate_id').references(() => ticketRates.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  category: text('category'),
+  unitPriceCents: integer('unit_price_cents').notNull(),
+  quantity: integer('quantity').notNull(),
+  stockItemId: uuid('stock_item_id').references(() => stockItems.id, { onDelete: 'set null' }),
+  stockUnits: integer('stock_units').notNull().default(0),
+}, (t) => [index('pos_sale_lines_sale_idx').on(t.saleId)]);
+
+export const posPayments = pgTable('pos_payments', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  saleId: uuid('sale_id').notNull().references(() => posSales.id, { onDelete: 'cascade' }),
+  /** cash | card | cheque | other */
+  method: text('method').notNull(),
+  amountCents: integer('amount_cents').notNull(),
+  /** Espèces remises par le client (rendu = remis − montant) */
+  tenderedCents: integer('tendered_cents'),
+}, (t) => [index('pos_payments_sale_idx').on(t.saleId)]);
+
+/** Apports et retraits d'espèces en cours de session (dépôt en banque, monnaie). */
+export const posCashMoves = pgTable('pos_cash_moves', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  sessionId: uuid('session_id').notNull().references(() => posSessions.id, { onDelete: 'cascade' }),
+  /** in | out */
+  kind: text('kind').notNull(),
+  amountCents: integer('amount_cents').notNull(),
+  reason: text('reason'),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+});

@@ -22,6 +22,7 @@ import { LocationsPage, StockHome, StockItemPage } from './pages/stock/Stock';
 import { EventPage as TicketEventPage, TicketsHome } from './pages/tickets/Tickets';
 import { PublicOrderPage, PublicTicketCheck, PublicTicketing } from './pages/tickets/PublicTickets';
 import { ScanHome, ScanPage } from './pages/scan/Scan';
+import { CatalogPage as PosCatalogPage, PosHome, PosScreen, SessionPage as PosSessionPage, SessionsPage as PosSessionsPage } from './pages/pos/Pos';
 import { BookingHome, ResourcesPage } from './pages/booking/Booking';
 import { MaintenanceHome, PlansPage as MaintenancePlansPage, TicketPage } from './pages/maintenance/Maintenance';
 import { EspaceShows, PerformancesPage, ShowHome, ShowPage, VenuesPage } from './pages/show/Show';
@@ -46,10 +47,11 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 /** Page d'accueil : le Hub, ou l'Espace pour un compte qui n'a accès qu'à son espace personnel. */
-/** Sans accès au Hub : l'Espace adhérent, sinon le contrôle des entrées (contrôleurs). */
+/** Sans accès au Hub : l'Espace adhérent, sinon la caisse (caissiers) ou le contrôle des entrées (contrôleurs). */
 function fallbackHome(isVisible: (m: ModuleId) => boolean) {
   if (isVisible('hub')) return '/hub';
   if (isVisible('espace')) return '/espace';
+  if (isVisible('pos')) return '/pos';
   if (isVisible('scan')) return '/scan';
   return '/hub';
 }
@@ -66,7 +68,7 @@ function HubOrEspace() {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie', 'stock', 'booking', 'maintenance', 'tickets', 'scan']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie', 'stock', 'booking', 'maintenance', 'tickets', 'scan', 'pos']);
 
 export function App() {
   return (
@@ -113,6 +115,11 @@ export function App() {
           <Route path="/show/lieux" element={<ModuleGate id="show"><VenuesPage /></ModuleGate>} />
           <Route path="/tickets" element={<ModuleGate id="tickets"><TicketsHome /></ModuleGate>} />
           <Route path="/tickets/seances/:id" element={<ModuleGate id="tickets"><TicketEventPage /></ModuleGate>} />
+          <Route path="/pos" element={<ModuleGate id="pos"><PosHome /></ModuleGate>} />
+          <Route path="/pos/caisse/:id" element={<ModuleGate id="pos"><PosScreen /></ModuleGate>} />
+          <Route path="/pos/sessions" element={<ModuleGate id="pos"><PosSessionsPage /></ModuleGate>} />
+          <Route path="/pos/sessions/:id" element={<ModuleGate id="pos"><PosSessionPage /></ModuleGate>} />
+          <Route path="/pos/catalogue" element={<ModuleGate id="pos"><PosCatalogPage /></ModuleGate>} />
           <Route path="/scan" element={<ModuleGate id="scan"><ScanHome /></ModuleGate>} />
           <Route path="/scan/:id" element={<ModuleGate id="scan"><ScanPage /></ModuleGate>} />
           <Route path="/stock" element={<ModuleGate id="stock"><StockHome /></ModuleGate>} />
