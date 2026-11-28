@@ -17,6 +17,9 @@ import { DuesPage, PlansPage, RenewalsPage } from './pages/asso/Dues';
 import { AgendaPage } from './pages/agenda/Agenda';
 import { MyTasksPage, ProjectBoard, ProjectsPage } from './pages/projects/Projects';
 import { CuesheetPage, LivePage, RegieHome } from './pages/regie/Regie';
+import { LocationsPage, StockHome, StockItemPage } from './pages/stock/Stock';
+import { BookingHome, ResourcesPage } from './pages/booking/Booking';
+import { MaintenanceHome, PlansPage as MaintenancePlansPage, TicketPage } from './pages/maintenance/Maintenance';
 import { EspaceShows, PerformancesPage, ShowHome, ShowPage, VenuesPage } from './pages/show/Show';
 import { CastHome, EspaceCast, ProductionPage, UnavailabilityPage } from './pages/cast/Cast';
 import { EspaceAgenda, EspaceDocuments, EspaceDues, EspaceHome, EspaceMeetings, EspaceProfile, InvitationPage } from './pages/espace/Espace';
@@ -52,7 +55,7 @@ function HubOrEspace() {
 }
 
 /** Modules livrés : routes dédiées. Modules prévus : page d'accueil honnête du module. */
-const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie']);
+const DELIVERED = new Set(['hub', 'asso', 'admin', 'system', 'agenda', 'projects', 'drive', 'espace', 'cast', 'show', 'regie', 'stock', 'booking', 'maintenance']);
 
 export function App() {
   return (
@@ -94,6 +97,14 @@ export function App() {
           <Route path="/show/spectacles/:id" element={<ModuleGate id="show"><ShowPage /></ModuleGate>} />
           <Route path="/show/representations" element={<ModuleGate id="show"><PerformancesPage /></ModuleGate>} />
           <Route path="/show/lieux" element={<ModuleGate id="show"><VenuesPage /></ModuleGate>} />
+          <Route path="/stock" element={<ModuleGate id="stock"><StockHome /></ModuleGate>} />
+          <Route path="/stock/articles/:id" element={<ModuleGate id="stock"><StockItemPage /></ModuleGate>} />
+          <Route path="/stock/emplacements" element={<ModuleGate id="stock"><LocationsPage /></ModuleGate>} />
+          <Route path="/booking" element={<ModuleGate id="booking"><BookingHome /></ModuleGate>} />
+          <Route path="/booking/ressources" element={<ModuleGate id="booking"><ResourcesPage /></ModuleGate>} />
+          <Route path="/maintenance" element={<ModuleGate id="maintenance"><MaintenanceHome /></ModuleGate>} />
+          <Route path="/maintenance/interventions/:id" element={<ModuleGate id="maintenance"><TicketPage /></ModuleGate>} />
+          <Route path="/maintenance/entretiens" element={<ModuleGate id="maintenance"><MaintenancePlansPage /></ModuleGate>} />
           <Route path="/espace/representations" element={<ModuleGate id="espace"><EspaceShows /></ModuleGate>} />
           <Route path="/cast" element={<ModuleGate id="cast"><CastHome /></ModuleGate>} />
           <Route path="/cast/productions/:id" element={<ModuleGate id="cast"><ProductionPage /></ModuleGate>} />

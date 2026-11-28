@@ -24,7 +24,7 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 - ⏳ Asso : export Excel/PDF, formulaire d’adhésion en ligne, photo
 - ⏳ Gouvernance (AG, CA, convocations, procès-verbaux)
 - ✅ Agenda : événements, récurrences, participants, conflits, export et abonnement iCal
-- ⏳ Agenda : vue année, planning par ressource, réservations de salles (avec Booking)
+- ⏳ Agenda : vue année, planning par ressource
 - ✅ Projects : projets, Kanban, sous-tâches, checklists, commentaires, Mes tâches, modèles (dont « Organisation d’un spectacle »)
 - ✅ Projects : pièces jointes des tâches (stockées dans Drive)
 - ⏳ Projects : vues calendrier et chronologique, notifications (avec Com)
@@ -39,7 +39,10 @@ Légende : ✅ fait et testé · 🟡 partiel · ⏳ à faire
 
 ## Phase 3 — Gestion technique
 
-⏳ Stock, Booking, Maintenance, salles et locaux, QR codes et étiquettes
+- ✅ Stock : articles, emplacements, mouvements et inventaire, seuils d’alerte, archivage, export CSV, étiquettes QR
+- ✅ Booking : salles et ressources, réservations sans double réservation, validation, prêts de matériel avec disponibilité, sortie et retour, agenda
+- ✅ Maintenance : pannes et interventions, matériel hors service, coûts, journal, entretien préventif
+- ⏳ Stock : lots et kits (flight-cases), scan des étiquettes avec Scan, photos ; Booking : vue planning par ressource, réservations récurrentes
 
 ## Phase 4 — Spectacles et régie
 

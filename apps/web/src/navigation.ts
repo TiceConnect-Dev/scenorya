@@ -41,6 +41,18 @@ export const MODULE_NAV: Partial<Record<ModuleId, NavItem[]>> = {
     { label: 'Mes rôles et répétitions', to: '/espace/scene', permission: 'espace.read', feature: 'cast.espace' },
     { label: 'Mes représentations', to: '/espace/representations', permission: 'espace.read', module: 'show' },
   ],
+  stock: [
+    { label: 'Inventaire', to: '/stock', permission: 'stock.items.read' },
+    { label: 'Emplacements', to: '/stock/emplacements', permission: 'stock.locations.read' },
+  ],
+  booking: [
+    { label: 'Réservations', to: '/booking', permission: 'booking.bookings.read' },
+    { label: 'Ressources', to: '/booking/ressources', permission: 'booking.resources.read' },
+  ],
+  maintenance: [
+    { label: 'Interventions', to: '/maintenance', permission: 'maintenance.tickets.read' },
+    { label: 'Entretien préventif', to: '/maintenance/entretiens', permission: 'maintenance.plans.read' },
+  ],
   regie: [
     { label: 'Conduites', to: '/regie', permission: 'regie.cuesheets.read' },
   ],

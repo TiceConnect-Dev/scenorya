@@ -843,3 +843,151 @@ export const regieRunLog = pgTable('regie_run_log', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
   receivedAt: createdAt(),
 }, (t) => [index('regie_run_log_run_idx').on(t.runId, t.at)]);
+
+/* --------------------------------------------------------- Scenorya Stock */
+
+export const stockLocations = pgTable('stock_locations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  createdAt: createdAt(),
+}, (t) => [index('stock_locations_assoc_idx').on(t.associationId)]);
+
+/** Article : matériel (projecteur, micro…) ou consommable (gaffer, piles…). */
+export const stockItems = pgTable('stock_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  /** Référence interne (code inventaire) */
+  reference: text('reference'),
+  category: text('category'),
+  /** equipment | consumable */
+  kind: text('kind').notNull().default('equipment'),
+  quantity: integer('quantity').notNull().default(1),
+  unit: text('unit'),
+  minQuantity: integer('min_quantity'),
+  locationId: uuid('location_id').references(() => stockLocations.id, { onDelete: 'set null' }),
+  brand: text('brand'),
+  model: text('model'),
+  serialNumber: text('serial_number'),
+  valueCents: integer('value_cents'),
+  purchasedOn: date('purchased_on'),
+  /** good | worn | broken */
+  condition: text('condition').notNull().default('good'),
+  /** Prêtable (réservations de matériel) */
+  loanable: boolean('loanable').notNull().default(true),
+  notes: text('notes'),
+  archivedAt: ts('archived_at'),
+  createdBy: uuid('created_by').references(() => users.id),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('stock_items_assoc_idx').on(t.associationId, t.name), uniqueIndex('stock_items_ref_unique').on(t.associationId, t.reference)]);
+
+/** Historique des quantités : entrées, sorties, ajustements d'inventaire, pertes. */
+export const stockMovements = pgTable('stock_movements', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  itemId: uuid('item_id').notNull().references(() => stockItems.id, { onDelete: 'cascade' }),
+  /** in | out | adjust | lost */
+  kind: text('kind').notNull(),
+  delta: integer('delta').notNull(),
+  quantityAfter: integer('quantity_after').notNull(),
+  reason: text('reason'),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+}, (t) => [index('stock_movements_item_idx').on(t.itemId, t.createdAt)]);
+
+/* --------------------------------------------------------- Scenorya Booking */
+
+/** Salle ou ressource réservable (studio, véhicule…). */
+export const bookingResources = pgTable('booking_resources', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  name: text('name').notNull(),
+  kind: text('kind').notNull().default('room'),
+  capacity: integer('capacity'),
+  location: text('location'),
+  color: text('color'),
+  /** Les demandes doivent être validées (sauf par une personne habilitée). */
+  requiresApproval: boolean('requires_approval').notNull().default(false),
+  notes: text('notes'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('booking_resources_assoc_idx').on(t.associationId)]);
+
+export const bookings = pgTable('bookings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  resourceId: uuid('resource_id').references(() => bookingResources.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  startAt: ts('start_at').notNull(),
+  endAt: ts('end_at').notNull(),
+  /** pending | confirmed | rejected | cancelled */
+  status: text('status').notNull().default('confirmed'),
+  /** Prêt de matériel : sortie puis retour */
+  checkedOutAt: ts('checked_out_at'),
+  returnedAt: ts('returned_at'),
+  requestedBy: uuid('requested_by').references(() => users.id, { onDelete: 'set null' }),
+  contact: text('contact'),
+  notes: text('notes'),
+  decisionNote: text('decision_note'),
+  eventId: uuid('event_id').references(() => events.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('bookings_assoc_idx').on(t.associationId, t.startAt), index('bookings_resource_idx').on(t.resourceId, t.startAt)]);
+
+/** Matériel prêté dans une réservation (fonctionnalité booking.equipmentLoans). */
+export const bookingItems = pgTable('booking_items', {
+  bookingId: uuid('booking_id').notNull().references(() => bookings.id, { onDelete: 'cascade' }),
+  itemId: uuid('item_id').notNull().references(() => stockItems.id, { onDelete: 'cascade' }),
+  quantity: integer('quantity').notNull().default(1),
+  /** Quantité rendue (au retour) ; le manque est sorti du stock comme perte. */
+  returnedQuantity: integer('returned_quantity'),
+}, (t) => [primaryKey({ columns: [t.bookingId, t.itemId] }), index('booking_items_item_idx').on(t.itemId)]);
+
+/* --------------------------------------------------------- Scenorya Maintenance */
+
+export const maintenanceTickets = pgTable('maintenance_tickets', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  itemId: uuid('item_id').references(() => stockItems.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  /** low | normal | high | critical */
+  priority: text('priority').notNull().default('normal'),
+  /** open | in_progress | waiting_parts | done | cancelled */
+  status: text('status').notNull().default('open'),
+  /** Unités retirées du prêt tant que l'intervention n'est pas close */
+  unitsOut: integer('units_out').notNull().default(0),
+  assigneeId: uuid('assignee_id').references(() => associationUsers.id, { onDelete: 'set null' }),
+  dueOn: date('due_on'),
+  costCents: integer('cost_cents'),
+  resolution: text('resolution'),
+  /** Intervention issue d'un entretien préventif */
+  planId: uuid('plan_id'),
+  reportedBy: uuid('reported_by').references(() => users.id, { onDelete: 'set null' }),
+  closedAt: ts('closed_at'),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('maintenance_tickets_assoc_idx').on(t.associationId, t.status), index('maintenance_tickets_item_idx').on(t.itemId)]);
+
+export const maintenanceLogs = pgTable('maintenance_logs', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  ticketId: uuid('ticket_id').notNull().references(() => maintenanceTickets.id, { onDelete: 'cascade' }),
+  note: text('note').notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: createdAt(),
+});
+
+/** Entretien préventif périodique (vérification électrique, nettoyage…). */
+export const maintenancePlans = pgTable('maintenance_plans', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  associationId: uuid('association_id').notNull().references(() => associations.id, { onDelete: 'restrict' }),
+  itemId: uuid('item_id').references(() => stockItems.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  intervalDays: integer('interval_days').notNull(),
+  lastDoneOn: date('last_done_on'),
+  nextDueOn: date('next_due_on').notNull(),
+  notes: text('notes'),
+  createdAt: createdAt(),
+}, (t) => [index('maintenance_plans_assoc_idx').on(t.associationId, t.nextDueOn)]);

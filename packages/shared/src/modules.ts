@@ -194,22 +194,25 @@ const defs: Def[] = [
   {
     id: 'stock', shortName: 'Stock', tagline: 'Matériel et stocks', color: '#896027', core: false, category: 'logistique',
     description: 'Matériel, inventaires et consommables',
-    requires: [], integrations: ['booking', 'maintenance', 'pos'], features: [],
-    implementation: { status: 'planned', phase: 3, note: 'Prévu en phase 3.' },
+    requires: [], integrations: ['booking', 'maintenance', 'pos', 'regie'], features: [],
+    implementation: { status: 'available', phase: 3, note: 'Articles (matériel et consommables), emplacements, mouvements et inventaire, seuils d’alerte, étiquettes QR, export CSV.' },
   },
   {
     id: 'booking', shortName: 'Booking', tagline: 'Réservations et prêts', color: '#783CA7', core: false, category: 'logistique',
     description: 'Réservations de matériel, prêts et salles',
     // La réservation de salles fonctionne seule ; les prêts de matériel exigent Stock.
     requires: [], integrations: ['stock', 'agenda'],
-    features: [{ id: 'booking.equipmentLoans', label: 'Prêts et réservations de matériel', requires: ['stock'] }],
-    implementation: { status: 'planned', phase: 3, note: 'Prévu en phase 3.' },
+    features: [
+      { id: 'booking.equipmentLoans', label: 'Prêts et réservations de matériel', requires: ['stock'] },
+      { id: 'booking.agenda', label: 'Réservations de salles dans l’agenda', requires: ['agenda'] },
+    ],
+    implementation: { status: 'available', phase: 3, note: 'Salles et ressources, réservations sans double réservation, validation, prêts de matériel avec disponibilité, sortie et retour, agenda.' },
   },
   {
     id: 'maintenance', shortName: 'Maintenance', tagline: 'Maintenance', color: '#C63D41', core: false, category: 'logistique',
     description: 'Pannes, réparations et entretien',
     requires: ['stock'], integrations: ['booking'], features: [],
-    implementation: { status: 'planned', phase: 3, note: 'Prévu en phase 3.' },
+    implementation: { status: 'available', phase: 3, note: 'Signalements de panne, interventions, matériel hors service (retiré des prêts), coûts, entretien préventif périodique.' },
   },
   {
     id: 'agenda', shortName: 'Agenda', tagline: 'Agenda et planning', color: '#1168A9', core: false, category: 'collaboration',

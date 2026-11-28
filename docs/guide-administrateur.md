@@ -121,6 +121,26 @@ Sur le tableau, glissez les cartes d’une colonne à l’autre (ou utilisez le 
 - **Fin** : *Terminer* avec un rapport ; *Séances* → *Rapport (PDF)* avec le journal horodaté (GO, notes, incidents).
 - Permissions : `regie.runs.operate` pour mener la conduite ; `regie.runs.read` suffit pour la suivre (techniciens).
 
+## Matériel (Scenorya Stock)
+
+- **Inventaire** : *Nouvel article* (matériel ou consommable, référence unique, catégorie, emplacement, seuil d’alerte, valeur, état, prêtable). Filtres par catégorie, emplacement, « Stock bas », « Archivés » ; *Exporter (CSV)*.
+- **Mouvements** : la quantité ne se modifie que par *Mouvement de stock* (entrée, sortie, perte, inventaire = quantité constatée), toujours avec l’auteur et le motif.
+- **Étiquettes** : cochez des articles puis *Imprimer les étiquettes QR* (planche A4 de 24 étiquettes 70 × 37 mm). Le QR code ouvre la fiche de l’article (connexion requise).
+- **Réforme** : *Archiver* retire l’article des listes et des prêts sans perdre son historique ; *Supprimer* efface tout.
+
+## Réservations et prêts (Scenorya Booking)
+
+- **Ressources** : salles, véhicules, équipements ; cochez « validation » pour que les demandes soient approuvées.
+- **Réservation** : une ressource et/ou du matériel (avec Stock) sur un créneau ; les créneaux occupés et les quantités disponibles s’affichent pendant la saisie. Une ressource ne peut jamais être réservée deux fois.
+- **Validation** : les demandes des personnes sans droit `booking.bookings.validate` (et tous les prêts de matériel seuls) arrivent dans *À valider* : *Accepter* ou *Refuser* (avec motif).
+- **Prêt** : *Sortie* le jour J, puis *Retour* avec les quantités rendues ; ce qui manque est sorti du stock comme perte.
+- Les réservations confirmées apparaissent dans l’agenda si la fonctionnalité est active.
+
+## Maintenance (Scenorya Maintenance)
+
+- **Signaler une panne** (depuis la maintenance ou la fiche d’un article) : objet, matériel, unités hors service — elles sont retirées des prêts jusqu’à la clôture. Les techniciens peuvent signaler ; le responsable matériel assigne, suit l’état, note le coût et la résolution.
+- **Entretien préventif** : contrôle périodique (tous les N jours) ; *Effectué* note l’intervention et calcule la prochaine échéance. Les entretiens en retard sont signalés.
+
 ## Gouvernance
 
 Scenorya Asso → **Mandats** : enregistrez le bureau et le CA ; la présidence et le secrétariat en exercice signent les documents. **Instances et AG** → *Nouvelle réunion* : type, date, lieu, quorum et limite de procurations selon vos statuts, ordre du jour. Ajoutez les convoqués (tous les adhérents actifs, des groupes ou des personnes), puis *Convoquer* : envoi par e-mail avec la convocation et un pouvoir en PDF (si la messagerie est configurée), ou simple marquage pour une diffusion manuelle.

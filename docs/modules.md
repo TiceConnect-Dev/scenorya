@@ -47,6 +47,10 @@ Tous les autres modules n’ont aucune dépendance stricte. Les liens restants s
 | Documents du spectacle | Show | Drive |
 | Conduite rattachée au spectacle et aux représentations | Régie | Show |
 | Cartoucheur | Régie | Drive |
+| Prêts et réservations de matériel | Booking | Stock |
+| Réservations confirmées dans l’agenda | Booking | Agenda |
+| Pannes et entretien du matériel | Maintenance | Stock (requis) |
+| Matériel hors service retiré des prêts | Maintenance | Booking |
 
 Finance fonctionne sans POS. L’absence de cycle est vérifiée par test (tri topologique).
 

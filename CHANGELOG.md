@@ -2,6 +2,17 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versionnage sémantique.
 
+## [0.13.0] — 2026-11-28
+
+### Ajouté — Gestion technique : Scenorya Stock, Booking et Maintenance
+
+- **Stock** : articles (matériel ou consommable), référence unique, catégories, emplacements, marque, modèle, n° de série, valeur, date d’achat, état, prêtable ; mouvements tracés (entrée, sortie, perte, inventaire) — la quantité ne change que par un mouvement ; seuil d’alerte et filtre « stock bas » ; archivage (réforme) ; export CSV ; planche d’étiquettes QR en PDF (24 par page A4) renvoyant à la fiche.
+- **Booking** : ressources (salles, véhicules, équipements) avec capacité, couleur et validation obligatoire ; réservations sans double réservation (vérification sous verrou) ; demandes en attente, acceptation ou refus motivé, annulation par le demandeur ; « Mes réservations » ; événement d’agenda pour les réservations confirmées (fonctionnalité `booking.agenda`).
+- **Prêts de matériel** (fonctionnalité `booking.equipmentLoans`, avec Stock) : disponibilité calculée sur le créneau (quantité − hors service − déjà réservé), sortie puis retour avec quantités rendues ; le manquant est sorti du stock comme perte.
+- **Maintenance** : signalement de panne (techniciens et régisseur compris), priorité, état, assignation, échéance, coût, résolution, journal ; unités hors service retirées des prêts tant que l’intervention est ouverte ; entretien préventif périodique avec échéances en retard, « Effectué » crée une intervention close et recalcule la prochaine date.
+- Suppression de tout (emplacement, article, mouvement compris, ressource, réservation, intervention, note, entretien) ; confirmation renforcée si un article est en prêt ou en panne, ou si une ressource a des réservations à venir.
+- Permissions `stock.items`, `stock.locations`, `booking.resources`, `booking.bookings` (dont `validate`), `maintenance.tickets`, `maintenance.plans` ; modèles « Responsable matériel », « Régisseur général » et techniciens mis à jour.
+
 ## [0.12.0] — 2026-11-28
 
 ### Ajouté — Scenorya Régie

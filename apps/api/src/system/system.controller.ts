@@ -138,6 +138,12 @@ export class SystemController {
       await q(sql`delete from events where id in (select event_id from cast_rehearsals h join cast_productions p on p.id = h.production_id where p.association_id = ${id})`);
       await q(sql`delete from events where id in (select event_id from show_performances h join shows s on s.id = h.show_id where s.association_id = ${id})`);
       await q(sql`delete from regie_cuesheets where association_id = ${id}`);
+      await q(sql`delete from maintenance_tickets where association_id = ${id}`);
+      await q(sql`delete from maintenance_plans where association_id = ${id}`);
+      await q(sql`delete from bookings where association_id = ${id}`);
+      await q(sql`delete from booking_resources where association_id = ${id}`);
+      await q(sql`delete from stock_items where association_id = ${id}`);
+      await q(sql`delete from stock_locations where association_id = ${id}`);
       await q(sql`delete from cast_productions where association_id = ${id}`);
       await q(sql`delete from shows where association_id = ${id}`);
       await q(sql`delete from show_venues where association_id = ${id}`);
